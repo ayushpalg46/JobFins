@@ -1,23 +1,25 @@
 package com.jobfins.config;
 
-import com.jobfins.model.Application;
 import com.jobfins.model.Job;
 import com.jobfins.model.Role;
 import com.jobfins.model.User;
-import com.jobfins.repository.ApplicationRepository;
 import com.jobfins.repository.JobRepository;
 import com.jobfins.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
- * DataInitializer seeds sample recruiters, seekers, jobs, and applications
- * into the database on first run.
+ * DataInitializer seeds initial recruiters, seekers, and sample jobs
+ * on application start if database is empty.
  */
 @Component
 public class DataInitializer implements CommandLineRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -26,22 +28,64 @@ public class DataInitializer implements CommandLineRunner {
     private JobRepository jobRepository;
 
     @Autowired
-    private ApplicationRepository applicationRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
-        // Auto-correct any legacy question mark characters in job salaries from previous non-UTF8 sessions
         try {
-            for (Job job : jobRepository.findAll()) {
-                if (job.getSalary() != null && job.getSalary().contains("?")) {
-                    job.setSalary(job.getSalary().replaceAll("\\?(\\s*\\d)", "₹$1"));
-                    jobRepository.save(job);
-                }
+            if (userRepository.count() == 0) {
+                log.info("Database is empty. Initializing sample recruiter, seeker, and jobs...");
+
+                // 1. Create Recruiter Account
+                User recruiter = new User();
+                recruiter.setName("TechCorp Recruiter");
+                recruiter.setEmail("recruiter@jobfins.com");
+                recruiter.setPassword(passwordEncoder.encode("password123"));
+                recruiter.setRole(Role.ROLE_RECRUITER);
+                recruiter.setCompanyName("TechCorp Innovations");
+                recruiter.setContactNumber("+91 9876543210");
+                recruiter.setBioOrSkills("Technical Talent Acquisition Lead");
+                userRepository.save(recruiter);
+
+                // 2. Create Seeker Account
+                User seeker = new User();
+                seeker.setName("Ayush Pal");
+                seeker.setEmail("seeker@jobfins.com");
+                seeker.setPassword(passwordEncoder.encode("password123"));
+                seeker.setRole(Role.ROLE_SEEKER);
+                seeker.setContactNumber("+91 9123456780");
+                seeker.setBioOrSkills("Full Stack Java Developer | Spring Boot & React");
+                userRepository.save(seeker);
+
+                // 3. Create Sample Jobs
+                Job job1 = new Job(
+                        "Java Backend Developer",
+                        "TechCorp Innovations",
+                        "Bangalore, India",
+                        "Full-time",
+                        "₹12 - 18 LPA",
+                        "Build high-performance REST APIs and microservices using Java 17, Spring Boot, and MySQL.",
+                        "Java 17, Spring Boot, MySQL, REST APIs, Docker",
+                        recruiter
+                );
+                jobRepository.save(job1);
+
+                Job job2 = new Job(
+                        "Full Stack Java Engineer",
+                        "InnoWave Systems",
+                        "Mumbai / Hybrid",
+                        "Full-time",
+                        "₹15 - 22 LPA",
+                        "Develop modern responsive web applications using React.js frontend and Spring Boot backend.",
+                        "React.js, Java, Spring Security, Hibernate, Vite",
+                        recruiter
+                );
+                jobRepository.save(job2);
+
+                log.info("Sample database initialization completed successfully.");
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.warn("Data initialization encountered an error: {}", e.getMessage());
         }
     }
 }
