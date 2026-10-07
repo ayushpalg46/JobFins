@@ -41,14 +41,49 @@ export default function App() {
   const [offerModalOpen, setOfferModalOpen] = useState(false);
   const [offerCandidate, setOfferCandidate] = useState(null);
 
-  // Stats
+  // Stats & Real-Time Sync
   const [stats, setStats] = useState(null);
+  const [syncTrigger, setSyncTrigger] = useState(0);
+
+  const triggerGlobalSync = () => {
+    setSyncTrigger((prev) => prev + 1);
+    loadJobs(true);
+    loadStats();
+  };
 
   useEffect(() => {
     checkSavedAuth();
     loadJobs();
     loadStats();
+
+    // Background auto-refresh polling every 4 seconds to sync database changes automatically
+    const syncInterval = setInterval(() => {
+      loadJobs(true);
+      loadStats();
+    }, 4000);
+
+    const handleFocusSync = () => {
+      loadJobs(true);
+      loadStats();
+      setSyncTrigger((prev) => prev + 1);
+    };
+
+    window.addEventListener('focus', handleFocusSync);
+    document.addEventListener('visibilitychange', handleFocusSync);
+
+    return () => {
+      clearInterval(syncInterval);
+      window.removeEventListener('focus', handleFocusSync);
+      document.removeEventListener('visibilitychange', handleFocusSync);
+    };
   }, []);
+
+  // When switching views, immediately trigger a fresh data sync
+  useEffect(() => {
+    loadJobs(true);
+    loadStats();
+    setSyncTrigger((prev) => prev + 1);
+  }, [currentView]);
 
   // Filter jobs when search parameters change
   useEffect(() => {
@@ -74,8 +109,6 @@ export default function App() {
     setFilteredJobs(result);
   }, [jobs, searchKeyword, locationFilter, typeFilter]);
 
-
-
   const checkSavedAuth = async () => {
     const token = localStorage.getItem('jobfins_token');
     const savedUser = localStorage.getItem('jobfins_user');
@@ -90,8 +123,10 @@ export default function App() {
     }
   };
 
-  const loadJobs = async () => {
-    setLoadingJobs(true);
+  const loadJobs = async (silent = false) => {
+    if (!silent && jobs.length === 0) {
+      setLoadingJobs(true);
+    }
     try {
       const res = await jobService.getAllJobs();
       setJobs(res.data || []);
@@ -119,6 +154,7 @@ export default function App() {
     localStorage.setItem('jobfins_token', token);
     localStorage.setItem('jobfins_user', JSON.stringify(userData));
     setUser(userData);
+    triggerGlobalSync();
     if (role === 'ROLE_RECRUITER') {
       setCurrentView('recruiter-dashboard');
     } else {
@@ -139,13 +175,12 @@ export default function App() {
 
   const handleApplySubmit = async (jobId, applicationData) => {
     await applicationService.applyForJob(jobId, applicationData);
-    loadStats();
+    triggerGlobalSync();
   };
 
   const handleJobCreated = async (jobData) => {
     await jobService.createJob(jobData);
-    loadJobs();
-    loadStats();
+    triggerGlobalSync();
   };
 
   // If user is not authenticated, enforce the required Auth Gate
@@ -182,6 +217,8 @@ export default function App() {
         {currentView === 'recruiter-dashboard' && user?.role === 'ROLE_RECRUITER' ? (
           <RecruiterDashboard
             user={user}
+            syncTrigger={syncTrigger}
+            onSyncTrigger={triggerGlobalSync}
             onOpenPostJob={() => setPostJobModalOpen(true)}
             onExtendOffer={(cand) => {
               setOfferCandidate(cand);
@@ -198,12 +235,17 @@ export default function App() {
         ) : currentView === 'seeker-dashboard' && user?.role === 'ROLE_SEEKER' ? (
           <SeekerDashboard
             user={user}
+            syncTrigger={syncTrigger}
+            onSyncTrigger={triggerGlobalSync}
             onFindJobs={() => setCurrentView('home')}
           />
         ) : currentView === 'profile' ? (
           <UserProfile
             user={user}
-            onProfileUpdated={(updatedUser) => setUser(updatedUser)}
+            onProfileUpdated={(updatedUser) => {
+              setUser(updatedUser);
+              triggerGlobalSync();
+            }}
             onFindJobs={() => setCurrentView('home')}
             onOpenPostJob={() => setPostJobModalOpen(true)}
           />
@@ -327,6 +369,7 @@ export default function App() {
         isOpen={offerModalOpen}
         onClose={() => setOfferModalOpen(false)}
         user={user}
+        onOfferDispatched={triggerGlobalSync}
       />
 
       {/* Footer */}

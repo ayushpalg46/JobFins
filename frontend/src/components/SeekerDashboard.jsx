@@ -2,18 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { applicationService } from '../services/api';
 import SeekerOfferLetterModal from './SeekerOfferLetterModal';
 
-export default function SeekerDashboard({ user, onFindJobs }) {
+export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncTrigger }) {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOfferApp, setSelectedOfferApp] = useState(null);
   const [offerModalOpen, setOfferModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchMyApplications();
-  }, []);
-
-  const fetchMyApplications = async () => {
-    setLoading(true);
+  const fetchMyApplications = async (silent = false) => {
+    if (!silent && applications.length === 0) {
+      setLoading(true);
+    }
     try {
       const res = await applicationService.getMyApplications();
       setApplications(res.data || []);
@@ -23,6 +21,25 @@ export default function SeekerDashboard({ user, onFindJobs }) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMyApplications(applications.length > 0);
+
+    // Auto-sync polling every 4 seconds in background
+    const syncTimer = setInterval(() => {
+      fetchMyApplications(true);
+    }, 4000);
+
+    const handleFocus = () => fetchMyApplications(true);
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      clearInterval(syncTimer);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [syncTrigger]);
 
   const getStatusBadge = (status) => {
     switch (status) {

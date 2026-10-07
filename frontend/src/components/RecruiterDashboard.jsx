@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { jobService, applicationService } from '../services/api';
 
-export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer }) {
+export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer, syncTrigger, onSyncTrigger }) {
   const [myJobs, setMyJobs] = useState([]);
   const [applicants, setApplicants] = useState([]);
   const [activeTab, setActiveTab] = useState('jobs'); // 'jobs' or 'applicants'
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
 
-  useEffect(() => {
-    fetchRecruiterData();
-  }, []);
-
-  const fetchRecruiterData = async () => {
-    setLoading(true);
+  const fetchRecruiterData = async (silent = false) => {
+    if (!silent && myJobs.length === 0 && applicants.length === 0) {
+      setLoading(true);
+    }
     try {
       const [jobsRes, appsRes] = await Promise.all([
         jobService.getMyJobs(),
@@ -28,11 +26,31 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
     }
   };
 
+  useEffect(() => {
+    fetchRecruiterData(myJobs.length > 0 || applicants.length > 0);
+
+    // Auto-sync polling every 4 seconds in background
+    const syncTimer = setInterval(() => {
+      fetchRecruiterData(true);
+    }, 4000);
+
+    const handleFocus = () => fetchRecruiterData(true);
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      clearInterval(syncTimer);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [syncTrigger]);
+
   const handleStatusUpdate = async (applicationId, newStatus) => {
     try {
       await applicationService.updateStatus(applicationId, newStatus);
       setMessage({ type: 'success', text: `Application status updated to ${newStatus}!` });
-      fetchRecruiterData();
+      fetchRecruiterData(true);
+      if (onSyncTrigger) onSyncTrigger();
       setTimeout(() => setMessage(null), 3000);
     } catch (err) {
       setMessage({ type: 'danger', text: 'Failed to update application status.' });
@@ -44,7 +62,8 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
     try {
       await jobService.deleteJob(jobId);
       setMessage({ type: 'success', text: 'Job listing deleted successfully.' });
-      fetchRecruiterData();
+      fetchRecruiterData(true);
+      if (onSyncTrigger) onSyncTrigger();
       setTimeout(() => setMessage(null), 3000);
     } catch (err) {
       setMessage({ type: 'danger', text: 'Failed to delete job listing.' });
