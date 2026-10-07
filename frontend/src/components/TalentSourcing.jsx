@@ -283,7 +283,7 @@ export default function TalentSourcing({ onExtendOffer }) {
                       href={candidate.github}
                       target="_blank"
                       rel="noreferrer"
-                      className="badge bg-dark text-cyan tech-tag-cyber text-decoration-none py-1 px-2"
+                      className="tech-tag-cyber text-decoration-none py-1 px-2"
                       title="Inspect Candidate GitHub Code"
                     >
                       <i className="bi bi-github"></i> GitHub Codebase

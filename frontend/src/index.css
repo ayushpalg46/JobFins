@@ -395,29 +395,31 @@ footer a:hover {
   box-shadow: 0 0 0 3px rgba(0, 81, 213, 0.15);
 }
 
-/* Developer USP Feature Badges & Tags */
+/* Developer USP Feature Badges & Tags - Clean Light Theme */
 .tech-tag-cyber {
-  background: #0F172A;
-  color: #38BDF8;
+  background: #EFF6FF;
+  color: #1D4ED8;
   font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, Menlo, monospace, sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.73rem;
   font-weight: 600;
-  padding: 0.22rem 0.55rem;
+  padding: 0.22rem 0.58rem;
   border-radius: 6px;
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  border: 1px solid #BFDBFE;
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  letter-spacing: 0.02em;
+  gap: 0.28rem;
+  letter-spacing: 0.01em;
   transition: all 0.2s ease;
 }
 
 .tech-tag-cyber:hover {
-  background: #1E293B;
-  border-color: #38BDF8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+  background: #DBEAFE;
+  color: #1E40AF;
+  border-color: #93C5FD;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12);
   transform: translateY(-1px);
 }
+
 
 .tech-tag-pill {
   background: rgba(37, 99, 235, 0.08);

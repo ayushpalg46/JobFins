@@ -243,7 +243,7 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
                                   href={ghMatch[1]}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="badge bg-dark text-cyan tech-tag-cyber text-decoration-none py-1 px-2"
+                                  className="tech-tag-cyber text-decoration-none py-1 px-2"
                                   title="View Candidate GitHub Repository"
                                 >
                                   <i className="bi bi-github"></i> GitHub Repo
@@ -289,7 +289,7 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
                                   href={app.resumeLink}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="badge bg-dark text-cyan tech-tag-cyber text-decoration-none py-1 px-2"
+                                  className="tech-tag-cyber text-decoration-none py-1 px-2"
                                 >
                                   <i className="bi bi-github"></i> Candidate GitHub
                                 </a>

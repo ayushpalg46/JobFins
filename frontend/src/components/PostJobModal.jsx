@@ -138,8 +138,8 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
           <div className="modal-header bg-white border-bottom py-3">
             <div>
               <div className="d-flex align-items-center gap-2 mb-1">
-                <span className="badge bg-dark text-cyan tech-tag-cyber" style={{ fontSize: '0.7rem' }}>
-                  <i className="bi bi-cpu me-1"></i> Developer-First Job Creator
+                <span className="tech-tag-cyber" style={{ fontSize: '0.7rem' }}>
+                  <i className="bi bi-cpu me-1 text-primary"></i> Developer-First Job Creator
                 </span>
                 <span className="response-sla-badge">
                   <i className="bi bi-shield-check text-success"></i> Zero-Ghosting Monitored

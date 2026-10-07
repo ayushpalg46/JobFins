@@ -97,8 +97,8 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
           <div className="modal-header">
             <div>
               <div className="d-flex align-items-center gap-2 mb-1">
-                <span className="badge bg-dark text-cyan tech-tag-cyber" style={{ fontSize: '0.7rem' }}>
-                  <i className="bi bi-shield-check me-1 text-info"></i> Zero Ghosting Verified
+                <span className="tech-tag-cyber" style={{ fontSize: '0.7rem' }}>
+                  <i className="bi bi-shield-check me-1 text-primary"></i> Zero Ghosting Verified
                 </span>
                 <span className="response-sla-badge">
                   <i className="bi bi-lightning-fill text-warning"></i> Replies &lt;48 Hours
