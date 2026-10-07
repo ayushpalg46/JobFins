@@ -133,7 +133,7 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
             <thead className="table-light small text-uppercase">
               <tr>
                 <th>Job Title & Stack</th>
-                <th>Transit / Commute Line</th>
+                <th>Location</th>
                 <th>Type</th>
                 <th>Compensation</th>
                 <th>SLA Badge</th>
@@ -167,9 +167,9 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
                       </div>
                     </td>
                     <td>
-                      <span className="transit-badge" style={{ fontSize: '0.72rem' }}>
-                        <i className="bi bi-train-front-fill"></i> {job.location || 'Remote'}
-                      </span>
+                      <small className="text-muted">
+                        <i className="bi bi-geo-alt text-muted me-1"></i>{job.location}
+                      </small>
                     </td>
                     <td><span className="badge bg-light text-primary border">{job.jobType}</span></td>
                     <td className="text-success fw-semibold">{job.salary ? job.salary.replace(/\?(\s*\d)/g, '₹$1') : 'N/A'}</td>

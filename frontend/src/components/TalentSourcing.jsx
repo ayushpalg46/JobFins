@@ -7,8 +7,7 @@ const mockCandidates = [
     role: 'Senior Java Backend & Distributed Systems Lead',
     exp: '7.5 Yrs (Ex-QuantFunds, Stripe)',
     match: 98,
-    transit: 'Western Line: Andheri / BKC',
-    location: 'Mumbai (Western Line / BKC Hybrid)',
+    location: 'Bengaluru / Mumbai (Hybrid)',
     expectedCtc: '₹32 - ₹38 LPA',
     notice: 'Immediate (<15 Days)',
     github: 'https://github.com/ayzen-vance',
@@ -22,8 +21,7 @@ const mockCandidates = [
     role: 'Staff Distributed Systems Architect',
     exp: '6.5 Yrs (Ex-Stripe, Amazon)',
     match: 96,
-    transit: 'Western Line: Bandra / Churchgate',
-    location: 'Mumbai (Western Line Hybrid)',
+    location: 'Mumbai (BKC)',
     expectedCtc: '₹45 - ₹55 LPA',
     notice: '30 Days Notice',
     github: 'https://github.com/mayachen-dev',
@@ -37,7 +35,6 @@ const mockCandidates = [
     role: 'Senior Cloud & DevOps SRE Engineer',
     exp: '5.0 Yrs (Nutanix, FinOS)',
     match: 94,
-    transit: '100% Remote',
     location: 'Remote Pan-India',
     expectedCtc: '₹28 - ₹35 LPA',
     notice: 'Immediate (<15 Days)',
@@ -52,8 +49,7 @@ const mockCandidates = [
     role: 'Lead Full Stack Engineer (React/Java)',
     exp: '8.0 Yrs (Shopify, Twilio)',
     match: 92,
-    transit: 'Bangalore: Outer Ring Road / HSR',
-    location: 'Bangalore (ORR Hybrid)',
+    location: 'Bengaluru HSR',
     expectedCtc: '₹35 - ₹42 LPA',
     notice: '30 Days Notice',
     github: 'https://github.com/mthorne-dev',
@@ -67,8 +63,7 @@ const mockCandidates = [
     role: 'Backend Software Engineer II',
     exp: '3.5 Yrs (TechCorp India, Razorpay)',
     match: 90,
-    transit: 'Central Line: Thane / Powai',
-    location: 'Mumbai (Central Line Hybrid)',
+    location: 'Mumbai (Hybrid)',
     expectedCtc: '₹18 - ₹24 LPA',
     notice: 'Immediate (<15 Days)',
     github: 'https://github.com/rahul-sharma-eng',
@@ -82,8 +77,7 @@ const mockCandidates = [
     role: 'Mobile & Frontend Engineer',
     exp: '4.0 Yrs (Flipkart, PhonePe)',
     match: 89,
-    transit: 'Bangalore: Whitefield',
-    location: 'Bangalore (Whitefield Hybrid)',
+    location: 'Bengaluru / Remote',
     expectedCtc: '₹22 - ₹28 LPA',
     notice: '15 Days Notice',
     github: 'https://github.com/sneha-flutter',
@@ -96,7 +90,7 @@ const mockCandidates = [
 export default function TalentSourcing({ onExtendOffer }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFramework, setSelectedFramework] = useState('all');
-  const [selectedTransit, setSelectedTransit] = useState('all');
+  const [selectedLocation, setSelectedLocation] = useState('all');
   const [selectedExp, setSelectedExp] = useState('all');
   const [invitedList, setInvitedList] = useState([]);
   const [message, setMessage] = useState(null);
@@ -116,17 +110,15 @@ export default function TalentSourcing({ onExtendOffer }) {
       c.name.toLowerCase().includes(q) ||
       c.role.toLowerCase().includes(q) ||
       c.skills.some((s) => s.toLowerCase().includes(q)) ||
-      c.transit.toLowerCase().includes(q) ||
       c.location.toLowerCase().includes(q);
 
     const matchFw =
       selectedFramework === 'all' ||
       c.skills.some((s) => s.toLowerCase() === selectedFramework.toLowerCase());
 
-    const matchTransit =
-      selectedTransit === 'all' ||
-      c.transit.toLowerCase().includes(selectedTransit.toLowerCase()) ||
-      c.location.toLowerCase().includes(selectedTransit.toLowerCase());
+    const matchLoc =
+      selectedLocation === 'all' ||
+      c.location.toLowerCase().includes(selectedLocation.toLowerCase());
 
     const matchExp =
       selectedExp === 'all' ||
@@ -134,7 +126,7 @@ export default function TalentSourcing({ onExtendOffer }) {
       (selectedExp === 'mid' && parseFloat(c.exp) >= 3 && parseFloat(c.exp) < 5) ||
       (selectedExp === 'junior' && parseFloat(c.exp) < 3);
 
-    return matchQuery && matchFw && matchTransit && matchExp;
+    return matchQuery && matchFw && matchLoc && matchExp;
   });
 
   return (
@@ -149,7 +141,7 @@ export default function TalentSourcing({ onExtendOffer }) {
             </span>
           </div>
           <h2 className="h4 mb-0 fw-bold text-dark">Proof-Over-Paper Candidate Discovery</h2>
-          <small className="text-muted">Source engineers by exact tech stack and daily transit corridor</small>
+          <small className="text-muted">Source engineers by exact tech stack and verified proof of work</small>
         </div>
         <div className="d-flex gap-2">
           <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 d-flex align-items-center fw-bold">
@@ -199,19 +191,18 @@ export default function TalentSourcing({ onExtendOffer }) {
               </select>
             </div>
 
-            {/* Hyper-Local Transit Corridor */}
+            {/* Location Select */}
             <div className="mb-3">
-              <label className="form-label small fw-bold text-muted">Transit & Commute Line</label>
+              <label className="form-label small fw-bold text-muted">Work Setup / Location</label>
               <select
                 className="form-select form-select-sm"
-                value={selectedTransit}
-                onChange={(e) => setSelectedTransit(e.target.value)}
+                value={selectedLocation}
+                onChange={(e) => setSelectedLocation(e.target.value)}
               >
-                <option value="all">All Transit Corridors</option>
-                <option value="Western">Western Line (Virar ↔ Churchgate)</option>
-                <option value="Central">Central Line (Kalyan ↔ CSMT)</option>
-                <option value="Bangalore">Bangalore (ORR / Whitefield)</option>
-                <option value="Remote">100% Remote</option>
+                <option value="all">All Locations</option>
+                <option value="Bengaluru">Bengaluru</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Remote">Remote Pan-India</option>
               </select>
             </div>
 
@@ -235,7 +226,7 @@ export default function TalentSourcing({ onExtendOffer }) {
               onClick={() => {
                 setSearchQuery('');
                 setSelectedFramework('all');
-                setSelectedTransit('all');
+                setSelectedLocation('all');
                 setSelectedExp('all');
               }}
             >
@@ -277,31 +268,28 @@ export default function TalentSourcing({ onExtendOffer }) {
                     </div>
                   </div>
 
-                  {/* Proof-of-Work Links */}
-                  <div className="d-flex flex-wrap gap-2 mb-2 p-2 bg-light rounded border">
-                    <a
-                      href={candidate.github}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="tech-tag-cyber text-decoration-none py-1 px-2"
-                      title="Inspect Candidate GitHub Code"
-                    >
-                      <i className="bi bi-github"></i> GitHub Codebase
-                    </a>
-                    <a
-                      href={candidate.demo}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="badge bg-primary text-white text-decoration-none py-1 px-2"
-                      style={{ fontSize: '0.72rem' }}
-                      title="Test Live Deployed System"
-                    >
-                      <i className="bi bi-box-arrow-up-right me-1"></i> Live Production Demo
-                    </a>
-                    <span className="transit-badge">
-                      <i className="bi bi-train-front-fill"></i> {candidate.transit}
-                    </span>
-                  </div>
+                    {/* Proof-of-Work Links */}
+                    <div className="d-flex flex-wrap gap-2 mb-2 p-2 bg-light rounded border">
+                      <a
+                        href={candidate.github}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="tech-tag-cyber text-decoration-none py-1 px-2"
+                        title="Inspect Candidate GitHub Code"
+                      >
+                        <i className="bi bi-github"></i> GitHub Codebase
+                      </a>
+                      <a
+                        href={candidate.demo}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="badge bg-primary text-white text-decoration-none py-1 px-2"
+                        style={{ fontSize: '0.72rem' }}
+                        title="Test Live Deployed System"
+                      >
+                        <i className="bi bi-box-arrow-up-right me-1"></i> Live Production Demo
+                      </a>
+                    </div>
 
                   <p className="small text-muted mb-2">{candidate.bio}</p>
 

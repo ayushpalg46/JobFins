@@ -439,18 +439,6 @@ footer a:hover {
   border-color: #2563EB;
 }
 
-.transit-badge {
-  background: #FEF3C7;
-  color: #92400E;
-  border: 1px solid #FDE68A;
-  font-size: 0.73rem;
-  font-weight: 600;
-  padding: 0.2rem 0.55rem;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
 
 .response-sla-badge {
   background: #ECFDF5;

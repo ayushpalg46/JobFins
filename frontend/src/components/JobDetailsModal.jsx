@@ -126,7 +126,7 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
                 <div className="mt-3 d-flex flex-wrap gap-3 small text-muted">
                   <span><strong>Job Type:</strong> {job.jobType}</span>
                   <span><strong>Compensation:</strong> {job.salary ? job.salary.replace(/\?(\s*\d)/g, '₹$1') : 'Competitive'}</span>
-                  <span><strong>Transit Commute:</strong> {job.location || 'Remote'}</span>
+                  <span><strong>Location:</strong> {job.location || 'Remote'}</span>
                 </div>
               </div>
 

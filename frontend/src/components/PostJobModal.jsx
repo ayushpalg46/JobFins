@@ -1,22 +1,18 @@
 import React, { useState } from 'react';
 
-const FREQUENT_TRANSIT_CORRIDORS = [
-  'Western Line: Andheri / Bandra / BKC (Hybrid)',
-  'Western Line: Goregaon / Malad / Borivali (Hybrid)',
-  'Western Line: Churchgate / Lower Parel (On-site)',
-  'Central Line: Thane / Powai / Airoli (Hybrid)',
-  'Central Line: Kurla / Ghatkopar / CSMT (Hybrid)',
-  'Harbour Line: Vashi / Belapur / Panvel (Hybrid)',
-  'Metro Line 1 / 2A / 7 Corridor (Mumbai)',
-  'Bangalore: Outer Ring Road / Bellandur (Hybrid)',
-  'Bangalore: Whitefield / ITPL (Hybrid)',
-  'Bangalore: Electronic City (Hybrid)',
-  'Pune: Hinjewadi Phase 1-3 (Hybrid)',
-  'Pune: Magarpatta / Kharadi (Hybrid)',
-  'Hyderabad: HITEC City / Gachibowli (Hybrid)',
-  'Gurgaon: Cyber City / Golf Course Rd (Hybrid)',
-  '100% Remote (Zero Commute / Anywhere in India)',
-  'Other / Custom Transit Corridor',
+const FREQUENT_LOCATIONS = [
+  'Mumbai, Maharashtra (Hybrid)',
+  'Mumbai, Maharashtra (On-site)',
+  'Bangalore, Karnataka (Hybrid)',
+  'Bangalore, Karnataka (On-site)',
+  'Pune, Maharashtra (Hybrid)',
+  'Hyderabad, Telangana (Hybrid)',
+  'Gurgaon / Delhi NCR (Hybrid)',
+  'Noida, Uttar Pradesh (Hybrid)',
+  'Chennai, Tamil Nadu (Hybrid)',
+  'Remote (All India)',
+  'Remote (Work from Anywhere)',
+  'Other / Custom Location',
 ];
 
 const POPULAR_FRAMEWORKS = [
@@ -63,7 +59,7 @@ const FREQUENT_TITLES = [
 export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOpenLogin }) {
   const [title, setTitle] = useState('');
   const [company, setCompany] = useState(user?.companyName || '');
-  const [location, setLocation] = useState(FREQUENT_TRANSIT_CORRIDORS[0]);
+  const [location, setLocation] = useState(FREQUENT_LOCATIONS[0]);
   const [customLocation, setCustomLocation] = useState('');
   const [jobType, setJobType] = useState('Full-time');
   const [salary, setSalary] = useState('₹12,00,000 - ₹18,00,000 / yr');
@@ -94,7 +90,7 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
       return;
     }
 
-    const finalLocation = location === 'Other / Custom Transit Corridor' ? (customLocation || 'Mumbai, Maharashtra') : location;
+    const finalLocation = location === 'Other / Custom Location' ? (customLocation || 'Mumbai, Maharashtra') : location;
     const finalSalary = salary === 'Other / Custom Salary Range' ? (customSalary || '₹12,00,000 - ₹18,00,000 / yr') : salary;
 
     // Assemble rich requirements with Tech Stack & Proof requirements
@@ -232,10 +228,10 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
                       </small>
                     </div>
 
-                    {/* Transit Corridor Dropdown */}
+                    {/* Location Dropdown */}
                     <div className="col-md-6">
                       <label className="form-label small fw-bold text-dark">
-                        <i className="bi bi-train-front text-primary me-1"></i> Transit & Commute Corridor <span className="text-danger">*</span>
+                        <i className="bi bi-geo-alt text-primary me-1"></i> Location <span className="text-danger">*</span>
                       </label>
                       <select
                         className="form-select form-select-sm"
@@ -243,15 +239,15 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
                         onChange={(e) => setLocation(e.target.value)}
                         required
                       >
-                        {FREQUENT_TRANSIT_CORRIDORS.map((loc, idx) => (
+                        {FREQUENT_LOCATIONS.map((loc, idx) => (
                           <option key={idx} value={loc}>{loc}</option>
                         ))}
                       </select>
-                      {location === 'Other / Custom Transit Corridor' && (
+                      {location === 'Other / Custom Location' && (
                         <input
                           type="text"
                           className="form-control form-control-sm mt-2"
-                          placeholder="Type custom transit line or railway station..."
+                          placeholder="Type custom location..."
                           value={customLocation}
                           onChange={(e) => setCustomLocation(e.target.value)}
                           required

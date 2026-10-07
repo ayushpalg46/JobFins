@@ -5,8 +5,6 @@ export default function HeroSearch({
   setSearchKeyword,
   locationFilter,
   setLocationFilter,
-  transitFilter,
-  setTransitFilter,
   typeFilter,
   setTypeFilter,
   onSearch,
@@ -33,11 +31,11 @@ export default function HeroSearch({
           The Only Job Board Built For Developers — Hired By Your Code, Not Your Resume
         </h1>
         <p className="lead text-light opacity-90 mx-auto mb-4" style={{ maxWidth: '740px' }}>
-          Search roles by exact framework, filter by daily railway transit corridors, and apply directly with your GitHub proof of work.
+          Search roles by exact framework, find verified tech opportunities, and apply directly with your GitHub proof of work.
         </p>
 
         {/* Search Matrix Box */}
-        <div className="search-matrix mx-auto my-4 text-start" style={{ maxWidth: '1020px' }}>
+        <div className="search-matrix mx-auto my-4 text-start" style={{ maxWidth: '960px' }}>
           <div className="row g-2 align-items-center">
             {/* Input 1: Framework / Tech Stack */}
             <div className="col-lg-4 col-md-6">
@@ -52,23 +50,16 @@ export default function HeroSearch({
               </div>
             </div>
 
-            {/* Input 2: Hyper-Local Transit Corridor */}
+            {/* Input 2: Location */}
             <div className="col-lg-3 col-md-6">
               <div className="search-input-group">
-                <label><i className="bi bi-train-front me-1"></i> Transit & Commute Line</label>
-                <select
-                  value={transitFilter || ''}
-                  onChange={(e) => setTransitFilter && setTransitFilter(e.target.value)}
-                >
-                  <option value="">All Transit Lines / Cities</option>
-                  <option value="Western Line">Western Line (Virar ↔ Churchgate)</option>
-                  <option value="Central Line">Central Line (Kalyan ↔ CSMT)</option>
-                  <option value="Harbour Line">Harbour Line (Panvel ↔ CSMT)</option>
-                  <option value="Metro">Metro Line Corridor</option>
-                  <option value="Bangalore">Bangalore (ORR / Whitefield)</option>
-                  <option value="Pune">Pune (Hinjewadi / Magarpatta)</option>
-                  <option value="Remote">100% Remote (Zero Commute)</option>
-                </select>
+                <label><i className="bi bi-geo-alt me-1"></i> Location</label>
+                <input
+                  type="text"
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  placeholder="Mumbai, Bangalore, Remote..."
+                />
               </div>
             </div>
 

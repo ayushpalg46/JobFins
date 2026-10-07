@@ -94,14 +94,12 @@ export default function JobCard({ job, onSelectJob, onApplyJob }) {
           )}
         </div>
 
-        {/* Footer: Commute, Salary, Proof Apply Button */}
+        {/* Footer: Location, Salary, Proof Apply Button */}
         <div className="d-flex justify-content-between align-items-center pt-3 mt-2 border-top">
           <div>
-            <div className="d-flex align-items-center gap-1 mb-1">
-              <span className="transit-badge" title="Transit / Commute Corridor">
-                <i className="bi bi-train-front-fill"></i> {job.location || 'Remote'}
-              </span>
-            </div>
+            <small className="text-muted d-block mb-1">
+              <i className="bi bi-geo-alt me-1"></i> {job.location}
+            </small>
             <strong className="text-success small d-block">{formatSalary(job.salary)}</strong>
           </div>
           <div className="d-flex gap-2">
