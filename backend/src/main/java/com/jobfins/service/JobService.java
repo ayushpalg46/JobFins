@@ -93,6 +93,9 @@ public class JobService {
         return jobRepository.save(job);
     }
 
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager entityManager;
+
     /**
      * Delete a job post (Recruiter only).
      * Cascades deletion to dependent applications to prevent foreign key errors.
@@ -105,13 +108,17 @@ public class JobService {
             throw new RuntimeException("Unauthorized: You can only delete your own job postings.");
         }
 
-        // Delete all dependent candidate applications first
-        List<Application> applications = applicationRepository.findByJobIdOrderByAppliedDateDesc(id);
-        if (applications != null && !applications.isEmpty()) {
-            applicationRepository.deleteAll(applications);
+        // 1. Delete all dependent candidate applications first via direct SQL
+        applicationRepository.deleteByJobId(id);
+
+        // 2. Flush and clear persistence context to ensure application deletes execute immediately in MySQL
+        if (entityManager != null) {
+            entityManager.flush();
+            entityManager.clear();
         }
 
-        jobRepository.delete(job);
+        // 3. Delete the job row
+        jobRepository.deleteJobByIdNative(id);
     }
 
     /**

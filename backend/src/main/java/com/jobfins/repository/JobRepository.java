@@ -29,4 +29,10 @@ public interface JobRepository extends JpaRepository<Job, Long> {
            "LOWER(j.jobType) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
            "ORDER BY j.postedDate DESC")
     List<Job> searchJobs(@Param("keyword") String keyword);
+
+    // Directly delete a job by ID via native query
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Query(value = "DELETE FROM jobs WHERE id = :jobId", nativeQuery = true)
+    void deleteJobByIdNative(@Param("jobId") Long jobId);
 }
