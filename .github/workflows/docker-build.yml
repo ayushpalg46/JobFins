@@ -18,7 +18,7 @@ jobs:
 
       - name: Build Backend Docker Image
         run: |
-          docker build -t backend-service:latest ./backend
+          docker build -t backend-service:latest -f Dockerfile .
 
       - name: Build Frontend Docker Image
         run: |

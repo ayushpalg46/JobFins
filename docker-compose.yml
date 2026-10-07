@@ -22,7 +22,7 @@ services:
   # 2. Spring Boot REST Backend Service
   backend:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     container_name: backend-service
     restart: always
