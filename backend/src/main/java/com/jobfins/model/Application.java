@@ -25,11 +25,13 @@ public class Application {
     @JoinColumn(name = "seeker_id", nullable = false)
     private User seeker;
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String coverLetter;
 
-    @Column(name = "resume_link", length = 2048)
-private String resumeLink;
+    @Lob
+    @Column(name = "resume_link", columnDefinition = "LONGTEXT")
+    private String resumeLink;
 
 
     // Status: PENDING, SHORTLISTED, ACCEPTED, REJECTED
