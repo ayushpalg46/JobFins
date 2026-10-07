@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
 const FREQUENT_LOCATIONS = [
-  'Bangalore, Karnataka (Hybrid)',
-  'Bangalore, Karnataka (On-site)',
   'Mumbai, Maharashtra (Hybrid)',
   'Mumbai, Maharashtra (On-site)',
+  'Bangalore, Karnataka (Hybrid)',
+  'Bangalore, Karnataka (On-site)',
   'Pune, Maharashtra (Hybrid)',
   'Hyderabad, Telangana (Hybrid)',
   'Gurgaon / Delhi NCR (Hybrid)',
@@ -12,6 +12,7 @@ const FREQUENT_LOCATIONS = [
   'Chennai, Tamil Nadu (Hybrid)',
   'Remote (All India)',
   'Remote (Work from Anywhere)',
+  'Other / Custom Location',
 ];
 
 const FREQUENT_SALARIES = [
@@ -24,6 +25,7 @@ const FREQUENT_SALARIES = [
   '₹35,00,000 - ₹50,00,000 / yr',
   '₹25,000 - ₹40,000 / month (Internship)',
   'Competitive / Best in Industry',
+  'Other / Custom Salary Range',
 ];
 
 const FREQUENT_TITLES = [
@@ -40,9 +42,11 @@ const FREQUENT_TITLES = [
 export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOpenLogin }) {
   const [title, setTitle] = useState('');
   const [company, setCompany] = useState(user?.companyName || '');
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState('Mumbai, Maharashtra (Hybrid)');
+  const [customLocation, setCustomLocation] = useState('');
   const [jobType, setJobType] = useState('Full-time');
-  const [salary, setSalary] = useState('');
+  const [salary, setSalary] = useState('₹12,00,000 - ₹18,00,000 / yr');
+  const [customSalary, setCustomSalary] = useState('');
   const [description, setDescription] = useState('');
   const [requirements, setRequirements] = useState('');
 
@@ -59,15 +63,18 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
       return;
     }
 
+    const finalLocation = location === 'Other / Custom Location' ? (customLocation || 'Mumbai, Maharashtra') : location;
+    const finalSalary = salary === 'Other / Custom Salary Range' ? (customSalary || '₹12,00,000 - ₹18,00,000 / yr') : salary;
+
     setLoading(true);
     setError(null);
     try {
       await onJobCreated({
         title,
         company: company || user.companyName,
-        location,
+        location: finalLocation,
         jobType,
-        salary,
+        salary: finalSalary,
         description,
         requirements,
       });
@@ -147,34 +154,34 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
                       />
                     </div>
 
-                    {/* Location with Datalist & Quick Pills */}
+                    {/* Location Dropdown */}
                     <div className="col-md-6">
                       <label className="form-label small fw-bold text-dark">
                         Location <span className="text-danger">*</span>
                       </label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        list="locations-list"
+                      <select
+                        className="form-select form-select-sm"
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
-                        placeholder="Select or type location..."
                         required
-                      />
-                      <datalist id="locations-list">
+                      >
                         {FREQUENT_LOCATIONS.map((loc, idx) => (
-                          <option key={idx} value={loc} />
+                          <option key={idx} value={loc}>{loc}</option>
                         ))}
-                      </datalist>
-                      {/* Quick Location Pills */}
-                      <div className="d-flex flex-wrap gap-1 mt-1">
-                        <button type="button" className="badge bg-light text-secondary border-0 p-1" style={{ fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => setLocation('Bangalore, Karnataka (Hybrid)')}>+ Bangalore</button>
-                        <button type="button" className="badge bg-light text-secondary border-0 p-1" style={{ fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => setLocation('Mumbai, Maharashtra (Hybrid)')}>+ Mumbai</button>
-                        <button type="button" className="badge bg-light text-secondary border-0 p-1" style={{ fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => setLocation('Remote (All India)')}>+ Remote</button>
-                      </div>
+                      </select>
+                      {location === 'Other / Custom Location' && (
+                        <input
+                          type="text"
+                          className="form-control form-control-sm mt-2"
+                          placeholder="Type custom location..."
+                          value={customLocation}
+                          onChange={(e) => setCustomLocation(e.target.value)}
+                          required
+                        />
+                      )}
                     </div>
 
-                    {/* Job Type */}
+                    {/* Job Type Dropdown */}
                     <div className="col-md-6">
                       <label className="form-label small fw-bold text-dark">Job Type</label>
                       <select
@@ -189,28 +196,27 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
                       </select>
                     </div>
 
-                    {/* Salary / Compensation with Datalist & Quick Pills */}
+                    {/* Salary / Compensation Dropdown */}
                     <div className="col-md-12">
                       <label className="form-label small fw-bold text-dark">Salary / Compensation</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        list="salaries-list"
+                      <select
+                        className="form-select form-select-sm"
                         value={salary}
                         onChange={(e) => setSalary(e.target.value)}
-                        placeholder="Select range or type e.g. ₹12,00,000 - ₹18,00,000 / yr"
-                      />
-                      <datalist id="salaries-list">
+                      >
                         {FREQUENT_SALARIES.map((sal, idx) => (
-                          <option key={idx} value={sal} />
+                          <option key={idx} value={sal}>{sal}</option>
                         ))}
-                      </datalist>
-                      {/* Quick Salary Pills */}
-                      <div className="d-flex flex-wrap gap-1 mt-1">
-                        <button type="button" className="badge bg-light text-success border-0 p-1" style={{ fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => setSalary('₹10,00,000 - ₹15,00,000 / yr')}>₹10-15 LPA</button>
-                        <button type="button" className="badge bg-light text-success border-0 p-1" style={{ fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => setSalary('₹15,00,000 - ₹22,00,000 / yr')}>₹15-22 LPA</button>
-                        <button type="button" className="badge bg-light text-success border-0 p-1" style={{ fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => setSalary('₹25,00,000 - ₹35,00,000 / yr')}>₹25-35 LPA</button>
-                      </div>
+                      </select>
+                      {salary === 'Other / Custom Salary Range' && (
+                        <input
+                          type="text"
+                          className="form-control form-control-sm mt-2"
+                          placeholder="e.g. ₹40,00,000 - ₹60,00,000 / yr"
+                          value={customSalary}
+                          onChange={(e) => setCustomSalary(e.target.value)}
+                        />
+                      )}
                     </div>
 
                     {/* Job Description */}
