@@ -66,7 +66,8 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
       if (onSyncTrigger) onSyncTrigger();
       setTimeout(() => setMessage(null), 3000);
     } catch (err) {
-      setMessage({ type: 'danger', text: 'Failed to delete job listing.' });
+      setMessage({ type: 'danger', text: err.response?.data?.message || 'Failed to delete job listing.' });
+      setTimeout(() => setMessage(null), 4000);
     }
   };
 

@@ -1,12 +1,15 @@
 package com.jobfins.service;
 
 import com.jobfins.dto.JobRequest;
+import com.jobfins.model.Application;
 import com.jobfins.model.Job;
 import com.jobfins.model.Role;
 import com.jobfins.model.User;
+import com.jobfins.repository.ApplicationRepository;
 import com.jobfins.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +21,9 @@ public class JobService {
 
     @Autowired
     private JobRepository jobRepository;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     /**
      * Get all active jobs (newest first).
@@ -89,12 +95,20 @@ public class JobService {
 
     /**
      * Delete a job post (Recruiter only).
+     * Cascades deletion to dependent applications to prevent foreign key errors.
      */
+    @Transactional
     public void deleteJob(Long id, User recruiter) {
         Job job = getJobById(id);
 
         if (!job.getRecruiter().getId().equals(recruiter.getId())) {
             throw new RuntimeException("Unauthorized: You can only delete your own job postings.");
+        }
+
+        // Delete all dependent candidate applications first
+        List<Application> applications = applicationRepository.findByJobIdOrderByAppliedDateDesc(id);
+        if (applications != null && !applications.isEmpty()) {
+            applicationRepository.deleteAll(applications);
         }
 
         jobRepository.delete(job);
