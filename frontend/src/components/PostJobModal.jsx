@@ -147,37 +147,20 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
                       />
                     </div>
 
-                    {/* Location with Dropdown Selection & Datalist */}
+                    {/* Location with Datalist & Quick Pills */}
                     <div className="col-md-6">
-                      <label className="form-label small fw-bold text-dark d-flex justify-content-between">
-                        <span>Location <span className="text-danger">*</span></span>
-                        <span className="text-muted font-monospace" style={{ fontSize: '0.72rem' }}>Dropdown & Custom</span>
+                      <label className="form-label small fw-bold text-dark">
+                        Location <span className="text-danger">*</span>
                       </label>
-                      <div className="input-group input-group-sm">
-                        <input
-                          type="text"
-                          className="form-control"
-                          list="locations-list"
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                          placeholder="Select or type location..."
-                          required
-                        />
-                        <select
-                          className="form-select flex-grow-0"
-                          style={{ width: '38px', padding: '0.25rem 0.5rem' }}
-                          onChange={(e) => {
-                            if (e.target.value) setLocation(e.target.value);
-                          }}
-                          value=""
-                          title="Quick Select Location"
-                        >
-                          <option value="" disabled>▼</option>
-                          {FREQUENT_LOCATIONS.map((loc, idx) => (
-                            <option key={idx} value={loc}>{loc}</option>
-                          ))}
-                        </select>
-                      </div>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        list="locations-list"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="Select or type location..."
+                        required
+                      />
                       <datalist id="locations-list">
                         {FREQUENT_LOCATIONS.map((loc, idx) => (
                           <option key={idx} value={loc} />
@@ -206,36 +189,17 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
                       </select>
                     </div>
 
-                    {/* Salary / Compensation with Dropdown Selection & Datalist */}
+                    {/* Salary / Compensation with Datalist & Quick Pills */}
                     <div className="col-md-12">
-                      <label className="form-label small fw-bold text-dark d-flex justify-content-between">
-                        <span>Salary / Compensation</span>
-                        <span className="text-muted font-monospace" style={{ fontSize: '0.72rem' }}>Dropdown & Custom</span>
-                      </label>
-                      <div className="input-group input-group-sm">
-                        <input
-                          type="text"
-                          className="form-control"
-                          list="salaries-list"
-                          value={salary}
-                          onChange={(e) => setSalary(e.target.value)}
-                          placeholder="Select range or type e.g. ₹12,00,000 - ₹18,00,000 / yr"
-                        />
-                        <select
-                          className="form-select flex-grow-0"
-                          style={{ width: '38px', padding: '0.25rem 0.5rem' }}
-                          onChange={(e) => {
-                            if (e.target.value) setSalary(e.target.value);
-                          }}
-                          value=""
-                          title="Quick Select Salary Band"
-                        >
-                          <option value="" disabled>▼</option>
-                          {FREQUENT_SALARIES.map((sal, idx) => (
-                            <option key={idx} value={sal}>{sal}</option>
-                          ))}
-                        </select>
-                      </div>
+                      <label className="form-label small fw-bold text-dark">Salary / Compensation</label>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        list="salaries-list"
+                        value={salary}
+                        onChange={(e) => setSalary(e.target.value)}
+                        placeholder="Select range or type e.g. ₹12,00,000 - ₹18,00,000 / yr"
+                      />
                       <datalist id="salaries-list">
                         {FREQUENT_SALARIES.map((sal, idx) => (
                           <option key={idx} value={sal} />
