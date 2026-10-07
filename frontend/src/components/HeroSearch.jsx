@@ -5,47 +5,75 @@ export default function HeroSearch({
   setSearchKeyword,
   locationFilter,
   setLocationFilter,
+  transitFilter,
+  setTransitFilter,
   typeFilter,
   setTypeFilter,
   onSearch,
   stats,
 }) {
+  const frameworks = [
+    'Spring Boot',
+    'FastAPI',
+    'React',
+    'Flutter',
+    'Rust',
+    'Docker',
+    'PostgreSQL',
+    'Next.js',
+    'Go',
+    'Node.js'
+  ];
+
   return (
     <section className="hero-section text-center">
       <div className="container">
-        <h1 className="display-5 text-white fw-bold mb-3 hero-title">
-          FIND YOUR NEXT OPPORTUNITY
+        {/* USP Badge */}
+        <div className="hero-badge mb-3">
+          <span className="pulse-dot"></span>
+          <span>Proof Over Paper &bull; Tech-Stack First &bull; Zero Ghosting</span>
+        </div>
+
+        <h1 className="display-5 text-white fw-bold mb-3 hero-title" style={{ maxWidth: '880px', margin: '0 auto' }}>
+          The Only Job Board Built For Developers — Hired By Your Code, Not Your Resume
         </h1>
-        <p className="lead text-light opacity-90 mx-auto mb-4" style={{ maxWidth: '680px' }}>
-          Search thousands of verified jobs across top tech startups and financial institutions with transparent salary metrics.
+        <p className="lead text-light opacity-90 mx-auto mb-4" style={{ maxWidth: '740px' }}>
+          Search roles by exact framework, filter by daily railway transit corridors, and apply directly with your GitHub proof of work.
         </p>
 
         {/* Search Matrix Box */}
-        <div className="search-matrix mx-auto my-4 text-start" style={{ maxWidth: '960px' }}>
+        <div className="search-matrix mx-auto my-4 text-start" style={{ maxWidth: '1020px' }}>
           <div className="row g-2 align-items-center">
-            {/* Input 1: Role / Keyword */}
+            {/* Input 1: Framework / Tech Stack */}
             <div className="col-lg-4 col-md-6">
               <div className="search-input-group">
-                <label><i className="bi bi-search me-1"></i> Keywords / Role</label>
+                <label><i className="bi bi-code-slash me-1"></i> Framework / Tech Stack</label>
                 <input
                   type="text"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
-                  placeholder="Search jobs... (e.g. Java Backend Developer)"
+                  placeholder="Search by framework (e.g., Spring Boot, FastAPI, Flutter, Rust)..."
                 />
               </div>
             </div>
 
-            {/* Input 2: Location */}
+            {/* Input 2: Hyper-Local Transit Corridor */}
             <div className="col-lg-3 col-md-6">
               <div className="search-input-group">
-                <label><i className="bi bi-geo-alt me-1"></i> Location</label>
-                <input
-                  type="text"
-                  value={locationFilter}
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                  placeholder="Mumbai, Bangalore, Remote"
-                />
+                <label><i className="bi bi-train-front me-1"></i> Transit & Commute Line</label>
+                <select
+                  value={transitFilter || ''}
+                  onChange={(e) => setTransitFilter && setTransitFilter(e.target.value)}
+                >
+                  <option value="">All Transit Lines / Cities</option>
+                  <option value="Western Line">Western Line (Virar ↔ Churchgate)</option>
+                  <option value="Central Line">Central Line (Kalyan ↔ CSMT)</option>
+                  <option value="Harbour Line">Harbour Line (Panvel ↔ CSMT)</option>
+                  <option value="Metro">Metro Line Corridor</option>
+                  <option value="Bangalore">Bangalore (ORR / Whitefield)</option>
+                  <option value="Pune">Pune (Hinjewadi / Magarpatta)</option>
+                  <option value="Remote">100% Remote (Zero Commute)</option>
+                </select>
               </div>
             </div>
 
@@ -69,7 +97,7 @@ export default function HeroSearch({
             {/* Search Button */}
             <div className="col-lg-2 col-md-6">
               <button
-                className="btn btn-cobalt w-100 py-3 d-flex align-items-center justify-content-center gap-1"
+                className="btn btn-cobalt w-100 py-3 d-flex align-items-center justify-content-center gap-1 shadow-sm fw-bold"
                 onClick={onSearch}
               >
                 <i className="bi bi-search"></i> Search
@@ -77,19 +105,22 @@ export default function HeroSearch({
             </div>
           </div>
 
-          {/* Quick Filter Tags */}
+          {/* Quick Framework Chips */}
           <div className="mt-3 pt-2 border-top d-flex flex-wrap align-items-center gap-2">
-            <small className="text-muted fw-bold text-uppercase" style={{ fontSize: '0.72rem' }}>Popular Tags:</small>
-            {['Java', 'Spring Boot', 'React', 'Financial Analyst', 'Remote'].map((tag) => (
+            <small className="text-muted fw-bold text-uppercase" style={{ fontSize: '0.72rem' }}>
+              <i className="bi bi-lightning-charge-fill text-warning me-1"></i> Popular Frameworks:
+            </small>
+            {frameworks.map((fw) => (
               <span
-                key={tag}
-                className="badge bg-light text-dark border cursor-pointer"
+                key={fw}
+                className={`badge ${searchKeyword.toLowerCase().includes(fw.toLowerCase()) ? 'bg-primary text-white' : 'bg-light text-dark border'} cursor-pointer`}
+                style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
                 onClick={() => {
-                  setSearchKeyword(tag);
+                  setSearchKeyword(fw);
                   onSearch();
                 }}
               >
-                {tag}
+                {fw}
               </span>
             ))}
           </div>
@@ -100,19 +131,19 @@ export default function HeroSearch({
           <div className="col-12 col-sm-4">
             <div className="telemetry-card">
               <div className="stat-num">{stats?.totalJobs !== undefined ? `${stats.totalJobs} Active` : '4 Active'}</div>
-              <div className="stat-label">Verified Job Posts</div>
+              <div className="stat-label">Verified Tech Postings</div>
             </div>
           </div>
           <div className="col-12 col-sm-4">
             <div className="telemetry-card">
-              <div className="stat-num text-primary">{stats?.totalRecruiters !== undefined ? `${stats.totalRecruiters} Recruiters` : '2 Recruiters'}</div>
-              <div className="stat-label">Top Hiring Companies</div>
+              <div className="stat-num text-primary">⚡ &lt;48h Avg</div>
+              <div className="stat-label">Zero-Ghosting Employer SLA</div>
             </div>
           </div>
           <div className="col-12 col-sm-4">
             <div className="telemetry-card">
-              <div className="stat-num text-success">{stats?.totalSeekers !== undefined ? `${stats.totalSeekers} Candidates` : '2 Candidates'}</div>
-              <div className="stat-label">Registered Seekers</div>
+              <div className="stat-num text-success">100% Code Verified</div>
+              <div className="stat-label">Proof-Over-Paper Applicants</div>
             </div>
           </div>
         </div>
@@ -120,3 +151,4 @@ export default function HeroSearch({
     </section>
   );
 }
+

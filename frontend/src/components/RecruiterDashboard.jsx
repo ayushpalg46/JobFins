@@ -171,32 +171,93 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
                     <td>
                       <span className="fw-semibold text-primary">{app.job?.title}</span>
                     </td>
-                    <td style={{ maxWidth: '280px' }}>
-                      <p className="small text-muted mb-1 text-truncate" title={app.coverLetter}>
-                        {app.coverLetter || 'No cover letter provided.'}
-                      </p>
-                      {app.resumeLink && (
-                        app.resumeLink.startsWith('data:') ? (
-                          <a
-                            href={app.resumeLink}
-                            download={`${(app.seeker?.name || 'Candidate').replace(/\s+/g, '_')}_Resume.pdf`}
-                            className="btn btn-outline-primary btn-sm py-0 px-2"
-                            style={{ fontSize: '0.75rem' }}
-                          >
-                            <i className="bi bi-download me-1"></i> Download Resume
-                          </a>
-                        ) : (
-                          <a
-                            href={app.resumeLink}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="btn btn-outline-primary btn-sm py-0 px-2"
-                            style={{ fontSize: '0.75rem' }}
-                          >
-                            <i className="bi bi-file-earmark-pdf me-1"></i> View Resume
-                          </a>
-                        )
-                      )}
+                    <td style={{ maxWidth: '340px' }}>
+                      {/* Parse GitHub and Live Demo Links */}
+                      {(() => {
+                        const note = app.coverLetter || '';
+                        const ghMatch = note.match(/\[GitHub Repo\]:\s*(https?:\/\/[^\s\n]+)/i);
+                        const demoMatch = note.match(/\[Live Demo\]:\s*(https?:\/\/[^\s\n]+)/i);
+                        const techMatch = note.match(/\[Tech Stack\]:\s*([^\n]+)/i);
+                        const cleanNote = note
+                          .replace(/\[GitHub Repo\]:[^\n]*\n?/gi, '')
+                          .replace(/\[Live Demo\]:[^\n]*\n?/gi, '')
+                          .replace(/\[Tech Stack\]:[^\n]*\n?/gi, '')
+                          .trim();
+
+                        return (
+                          <div>
+                            {/* Proof-of-Work Badges */}
+                            <div className="d-flex flex-wrap gap-1 mb-1">
+                              {ghMatch && (
+                                <a
+                                  href={ghMatch[1]}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="badge bg-dark text-cyan tech-tag-cyber text-decoration-none py-1 px-2"
+                                  title="View Candidate GitHub Repository"
+                                >
+                                  <i className="bi bi-github"></i> GitHub Repo
+                                </a>
+                              )}
+                              {demoMatch && (
+                                <a
+                                  href={demoMatch[1]}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="badge bg-primary text-white text-decoration-none py-1 px-2"
+                                  style={{ fontSize: '0.72rem' }}
+                                  title="Open Live Deployed Project"
+                                >
+                                  <i className="bi bi-box-arrow-up-right me-1"></i> Live Demo
+                                </a>
+                              )}
+                              {techMatch && (
+                                <span className="badge bg-light text-dark border py-1" style={{ fontSize: '0.7rem' }}>
+                                  <i className="bi bi-layers me-1 text-primary"></i> {techMatch[1]}
+                                </span>
+                              )}
+                            </div>
+
+                            {cleanNote && (
+                              <p className="small text-muted mb-1 text-truncate" title={cleanNote}>
+                                {cleanNote}
+                              </p>
+                            )}
+
+                            {app.resumeLink && (
+                              app.resumeLink.startsWith('data:') ? (
+                                <a
+                                  href={app.resumeLink}
+                                  download={`${(app.seeker?.name || 'Candidate').replace(/\s+/g, '_')}_Resume.pdf`}
+                                  className="btn btn-outline-secondary btn-sm py-0 px-2 mt-1"
+                                  style={{ fontSize: '0.72rem' }}
+                                >
+                                  <i className="bi bi-download me-1"></i> PDF Resume
+                                </a>
+                              ) : !ghMatch && app.resumeLink.includes('github.com') ? (
+                                <a
+                                  href={app.resumeLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="badge bg-dark text-cyan tech-tag-cyber text-decoration-none py-1 px-2"
+                                >
+                                  <i className="bi bi-github"></i> Candidate GitHub
+                                </a>
+                              ) : (
+                                <a
+                                  href={app.resumeLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="btn btn-outline-secondary btn-sm py-0 px-2 mt-1"
+                                  style={{ fontSize: '0.72rem' }}
+                                >
+                                  <i className="bi bi-file-earmark-pdf me-1"></i> View Attached Doc
+                                </a>
+                              )
+                            )}
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="small text-muted">{app.appliedDate?.substring(0, 10)}</td>
                     <td>

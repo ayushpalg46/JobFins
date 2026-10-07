@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 
 export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, user }) {
+  const [githubUrl, setGithubUrl] = useState('');
+  const [liveDemoUrl, setLiveDemoUrl] = useState('');
+  const [techStackUsed, setTechStackUsed] = useState('');
   const [coverLetter, setCoverLetter] = useState('');
   const [resumeLink, setResumeLink] = useState('');
   const [attachedFile, setAttachedFile] = useState(null);
@@ -39,6 +42,11 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
       return;
     }
 
+    if (!githubUrl.trim() && !attachedFileBase64 && !resumeLink.trim() && !useProfileResume) {
+      setFeedback({ type: 'danger', message: 'Please provide either a GitHub Repository URL (Proof of Work) or a Resume attachment.' });
+      return;
+    }
+
     let finalResume = '';
     if (attachedFileBase64) {
       finalResume = attachedFileBase64;
@@ -46,18 +54,25 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
       finalResume = resumeLink.trim();
     } else if (useProfileResume && (user?.resumeBase64 || user?.resumeUrl || user?.resumeFileName)) {
       finalResume = user.resumeBase64 || user.resumeUrl || user.resumeFileName;
+    } else if (githubUrl.trim()) {
+      finalResume = githubUrl.trim();
     }
 
-    if (!finalResume) {
-      setFeedback({ type: 'danger', message: 'Please upload a real resume file (PDF/DOCX) or provide a resume link.' });
-      return;
-    }
+    // Build structured note including GitHub & Live Demo
+    let structuredNote = '';
+    if (githubUrl.trim()) structuredNote += `[GitHub Repo]: ${githubUrl.trim()}\n`;
+    if (liveDemoUrl.trim()) structuredNote += `[Live Demo]: ${liveDemoUrl.trim()}\n`;
+    if (techStackUsed.trim()) structuredNote += `[Tech Stack]: ${techStackUsed.trim()}\n\n`;
+    structuredNote += coverLetter.trim();
 
     setSubmitting(true);
     setFeedback(null);
     try {
-      await onApplySubmit(job.id, { coverLetter, resumeLink: finalResume });
-      setFeedback({ type: 'success', message: 'Application submitted successfully to employer!' });
+      await onApplySubmit(job.id, { coverLetter: structuredNote, resumeLink: finalResume });
+      setFeedback({ type: 'success', message: 'Application & Proof of Work submitted successfully to employer!' });
+      setGithubUrl('');
+      setLiveDemoUrl('');
+      setTechStackUsed('');
       setCoverLetter('');
       setResumeLink('');
       setAttachedFile(null);
@@ -81,6 +96,14 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
         <div className="modal-content">
           <div className="modal-header">
             <div>
+              <div className="d-flex align-items-center gap-2 mb-1">
+                <span className="badge bg-dark text-cyan tech-tag-cyber" style={{ fontSize: '0.7rem' }}>
+                  <i className="bi bi-shield-check me-1 text-info"></i> Zero Ghosting Verified
+                </span>
+                <span className="response-sla-badge">
+                  <i className="bi bi-lightning-fill text-warning"></i> Replies &lt;48 Hours
+                </span>
+              </div>
               <h5 className="modal-title fw-bold text-dark">{job.title}</h5>
               <div className="text-primary fw-semibold small">
                 <i className="bi bi-building me-1"></i> {job.company} &bull; <i className="bi bi-geo-alt me-1"></i> {job.location}
@@ -91,23 +114,29 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
 
           <div className="modal-body">
             <div className="row g-4">
-              <div className="col-md-7">
-                <h6 className="fw-bold text-dark mb-2"><i className="bi bi-info-circle me-1 text-primary"></i> Job Overview</h6>
+              <div className="col-md-6">
+                <h6 className="fw-bold text-dark mb-2"><i className="bi bi-info-circle me-1 text-primary"></i> Role Overview</h6>
                 <p className="text-muted small">{job.description}</p>
 
-                <h6 className="fw-bold text-dark mt-4 mb-2"><i className="bi bi-check2-square me-1 text-success"></i> Requirements & Qualifications</h6>
+                <h6 className="fw-bold text-dark mt-4 mb-2"><i className="bi bi-check2-square me-1 text-success"></i> Requirements & Tech Stack</h6>
                 <div className="bg-light p-3 rounded border small text-muted">
                   <pre className="mb-0" style={{ fontFamily: 'inherit', whiteSpace: 'pre-wrap' }}>{job.requirements || 'No specific requirements listed.'}</pre>
                 </div>
 
-                <div className="mt-3 d-flex gap-3 small text-muted">
+                <div className="mt-3 d-flex flex-wrap gap-3 small text-muted">
                   <span><strong>Job Type:</strong> {job.jobType}</span>
                   <span><strong>Compensation:</strong> {job.salary ? job.salary.replace(/\?(\s*\d)/g, '₹$1') : 'Competitive'}</span>
+                  <span><strong>Transit Commute:</strong> {job.location || 'Remote'}</span>
                 </div>
               </div>
 
-              <div className="col-md-5 border-start">
-                <h6 className="fw-bold text-dark mb-3"><i className="bi bi-send me-1 text-primary"></i> Easy 1-Click Apply</h6>
+              <div className="col-md-6 border-start">
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <h6 className="fw-bold text-dark mb-0"><i className="bi bi-code-slash me-1 text-primary"></i> "Proof Over Paper" Application</h6>
+                </div>
+                <p className="text-muted small mb-3" style={{ fontSize: '0.78rem' }}>
+                  Get hired for what you've actually built. Share your code repo and live project demo.
+                </p>
 
                 {feedback && (
                   <div className={`alert alert-${feedback.type} py-2 small`}>
@@ -116,69 +145,90 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
                 )}
 
                 <form onSubmit={handleSubmit}>
+                  {/* Proof 1: GitHub Repo URL */}
+                  <div className="mb-2">
+                    <label className="form-label small fw-bold mb-1 text-dark">
+                      <i className="bi bi-github text-dark me-1"></i> GitHub Repository URL *
+                    </label>
+                    <input
+                      type="url"
+                      className="form-control form-control-sm font-monospace"
+                      value={githubUrl}
+                      onChange={(e) => setGithubUrl(e.target.value)}
+                      placeholder="https://github.com/your-handle/project-repo"
+                    />
+                    <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>
+                      Repository verifying your framework capability (e.g., Spring Boot, FastAPI, React).
+                    </small>
+                  </div>
+
+                  {/* Proof 2: Live Deployed Demo URL */}
+                  <div className="mb-2">
+                    <label className="form-label small fw-bold mb-1 text-dark">
+                      <i className="bi bi-globe me-1 text-primary"></i> Live Deployed Demo / Hackathon URL
+                    </label>
+                    <input
+                      type="url"
+                      className="form-control form-control-sm"
+                      value={liveDemoUrl}
+                      onChange={(e) => setLiveDemoUrl(e.target.value)}
+                      placeholder="https://your-project.vercel.app"
+                    />
+                  </div>
+
+                  {/* Proof 3: Frameworks Used */}
+                  <div className="mb-2">
+                    <label className="form-label small fw-bold mb-1 text-dark">
+                      <i className="bi bi-layers me-1 text-info"></i> Primary Tech Stack Used
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      value={techStackUsed}
+                      onChange={(e) => setTechStackUsed(e.target.value)}
+                      placeholder="e.g. Spring Boot, PostgreSQL, Docker, React"
+                    />
+                  </div>
+
+                  {/* Cover Note */}
                   <div className="mb-3">
-                    <label className="form-label small fw-bold">Cover Letter / Application Note *</label>
+                    <label className="form-label small fw-bold mb-1">Architecture / Application Note</label>
                     <textarea
                       className="form-control form-control-sm"
-                      rows="4"
+                      rows="3"
                       value={coverLetter}
                       onChange={(e) => setCoverLetter(e.target.value)}
-                      placeholder="Highlight your key technical skills and suitability for this role..."
-                      required
+                      placeholder="Briefly describe what you built and how it solves the engineering requirements..."
                     ></textarea>
                   </div>
 
-                  <div className="mb-3">
-                    <label className="form-label small fw-bold">Resume Attachment *</label>
-                    
-                    {hasProfileResume && (
-                      <div className="p-2 mb-2 bg-light border rounded d-flex align-items-center justify-content-between">
-                        <div className="d-flex align-items-center gap-2">
-                          <i className="bi bi-file-earmark-pdf text-danger fs-5"></i>
-                          <small className="fw-semibold text-dark text-truncate" style={{ maxWidth: '170px' }}>
-                            {user.resumeFileName || user.resumeUrl || 'Profile Resume'}
-                          </small>
-                        </div>
-                        <span className="badge bg-success-subtle text-success border border-success-subtle">
-                          Saved in Profile
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="mb-2">
-                      <label className="form-label text-muted" style={{ fontSize: '0.75rem' }}>
-                        {hasProfileResume ? 'Or attach an updated file for this application:' : 'Upload real resume file (PDF / DOCX):'}
+                  {/* Supporting Document / PDF */}
+                  <div className="mb-3 p-2 bg-light rounded border">
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <label className="form-label small fw-bold mb-0 text-muted" style={{ fontSize: '0.72rem' }}>
+                        <i className="bi bi-file-earmark-pdf me-1"></i> Optional Resume / Architecture PDF:
                       </label>
-                      <input
-                        type="file"
-                        className="form-control form-control-sm"
-                        accept=".pdf,.doc,.docx"
-                        onChange={handleFileChange}
-                      />
-                      {attachedFile && (
-                        <small className="text-primary d-block mt-1">
-                          <i className="bi bi-file-earmark-check me-1"></i> Attached: {attachedFile.name} ({(attachedFile.size / 1024).toFixed(1)} KB)
-                        </small>
+                      {hasProfileResume && (
+                        <span className="badge bg-success-subtle text-success border border-success-subtle" style={{ fontSize: '0.65rem' }}>
+                          Profile Resume Linked
+                        </span>
                       )}
                     </div>
-
-                    <div>
-                      <label className="form-label text-muted" style={{ fontSize: '0.75rem' }}>Or paste resume URL / portfolio link:</label>
-                      <input
-                        type="url"
-                        className="form-control form-control-sm"
-                        value={resumeLink}
-                        onChange={(e) => {
-                          setResumeLink(e.target.value);
-                          if (e.target.value) setUseProfileResume(false);
-                        }}
-                        placeholder="https://drive.google.com/your-resume.pdf"
-                      />
-                    </div>
+                    <input
+                      type="file"
+                      className="form-control form-control-sm"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange}
+                    />
+                    {attachedFile && (
+                      <small className="text-primary d-block mt-1" style={{ fontSize: '0.72rem' }}>
+                        <i className="bi bi-check-circle-fill me-1"></i> Attached: {attachedFile.name}
+                      </small>
+                    )}
                   </div>
 
-                  <button type="submit" className="btn btn-cobalt w-100 btn-sm py-2 fw-bold" disabled={submitting}>
-                    {submitting ? 'Submitting Application...' : 'Submit Application'}
+                  <button type="submit" className="btn btn-cobalt w-100 btn-sm py-2 fw-bold shadow-sm" disabled={submitting}>
+                    <i className="bi bi-send-check me-1"></i> {submitting ? 'Submitting Application...' : 'Submit Proof Application'}
                   </button>
                 </form>
               </div>
@@ -189,3 +239,4 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
     </div>
   );
 }
+

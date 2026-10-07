@@ -1,11 +1,22 @@
 package com.jobfins.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+
 /**
- * Application Entity representing a Seeker applying for a specific Job.
- * Maps to the "applications" table in MySQL (Experiment 5).
+ * Application Entity representing a Seeker applying for a specific Job. Maps to
+ * the "applications" table in MySQL (Experiment 5).
  */
 @Entity
 @Table(name = "applications")
@@ -32,7 +43,6 @@ public class Application {
     @Lob
     @Column(name = "resume_link", columnDefinition = "LONGTEXT")
     private String resumeLink;
-
 
     // Status: PENDING, SHORTLISTED, ACCEPTED, REJECTED
     @Column(nullable = false)

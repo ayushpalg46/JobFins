@@ -31,6 +31,7 @@ export default function App() {
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
+  const [transitFilter, setTransitFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [loadingJobs, setLoadingJobs] = useState(true);
 
@@ -60,18 +61,43 @@ export default function App() {
           j.title?.toLowerCase().includes(q) ||
           j.company?.toLowerCase().includes(q) ||
           j.description?.toLowerCase().includes(q) ||
-          j.requirements?.toLowerCase().includes(q)
+          j.requirements?.toLowerCase().includes(q) ||
+          j.location?.toLowerCase().includes(q)
       );
     }
     if (locationFilter.trim()) {
       const loc = locationFilter.toLowerCase().trim();
       result = result.filter((j) => j.location?.toLowerCase().includes(loc));
     }
+    if (transitFilter.trim()) {
+      const tf = transitFilter.toLowerCase();
+      result = result.filter((j) => {
+        const loc = (j.location || '').toLowerCase();
+        const type = (j.jobType || '').toLowerCase();
+        if (tf.includes('western')) {
+          return loc.includes('mumbai') || loc.includes('western') || loc.includes('andheri') || loc.includes('bandra') || loc.includes('borivali') || loc.includes('malad') || loc.includes('goregaon') || loc.includes('churchgate') || loc.includes('dadar');
+        } else if (tf.includes('central')) {
+          return loc.includes('mumbai') || loc.includes('central') || loc.includes('thane') || loc.includes('kurla') || loc.includes('ghatkopar') || loc.includes('kalyan') || loc.includes('csmt');
+        } else if (tf.includes('harbour')) {
+          return loc.includes('navi mumbai') || loc.includes('vashi') || loc.includes('belapur') || loc.includes('panvel') || loc.includes('harbour');
+        } else if (tf.includes('metro')) {
+          return loc.includes('metro') || loc.includes('andheri') || loc.includes('ghatkopar') || loc.includes('mumbai');
+        } else if (tf.includes('bangalore')) {
+          return loc.includes('bangalore') || loc.includes('bengaluru') || loc.includes('whitefield') || loc.includes('electronic city') || loc.includes('orr') || loc.includes('koramangala');
+        } else if (tf.includes('pune')) {
+          return loc.includes('pune') || loc.includes('hinjewadi') || loc.includes('magarpatta') || loc.includes('baner');
+        } else if (tf.includes('remote')) {
+          return loc.includes('remote') || type.includes('remote');
+        }
+        return loc.includes(tf);
+      });
+    }
     if (typeFilter !== 'all') {
       result = result.filter((j) => j.jobType === typeFilter);
     }
     setFilteredJobs(result);
-  }, [jobs, searchKeyword, locationFilter, typeFilter]);
+  }, [jobs, searchKeyword, locationFilter, transitFilter, typeFilter]);
+
 
   const checkSavedAuth = async () => {
     const token = localStorage.getItem('jobfins_token');
@@ -228,6 +254,8 @@ export default function App() {
               setSearchKeyword={setSearchKeyword}
               locationFilter={locationFilter}
               setLocationFilter={setLocationFilter}
+              transitFilter={transitFilter}
+              setTransitFilter={setTransitFilter}
               typeFilter={typeFilter}
               setTypeFilter={setTypeFilter}
               onSearch={loadJobs}
@@ -240,7 +268,7 @@ export default function App() {
                   <div>
                     <h2 className="h4 mb-1 text-dark fw-bold">Featured Opportunities</h2>
                     <p className="text-muted small mb-0">
-                      Showing {filteredJobs.length} verified jobs matching your criteria
+                      Showing {filteredJobs.length} verified developer jobs matching your criteria
                     </p>
                   </div>
                   <button
@@ -248,6 +276,7 @@ export default function App() {
                     onClick={() => {
                       setSearchKeyword('');
                       setLocationFilter('');
+                      setTransitFilter('');
                       setTypeFilter('all');
                     }}
                   >
