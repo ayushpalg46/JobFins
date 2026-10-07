@@ -28,7 +28,9 @@ public class Application {
     @Column(columnDefinition = "TEXT")
     private String coverLetter;
 
-    private String resumeLink;
+    @Column(name = "resume_link", length = 2048)
+private String resumeLink;
+
 
     // Status: PENDING, SHORTLISTED, ACCEPTED, REJECTED
     @Column(nullable = false)
