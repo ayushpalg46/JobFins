@@ -229,9 +229,12 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
                           onClick={() =>
                             onExtendOffer &&
                             onExtendOffer({
+                              id: app.id,
+                              applicationId: app.id,
                               name: app.seeker?.name || 'Candidate',
                               role: app.job?.title || 'Software Engineer',
                               location: app.job?.location || 'Mumbai / Hybrid',
+                              email: app.seeker?.email,
                             })
                           }
                           title="Extend Formal Offer"
