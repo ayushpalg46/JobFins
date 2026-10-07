@@ -28,11 +28,6 @@ export default function HeroSearch({
   return (
     <section className="hero-section text-center">
       <div className="container">
-        {/* USP Badge */}
-        <div className="hero-badge mb-3">
-          <span className="pulse-dot"></span>
-          <span>Proof Over Paper &bull; Tech-Stack First &bull; Zero Ghosting</span>
-        </div>
 
         <h1 className="display-5 text-white fw-bold mb-3 hero-title" style={{ maxWidth: '880px', margin: '0 auto' }}>
           The Only Job Board Built For Developers — Hired By Your Code, Not Your Resume
