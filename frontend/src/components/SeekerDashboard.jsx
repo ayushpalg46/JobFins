@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { applicationService } from '../services/api';
+import SeekerOfferLetterModal from './SeekerOfferLetterModal';
 
 export default function SeekerDashboard({ user, onFindJobs }) {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOfferApp, setSelectedOfferApp] = useState(null);
+  const [offerModalOpen, setOfferModalOpen] = useState(false);
 
   useEffect(() => {
     fetchMyApplications();
@@ -24,7 +27,7 @@ export default function SeekerDashboard({ user, onFindJobs }) {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'ACCEPTED':
-        return <span className="badge bg-success"><i className="bi bi-check-circle me-1"></i> Accepted</span>;
+        return <span className="badge bg-success"><i className="bi bi-check-circle me-1"></i> Offer Extended</span>;
       case 'SHORTLISTED':
         return <span className="badge bg-primary"><i className="bi bi-star me-1"></i> Shortlisted</span>;
       case 'REJECTED':
@@ -75,8 +78,8 @@ export default function SeekerDashboard({ user, onFindJobs }) {
                   <th>Location</th>
                   <th>Job Type</th>
                   <th>Applied Date</th>
-                  <th>Cover Letter Note</th>
                   <th>Status</th>
+                  <th className="text-end">Action & Documents</th>
                 </tr>
               </thead>
               <tbody>
@@ -96,12 +99,22 @@ export default function SeekerDashboard({ user, onFindJobs }) {
                       <td><i className="bi bi-geo-alt text-muted me-1"></i>{app.job?.location}</td>
                       <td><span className="badge bg-light text-primary border">{app.job?.jobType}</span></td>
                       <td className="small text-muted">{app.appliedDate?.substring(0, 10)}</td>
-                      <td style={{ maxWidth: '240px' }}>
-                        <small className="text-muted text-truncate d-block" title={app.coverLetter}>
-                          {app.coverLetter || 'No cover letter submitted.'}
-                        </small>
-                      </td>
                       <td>{getStatusBadge(app.status)}</td>
+                      <td className="text-end">
+                        {(app.status === 'ACCEPTED' || app.offerDetails) ? (
+                          <button
+                            className="btn btn-success btn-sm py-1 px-3 fw-bold shadow-sm"
+                            onClick={() => {
+                              setSelectedOfferApp(app);
+                              setOfferModalOpen(true);
+                            }}
+                          >
+                            <i className="bi bi-file-earmark-check-fill me-1"></i> View Offer Letter
+                          </button>
+                        ) : (
+                          <span className="text-muted small italic">Awaiting Recruiter Review</span>
+                        )}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -110,6 +123,13 @@ export default function SeekerDashboard({ user, onFindJobs }) {
           </div>
         )}
       </div>
+
+      {/* Candidate Offer Letter Viewer Modal */}
+      <SeekerOfferLetterModal
+        isOpen={offerModalOpen}
+        onClose={() => setOfferModalOpen(false)}
+        application={selectedOfferApp}
+      />
     </div>
   );
 }

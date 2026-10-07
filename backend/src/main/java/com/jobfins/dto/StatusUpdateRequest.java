@@ -10,11 +10,18 @@ public class StatusUpdateRequest {
     @NotBlank(message = "Status cannot be empty")
     private String status;
 
+    private String offerDetails;
+
     public StatusUpdateRequest() {
     }
 
     public StatusUpdateRequest(String status) {
         this.status = status;
+    }
+
+    public StatusUpdateRequest(String status, String offerDetails) {
+        this.status = status;
+        this.offerDetails = offerDetails;
     }
 
     public String getStatus() {
@@ -23,5 +30,13 @@ public class StatusUpdateRequest {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getOfferDetails() {
+        return offerDetails;
+    }
+
+    public void setOfferDetails(String offerDetails) {
+        this.offerDetails = offerDetails;
     }
 }

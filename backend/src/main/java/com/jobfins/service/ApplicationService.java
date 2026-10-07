@@ -92,6 +92,9 @@ public class ApplicationService {
         }
 
         application.setStatus(request.getStatus().toUpperCase());
+        if (request.getOfferDetails() != null && !request.getOfferDetails().isBlank()) {
+            application.setOfferDetails(request.getOfferDetails());
+        }
         return applicationRepository.save(application);
     }
 }

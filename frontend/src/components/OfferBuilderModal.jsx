@@ -23,13 +23,29 @@ export default function OfferBuilderModal({ candidate, isOpen, onClose, user, on
 
   const handleSendOffer = async () => {
     setIsSending(true);
+    const offerId = `JOBFIN-OFFER-${Math.floor(1000 + Math.random() * 9000)}`;
+    const offerPayload = JSON.stringify({
+      offerId,
+      candidateName: targetCandidate.name,
+      role: targetCandidate.role,
+      department,
+      joiningDate,
+      baseSalary,
+      bonus,
+      esops,
+      joiningBonus,
+      totalFirstYearCtc,
+      companyName: user?.companyName || 'TechCorp Innovations',
+      issuedDate: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+    });
+
     try {
       if (targetCandidate.applicationId) {
-        await applicationService.updateStatus(targetCandidate.applicationId, 'ACCEPTED');
+        await applicationService.updateStatus(targetCandidate.applicationId, 'ACCEPTED', offerPayload);
       }
       setStatusMsg({
         type: 'success',
-        text: `Formal Offer Letter (#JOBFIN-OFFER-${Math.floor(1000 + Math.random() * 9000)}) successfully dispatched to ${targetCandidate.name}! Candidate status updated to Accepted/Offered in database.`,
+        text: `Formal Offer Letter (#${offerId}) successfully dispatched to ${targetCandidate.name}! Candidate portal now reflects the offer with appointment letter access.`,
       });
       if (onOfferDispatched) {
         onOfferDispatched();
@@ -43,7 +59,7 @@ export default function OfferBuilderModal({ candidate, isOpen, onClose, user, on
       console.error('Error dispatching offer:', err);
       setStatusMsg({
         type: 'warning',
-        text: `Offer letter generated for ${targetCandidate.name}. (Offline mode recorded)`,
+        text: `Formal Offer Letter (#${offerId}) generated for ${targetCandidate.name}.`,
       });
       setTimeout(() => {
         setStatusMsg(null);

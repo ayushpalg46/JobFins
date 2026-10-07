@@ -38,6 +38,10 @@ public class Application {
     @Column(nullable = false)
     private String status;
 
+    @Lob
+    @Column(name = "offer_details", columnDefinition = "LONGTEXT")
+    private String offerDetails;
+
     private LocalDateTime appliedDate;
 
     // Default constructor
@@ -108,6 +112,14 @@ public class Application {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getOfferDetails() {
+        return offerDetails;
+    }
+
+    public void setOfferDetails(String offerDetails) {
+        this.offerDetails = offerDetails;
     }
 
     public LocalDateTime getAppliedDate() {

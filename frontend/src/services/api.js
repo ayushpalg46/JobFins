@@ -42,7 +42,7 @@ export const applicationService = {
   getMyApplications: () => api.get('/applications/my-applications'),
   getApplicantsForJob: (jobId) => api.get(`/applications/job/${jobId}`),
   getAllApplicantsForRecruiter: () => api.get('/applications/recruiter/all'),
-  updateStatus: (applicationId, status) => api.put(`/applications/${applicationId}/status`, { status }),
+  updateStatus: (applicationId, status, offerDetails = null) => api.put(`/applications/${applicationId}/status`, { status, offerDetails }),
 };
 
 export const userService = {
