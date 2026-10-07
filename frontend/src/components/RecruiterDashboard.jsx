@@ -70,30 +70,6 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
         </button>
       </div>
 
-      {/* Recruiter Zero-Ghosting Response SLA Banner */}
-      <div className="card border-0 shadow-sm rounded-3 mb-4 overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', color: '#FFFFFF' }}>
-        <div className="card-body p-3 p-md-4">
-          <div className="row g-3 align-items-center">
-            <div className="col-md-8">
-              <div className="d-flex align-items-center gap-2 mb-1">
-                <span className="badge bg-success text-white">
-                  <i className="bi bi-lightning-fill text-warning me-1"></i> 100% SLA On-Track
-                </span>
-                <span className="text-light opacity-90 small">Average Turnaround: <strong>1.4 Days</strong></span>
-              </div>
-              <h5 className="fw-bold text-white mb-1">Zero-Ghosting Employer Compliance</h5>
-              <p className="text-light opacity-75 small mb-0">
-                You are maintaining the <strong>"⚡ Replies &lt;48 Hours"</strong> badge. Review and update candidate statuses within 7 days to preserve top algorithmic ranking for your job listings.
-              </p>
-            </div>
-            <div className="col-md-4 text-md-end">
-              <span className="badge bg-dark border border-secondary text-info px-3 py-2 font-monospace">
-                <i className="bi bi-code-square me-1"></i> Proof-Over-Paper ATS
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {message && (
         <div className={`alert alert-${message.type} py-2 small alert-dismissible fade show`} role="alert">
