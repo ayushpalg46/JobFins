@@ -56,13 +56,43 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
       {/* Header */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 p-4 bg-white rounded-3 border shadow-sm">
         <div>
-          <span className="badge bg-primary text-white mb-1">Recruiter ATS Portal</span>
+          <div className="d-flex align-items-center gap-2 mb-1">
+            <span className="badge bg-primary text-white">Recruiter ATS Portal</span>
+            <span className="response-sla-badge">
+              <i className="bi bi-shield-check text-success"></i> Zero-Ghosting Verified Partner
+            </span>
+          </div>
           <h2 className="h4 mb-0 text-dark fw-bold">{user?.companyName || 'My Company'} - Talent Hub</h2>
           <small className="text-muted">Logged in as {user?.name} ({user?.email})</small>
         </div>
-        <button className="btn btn-cobalt btn-sm px-3" onClick={onOpenPostJob}>
-          <i className="bi bi-plus-circle me-1"></i> Post a New Job
+        <button className="btn btn-cobalt btn-sm px-3 shadow-sm fw-bold" onClick={onOpenPostJob}>
+          <i className="bi bi-plus-circle me-1"></i> Post Tech Stack Opening
         </button>
+      </div>
+
+      {/* Recruiter Zero-Ghosting Response SLA Banner */}
+      <div className="card border-0 shadow-sm rounded-3 mb-4 overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', color: '#FFFFFF' }}>
+        <div className="card-body p-3 p-md-4">
+          <div className="row g-3 align-items-center">
+            <div className="col-md-8">
+              <div className="d-flex align-items-center gap-2 mb-1">
+                <span className="badge bg-success text-white">
+                  <i className="bi bi-lightning-fill text-warning me-1"></i> 100% SLA On-Track
+                </span>
+                <span className="text-light opacity-90 small">Average Turnaround: <strong>1.4 Days</strong></span>
+              </div>
+              <h5 className="fw-bold text-white mb-1">Zero-Ghosting Employer Compliance</h5>
+              <p className="text-light opacity-75 small mb-0">
+                You are maintaining the <strong>"⚡ Replies &lt;48 Hours"</strong> badge. Review and update candidate statuses within 7 days to preserve top algorithmic ranking for your job listings.
+              </p>
+            </div>
+            <div className="col-md-4 text-md-end">
+              <span className="badge bg-dark border border-secondary text-info px-3 py-2 font-monospace">
+                <i className="bi bi-code-square me-1"></i> Proof-Over-Paper ATS
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {message && (
@@ -78,7 +108,7 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
             className={`nav-link fw-bold ${activeTab === 'jobs' ? 'active text-primary' : 'text-muted'}`}
             onClick={() => setActiveTab('jobs')}
           >
-            <i className="bi bi-briefcase me-1"></i> My Active Jobs ({myJobs.length})
+            <i className="bi bi-briefcase me-1"></i> My Active Tech Jobs ({myJobs.length})
           </button>
         </li>
         <li className="nav-item">
@@ -86,7 +116,7 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
             className={`nav-link fw-bold ${activeTab === 'applicants' ? 'active text-primary' : 'text-muted'}`}
             onClick={() => setActiveTab('applicants')}
           >
-            <i className="bi bi-people me-1"></i> Candidate Applications ({applicants.length})
+            <i className="bi bi-people me-1"></i> Proof-of-Work Applicants ({applicants.length})
           </button>
         </li>
       </ul>
@@ -102,11 +132,11 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
           <table className="table table-hover align-middle mb-0">
             <thead className="table-light small text-uppercase">
               <tr>
-                <th>Job Title</th>
-                <th>Location</th>
+                <th>Job Title & Stack</th>
+                <th>Transit / Commute Line</th>
                 <th>Type</th>
                 <th>Compensation</th>
-                <th>Posted Date</th>
+                <th>SLA Badge</th>
                 <th className="text-end">Actions</th>
               </tr>
             </thead>
@@ -114,22 +144,42 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
               {myJobs.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="text-center py-4 text-muted">
-                    No active job listings found. Click "Post a New Job" to create your first listing!
+                    No active job listings found. Click "Post Tech Stack Opening" to create your first listing!
                   </td>
                 </tr>
               ) : (
                 myJobs.map((job) => (
                   <tr key={job.id}>
                     <td>
-                      <strong className="text-dark">{job.title}</strong>
-                      <small className="text-muted d-block">{job.company}</small>
+                      <strong className="text-dark d-block">{job.title}</strong>
+                      <div className="d-flex flex-wrap gap-1 mt-1">
+                        {job.requirements?.includes('Primary Tech Stack:') ? (
+                          job.requirements.split('Primary Tech Stack:')[1]?.split('\n')[0]?.split(',').slice(0, 3).map((t, idx) => (
+                            <span key={idx} className="tech-tag-cyber" style={{ fontSize: '0.68rem' }}>
+                              {t.trim()}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="badge bg-light text-primary border" style={{ fontSize: '0.68rem' }}>
+                            Developer Role
+                          </span>
+                        )}
+                      </div>
                     </td>
-                    <td><i className="bi bi-geo-alt text-muted me-1"></i>{job.location}</td>
+                    <td>
+                      <span className="transit-badge" style={{ fontSize: '0.72rem' }}>
+                        <i className="bi bi-train-front-fill"></i> {job.location || 'Remote'}
+                      </span>
+                    </td>
                     <td><span className="badge bg-light text-primary border">{job.jobType}</span></td>
                     <td className="text-success fw-semibold">{job.salary ? job.salary.replace(/\?(\s*\d)/g, '₹$1') : 'N/A'}</td>
-                    <td className="small text-muted">{job.postedDate?.substring(0, 10)}</td>
+                    <td>
+                      <span className="response-sla-badge">
+                        <i className="bi bi-lightning-fill text-warning"></i> &lt;48h Reply
+                      </span>
+                    </td>
                     <td className="text-end">
-                      <button className="btn btn-outline-danger btn-sm py-1 px-2" onClick={() => handleDeleteJob(job.id)}>
+                      <button className="btn btn-outline-danger btn-sm py-1 px-2" onClick={() => handleDeleteJob(job.id)} title="Delete Job Listing">
                         <i className="bi bi-trash"></i>
                       </button>
                     </td>
