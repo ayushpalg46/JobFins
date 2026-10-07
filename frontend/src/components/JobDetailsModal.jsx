@@ -89,6 +89,12 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
   };
 
   const hasProfileResume = Boolean(user?.resumeFileName || user?.resumeBase64 || user?.resumeUrl);
+  const hasFastResponse =
+    job.fastResponse === true ||
+    job.requirements?.includes('Fast Response: <48h') ||
+    job.requirements?.includes('<48h Reply') ||
+    job.requirements?.includes('Replies <48h') ||
+    job.description?.includes('Fast Response: <48h');
 
   return (
     <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(10,25,47,0.6)' }}>
@@ -98,11 +104,13 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
             <div>
               <div className="d-flex align-items-center gap-2 mb-1">
                 <span className="tech-tag-cyber" style={{ fontSize: '0.7rem' }}>
-                  <i className="bi bi-shield-check me-1 text-primary"></i> Zero Ghosting Verified
+                  <i className="bi bi-shield-check me-1 text-primary"></i> Verified Tech Role
                 </span>
-                <span className="response-sla-badge">
-                  <i className="bi bi-lightning-fill text-warning"></i> Replies &lt;48 Hours
-                </span>
+                {hasFastResponse && (
+                  <span className="response-sla-badge">
+                    <i className="bi bi-lightning-fill text-warning"></i> &lt;48h Reply
+                  </span>
+                )}
               </div>
               <h5 className="modal-title fw-bold text-dark">{job.title}</h5>
               <div className="text-primary fw-semibold small">

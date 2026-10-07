@@ -39,12 +39,18 @@ export default function JobCard({ job, onSelectJob, onApplyJob }) {
   };
 
   const techStack = getTechStack();
+  const hasFastResponse =
+    job.fastResponse === true ||
+    job.requirements?.includes('Fast Response: <48h') ||
+    job.requirements?.includes('<48h Reply') ||
+    job.requirements?.includes('Replies <48h') ||
+    job.description?.includes('Fast Response: <48h');
 
   return (
     <div className="col-md-6 col-lg-6">
       <div className="job-card position-relative">
         <div>
-          {/* Top Bar: Cyber Tech Stack Tags & SLA Badge */}
+          {/* Top Bar: Cyber Tech Stack Tags & Optional SLA Badge */}
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2 pb-2 border-bottom">
             <div className="d-flex flex-wrap gap-1">
               {techStack.map((tech) => (
@@ -53,9 +59,11 @@ export default function JobCard({ job, onSelectJob, onApplyJob }) {
                 </span>
               ))}
             </div>
-            <span className="response-sla-badge" title="Verified active employer with <48h response SLA">
-              <i className="bi bi-lightning-fill text-warning"></i> Replies &lt;48h
-            </span>
+            {hasFastResponse && (
+              <span className="response-sla-badge" title="Verified active employer with <48h response SLA">
+                <i className="bi bi-lightning-fill text-warning"></i> &lt;48h Reply
+              </span>
+            )}
           </div>
 
           {/* Role & Company */}

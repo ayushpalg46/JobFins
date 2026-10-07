@@ -66,6 +66,7 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
   const [customSalary, setCustomSalary] = useState('');
   const [selectedTech, setSelectedTech] = useState(['Spring Boot', 'Java 17/21']);
   const [proofRequirement, setProofRequirement] = useState('GitHub Repo + Live Demo');
+  const [enableFastResponse, setEnableFastResponse] = useState(false);
   const [description, setDescription] = useState('');
   const [requirements, setRequirements] = useState('');
 
@@ -93,8 +94,11 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
     const finalLocation = location === 'Other / Custom Location' ? (customLocation || 'Mumbai, Maharashtra') : location;
     const finalSalary = salary === 'Other / Custom Salary Range' ? (customSalary || '₹12,00,000 - ₹18,00,000 / yr') : salary;
 
-    // Assemble rich requirements with Tech Stack & Proof requirements
+    // Assemble rich requirements with Tech Stack, Proof & Fast Response SLA
     let combinedReqs = '';
+    if (enableFastResponse) {
+      combinedReqs += `[Fast Response: <48h Reply Guaranteed]\n`;
+    }
     if (selectedTech.length > 0) {
       combinedReqs += `Primary Tech Stack: ${selectedTech.join(', ')}\n`;
     }
@@ -337,12 +341,32 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
                     </div>
                   </div>
 
-                  {/* Recruiter Zero-Ghosting Pledge */}
-                  <div className="p-2 bg-success-subtle rounded border border-success-subtle mt-3 d-flex align-items-center gap-2 small text-success">
-                    <i className="bi bi-shield-lock-fill fs-5"></i>
-                    <div>
-                      <strong>JobFins Zero-Ghosting Commitment:</strong> As a verified recruiter, you pledge to review applications within 7 days to maintain your company's <span className="badge bg-success text-white">⚡ Replies &lt;48h</span> badge.
+                  {/* Feature: <48h Reply Guarantee Badge Opt-in */}
+                  <div className={`p-3 rounded-3 border mt-3 transition-all ${enableFastResponse ? 'bg-success-subtle border-success' : 'bg-light border-secondary-subtle'}`}>
+                    <div className="form-check form-switch d-flex align-items-center justify-content-between ps-0 mb-0">
+                      <div className="d-flex align-items-center gap-2">
+                        <input
+                          className="form-check-input ms-0 me-2"
+                          type="checkbox"
+                          role="switch"
+                          id="enableFastResponseSwitch"
+                          checked={enableFastResponse}
+                          onChange={(e) => setEnableFastResponse(e.target.checked)}
+                          style={{ cursor: 'pointer', transform: 'scale(1.2)' }}
+                        />
+                        <label className="form-check-label fw-bold text-dark cursor-pointer mb-0" htmlFor="enableFastResponseSwitch">
+                          Add Feature Badge: <span className="response-sla-badge ms-1"><i className="bi bi-lightning-fill text-warning"></i> &lt;48h Reply</span>
+                        </label>
+                      </div>
+                      <span className={`badge ${enableFastResponse ? 'bg-success text-white' : 'bg-secondary-subtle text-secondary border'}`} style={{ fontSize: '0.72rem' }}>
+                        {enableFastResponse ? 'Feature Active On This Post' : 'Feature Off'}
+                      </span>
                     </div>
+                    <p className="text-muted small mb-0 mt-2" style={{ fontSize: '0.78rem' }}>
+                      {enableFastResponse
+                        ? "⚡ This post will showcase the verified '<48h Reply' badge. You commit to reviewing applications within 48 hours."
+                        : "Turn on this feature if you want your post to display the verified '⚡ <48h Reply' badge to attract more candidates."}
+                    </p>
                   </div>
 
                   <div className="mt-4 pt-2 border-top d-flex gap-2 justify-content-end">

@@ -174,9 +174,15 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer 
                     <td><span className="badge bg-light text-primary border">{job.jobType}</span></td>
                     <td className="text-success fw-semibold">{job.salary ? job.salary.replace(/\?(\s*\d)/g, '₹$1') : 'N/A'}</td>
                     <td>
-                      <span className="response-sla-badge">
-                        <i className="bi bi-lightning-fill text-warning"></i> &lt;48h Reply
-                      </span>
+                      {job.requirements?.includes('Fast Response: <48h') || job.requirements?.includes('<48h Reply') || job.requirements?.includes('Replies <48h') ? (
+                        <span className="response-sla-badge">
+                          <i className="bi bi-lightning-fill text-warning"></i> &lt;48h Reply
+                        </span>
+                      ) : (
+                        <span className="badge bg-light text-muted border" style={{ fontSize: '0.7rem' }}>
+                          Standard Review
+                        </span>
+                      )}
                     </td>
                     <td className="text-end">
                       <button className="btn btn-outline-danger btn-sm py-1 px-2" onClick={() => handleDeleteJob(job.id)} title="Delete Job Listing">
