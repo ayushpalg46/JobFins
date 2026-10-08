@@ -73,6 +73,13 @@ export const portalService = {
   getCompanies: () => api.get('/companies'),
 };
 
+export const careerTipsService = {
+  getAllTips: () => api.get('/career-tips'),
+  createTip: (tipData) => api.post('/career-tips', tipData),
+  likeTip: (id) => api.put(`/career-tips/${id}/like`),
+  getCategories: () => api.get('/career-tips/categories'),
+};
+
 export const labService = portalService;
 
 export default api;

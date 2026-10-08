@@ -28,6 +28,9 @@ public class DataInitializer implements CommandLineRunner {
     private JobRepository jobRepository;
 
     @Autowired
+    private com.jobfins.repository.CareerTipRepository careerTipRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
@@ -117,6 +120,35 @@ public class DataInitializer implements CommandLineRunner {
                         recruiter
                 );
                 jobRepository.save(job2);
+
+                // 4. Create Initial Career Tips (Authored by both Recruiter and Candidate)
+                if (careerTipRepository.count() == 0) {
+                    com.jobfins.model.CareerTip tip1 = new com.jobfins.model.CareerTip(
+                            "What Engineering Leaders Look For in Full Stack Take-Homes",
+                            "Hiring Manager Insights",
+                            "Advice from tech recruiting leads on passing codebase evaluations.",
+                            "1. Write clear unit and integration tests.\n2. Provide a 1-click Dockerfile or live deployed URL.\n3. Keep architecture clean with separation of concerns between Controller, Service, and Repository layers.",
+                            "TechCorp Recruiter",
+                            "ROLE_RECRUITER",
+                            "TechCorp Innovations",
+                            "recruiter@jobfins.com"
+                    );
+                    tip1.setLikesCount(18);
+                    careerTipRepository.save(tip1);
+
+                    com.jobfins.model.CareerTip tip2 = new com.jobfins.model.CareerTip(
+                            "How I Prepared for Spring Boot 3 & Microservice Interviews in 30 Days",
+                            "Technical Interview Prep",
+                            "A candidate's hands-on roadmap to mastering Java 17+, Hibernate, and RESTful APIs.",
+                            "Focus on hands-on project proof rather than memorizing theory. Build a full-stack CRUD application with JWT auth and deploy on Render/Vercel to demonstrate end-to-end capability.",
+                            "Ayush Pal",
+                            "ROLE_SEEKER",
+                            null,
+                            "seeker@jobfins.com"
+                    );
+                    tip2.setLikesCount(24);
+                    careerTipRepository.save(tip2);
+                }
 
                 log.info("Sample database initialization completed successfully.");
             }

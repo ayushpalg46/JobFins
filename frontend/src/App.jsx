@@ -274,7 +274,13 @@ export default function App() {
             }}
           />
         ) : currentView === 'career-tips' ? (
-          <CareerTips />
+          <CareerTips
+            user={user}
+            onOpenLogin={() => {
+              setAuthMode('login');
+              setAuthModalOpen(true);
+            }}
+          />
         ) : (
           /* Home / Jobs View: Hero, Search Matrix, and Job Catalog */
           <>
