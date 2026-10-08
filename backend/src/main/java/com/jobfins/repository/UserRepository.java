@@ -22,4 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Count users by role for dashboard statistics
     long countByRole(Role role);
+
+    // Find all users by role (e.g. all registered job seekers for talent sourcing)
+    java.util.List<User> findByRole(Role role);
 }

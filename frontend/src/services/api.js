@@ -64,6 +64,7 @@ export const applicationService = {
 export const userService = {
   getProfile: () => api.get('/users/profile'),
   updateProfile: (profileData) => api.put('/users/profile', profileData),
+  getCandidates: () => api.get('/users/candidates'),
 };
 
 export const portalService = {

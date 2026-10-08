@@ -64,6 +64,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/salary-guide/**").permitAll()
                 .requestMatchers("/api/companies/**").permitAll()
                 .requestMatchers("/api/career-tips/**").permitAll()
+                .requestMatchers("/api/users/candidates").permitAll()
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/info").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/jobs").permitAll()

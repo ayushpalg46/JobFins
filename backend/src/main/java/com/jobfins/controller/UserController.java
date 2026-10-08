@@ -65,4 +65,12 @@ public class UserController {
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok(savedUser);
     }
+
+    /**
+     * Get all registered job seekers for recruiter talent sourcing.
+     */
+    @GetMapping("/candidates")
+    public ResponseEntity<?> getAllCandidates() {
+        return ResponseEntity.ok(userRepository.findByRole(com.jobfins.model.Role.ROLE_SEEKER));
+    }
 }
