@@ -14,125 +14,109 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
 
   if (!isOpen || !job) return null;
 
+  // Determine recruiter proof requirement
   const getProofRequirementInfo = () => {
     const req = (job?.requirements || '').toLowerCase();
     
+    // Check for "Proof of Work Required:" line first
     if (req.includes('proof of work required:')) {
       const line = req.split('\n').find((l) => l.includes('proof of work required:')) || '';
-      if (line.includes('either') || line.includes('pdf resume') || line.includes('github repo or pdf')) {
+      
+      if (line.includes('either') || line.includes('pdf resume') || line.includes('github repo or pdf') || line.includes('resume')) {
         return {
           type: 'GITHUB_OR_RESUME',
           title: 'Either GitHub Repo or PDF Resume',
-          heading: 'Proof Option: GitHub Repo OR PDF Resume',
-          tagline: 'You can apply by providing either a verified GitHub repository URL or uploading your PDF resume.',
-          githubRequired: false,
-          demoRequired: false,
-          resumeRequired: false,
-          eitherOr: true,
+          heading: 'GitHub Repo OR PDF Resume Application',
+          tagline: 'You can apply with either a verified GitHub repository OR your PDF resume document.',
           badgeText: 'GitHub Repo or PDF Resume',
-          badgeClass: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle'
+          badgeClass: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
+          submitBtnText: 'Submit Application (Repo or Resume)',
         };
       }
-      if (line.includes('live deployed') || line.includes('url only') || line.includes('live demo only')) {
+      
+      if (line.includes('live deployed') || line.includes('live demo') || line.includes('project url') || line.includes('url only')) {
         return {
           type: 'DEMO_ONLY',
           title: 'Live Deployed Project URL Required',
-          heading: 'Live Deployed Project URL Required',
-          tagline: 'The recruiter requires a live deployed application or demo link to review your work in action.',
-          githubRequired: false,
-          demoRequired: true,
-          resumeRequired: false,
-          eitherOr: false,
+          heading: 'Live Deployed Project URL Application',
+          tagline: 'Recruiter requires a working, public live deployed application or demo URL.',
           badgeText: 'Live Demo URL Required',
-          badgeClass: 'bg-info-subtle text-info-emphasis border border-info-subtle'
+          badgeClass: 'bg-info-subtle text-info-emphasis border border-info-subtle',
+          submitBtnText: 'Submit Live Demo Proof',
         };
       }
+      
       if (line.includes('github repository required') || line.includes('github repo only') || (line.includes('github') && !line.includes('demo') && !line.includes('live'))) {
         return {
           type: 'GITHUB_ONLY',
           title: 'GitHub Repository Required',
-          heading: 'GitHub Repository URL Required',
-          tagline: 'The recruiter prioritizes direct code review. A verified GitHub repository URL is required.',
-          githubRequired: true,
-          demoRequired: false,
-          resumeRequired: false,
-          eitherOr: false,
+          heading: 'GitHub Source Code Application',
+          tagline: 'Recruiter evaluates your code architecture. A verified GitHub repository URL is required.',
           badgeText: 'GitHub Repo Required',
-          badgeClass: 'bg-dark-subtle text-dark border border-secondary-subtle'
+          badgeClass: 'bg-dark-subtle text-dark border border-secondary-subtle',
+          submitBtnText: 'Submit GitHub Code Proof',
         };
       }
+      
       if (line.includes('github') && (line.includes('demo') || line.includes('live'))) {
         return {
           type: 'GITHUB_AND_DEMO',
           title: 'GitHub Repository + Live Demo Required',
-          heading: 'GitHub Repository + Live Demo Required',
-          tagline: 'Both your verified GitHub repository and a live deployed project demo are required by the recruiter.',
-          githubRequired: true,
-          demoRequired: true,
-          resumeRequired: false,
-          eitherOr: false,
+          heading: '"Proof Over Paper" Application',
+          tagline: 'Get hired for what you\'ve actually built. Both your GitHub repo and a live deployed demo are required.',
           badgeText: 'GitHub + Live Demo Required',
-          badgeClass: 'bg-primary-subtle text-primary border border-primary-subtle'
+          badgeClass: 'bg-primary-subtle text-primary border border-primary-subtle',
+          submitBtnText: 'Submit Proof Application (Code + Demo)',
         };
       }
     }
 
-    // Fallback checks for keywords
-    if (req.includes('either github') || req.includes('github repo or pdf')) {
-      return {
-        type: 'GITHUB_OR_RESUME',
-        title: 'Either GitHub Repo or PDF Resume',
-        heading: 'Proof Option: GitHub Repo OR PDF Resume',
-        tagline: 'You can apply by providing either a verified GitHub repository URL or uploading your PDF resume.',
-        githubRequired: false,
-        demoRequired: false,
-        resumeRequired: false,
-        eitherOr: true,
-        badgeText: 'GitHub Repo or PDF Resume',
-        badgeClass: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle'
-      };
-    }
+    // Generic fallback checks across full text
     if (req.includes('live deployed project url required') || req.includes('live deployed url only') || req.includes('live demo required')) {
       return {
         type: 'DEMO_ONLY',
         title: 'Live Deployed Project URL Required',
-        heading: 'Live Deployed Project URL Required',
-        tagline: 'The recruiter requires a live deployed application or demo link to review your work in action.',
-        githubRequired: false,
-        demoRequired: true,
-        resumeRequired: false,
-        eitherOr: false,
+        heading: 'Live Deployed Project URL Application',
+        tagline: 'Recruiter requires a working, public live deployed application or demo URL.',
         badgeText: 'Live Demo URL Required',
-        badgeClass: 'bg-info-subtle text-info-emphasis border border-info-subtle'
+        badgeClass: 'bg-info-subtle text-info-emphasis border border-info-subtle',
+        submitBtnText: 'Submit Live Demo Proof',
       };
     }
+    
+    if (req.includes('either github') || req.includes('github repo or pdf')) {
+      return {
+        type: 'GITHUB_OR_RESUME',
+        title: 'Either GitHub Repo or PDF Resume',
+        heading: 'GitHub Repo OR PDF Resume Application',
+        tagline: 'You can apply with either a verified GitHub repository OR your PDF resume document.',
+        badgeText: 'GitHub Repo or PDF Resume',
+        badgeClass: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
+        submitBtnText: 'Submit Application (Repo or Resume)',
+      };
+    }
+
     if (req.includes('github repository required') || req.includes('github repo only')) {
       return {
         type: 'GITHUB_ONLY',
         title: 'GitHub Repository Required',
-        heading: 'GitHub Repository URL Required',
-        tagline: 'The recruiter prioritizes direct code review. A verified GitHub repository URL is required.',
-        githubRequired: true,
-        demoRequired: false,
-        resumeRequired: false,
-        eitherOr: false,
+        heading: 'GitHub Source Code Application',
+        tagline: 'Recruiter evaluates your code architecture. A verified GitHub repository URL is required.',
         badgeText: 'GitHub Repo Required',
-        badgeClass: 'bg-dark-subtle text-dark border border-secondary-subtle'
+        badgeClass: 'bg-dark-subtle text-dark border border-secondary-subtle',
+        submitBtnText: 'Submit GitHub Code Proof',
       };
     }
 
-    // Default: Standard Proof over paper
+    // Default: Both code repo and demo
     return {
       type: 'GITHUB_AND_DEMO',
       title: 'GitHub Repository + Live Demo Required',
       heading: '"Proof Over Paper" Application',
       tagline: 'Get hired for what you\'ve actually built. Both your GitHub repo and a live deployed demo are required.',
-      githubRequired: true,
-      demoRequired: true,
-      resumeRequired: false,
-      eitherOr: false,
       badgeText: 'GitHub + Live Demo Required',
-      badgeClass: 'bg-primary-subtle text-primary border border-primary-subtle'
+      badgeClass: 'bg-primary-subtle text-primary border border-primary-subtle',
+      submitBtnText: 'Submit Proof Application (Code + Demo)',
     };
   };
 
@@ -168,14 +152,10 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
 
     const hasResume = Boolean(attachedFileBase64 || resumeLink.trim() || (useProfileResume && (user?.resumeBase64 || user?.resumeUrl || user?.resumeFileName)));
 
-    // Dynamic validations based on recruiter's proof selection
-    if (proofInfo.type === 'GITHUB_AND_DEMO') {
-      if (!githubUrl.trim()) {
-        setFeedback({ type: 'danger', message: 'GitHub Repository URL is required by the recruiter for this position.' });
-        return;
-      }
+    // Dynamic validations based on recruiter's proof requirement
+    if (proofInfo.type === 'DEMO_ONLY') {
       if (!liveDemoUrl.trim()) {
-        setFeedback({ type: 'danger', message: 'Live Deployed Project / Demo URL is required by the recruiter for this position.' });
+        setFeedback({ type: 'danger', message: 'Live Deployed Project URL is required by the recruiter for this position.' });
         return;
       }
     } else if (proofInfo.type === 'GITHUB_ONLY') {
@@ -183,19 +163,18 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
         setFeedback({ type: 'danger', message: 'GitHub Repository URL is required by the recruiter for this position.' });
         return;
       }
-    } else if (proofInfo.type === 'DEMO_ONLY') {
+    } else if (proofInfo.type === 'GITHUB_AND_DEMO') {
+      if (!githubUrl.trim()) {
+        setFeedback({ type: 'danger', message: 'GitHub Repository URL is required by the recruiter for this position.' });
+        return;
+      }
       if (!liveDemoUrl.trim()) {
-        setFeedback({ type: 'danger', message: 'Live Deployed Project URL is required by the recruiter for this position.' });
+        setFeedback({ type: 'danger', message: 'Live Deployed Demo URL is required by the recruiter for this position.' });
         return;
       }
     } else if (proofInfo.type === 'GITHUB_OR_RESUME') {
       if (!githubUrl.trim() && !hasResume) {
         setFeedback({ type: 'danger', message: 'Please provide either a GitHub Repository URL OR upload/attach a Resume PDF to submit.' });
-        return;
-      }
-    } else {
-      if (!githubUrl.trim() && !hasResume) {
-        setFeedback({ type: 'danger', message: 'Please provide either a GitHub Repository URL or a Resume attachment.' });
         return;
       }
     }
@@ -207,16 +186,16 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
       finalResume = resumeLink.trim();
     } else if (useProfileResume && (user?.resumeBase64 || user?.resumeUrl || user?.resumeFileName)) {
       finalResume = user.resumeBase64 || user.resumeUrl || user.resumeFileName;
-    } else if (githubUrl.trim()) {
-      finalResume = githubUrl.trim();
     } else if (liveDemoUrl.trim()) {
       finalResume = liveDemoUrl.trim();
+    } else if (githubUrl.trim()) {
+      finalResume = githubUrl.trim();
     }
 
-    // Build structured note including GitHub & Live Demo
+    // Build structured note
     let structuredNote = '';
-    if (githubUrl.trim()) structuredNote += `[GitHub Repo]: ${githubUrl.trim()}\n`;
     if (liveDemoUrl.trim()) structuredNote += `[Live Demo]: ${liveDemoUrl.trim()}\n`;
+    if (githubUrl.trim()) structuredNote += `[GitHub Repo]: ${githubUrl.trim()}\n`;
     if (techStackUsed.trim()) structuredNote += `[Tech Stack]: ${techStackUsed.trim()}\n\n`;
     structuredNote += coverLetter.trim();
 
@@ -254,8 +233,9 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
   return (
     <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(10,25,47,0.6)' }}>
       <div className="modal-dialog modal-dialog-centered modal-lg">
-        <div className="modal-content">
-          <div className="modal-header">
+        <div className="modal-content border-0 shadow-lg rounded-3">
+          {/* Header */}
+          <div className="modal-header bg-white border-bottom py-3">
             <div>
               <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
                 <span className="tech-tag-cyber" style={{ fontSize: '0.7rem' }}>
@@ -278,15 +258,22 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
 
-          <div className="modal-body">
+          <div className="modal-body p-4">
             <div className="row g-4">
+              {/* Left Column: Job Info */}
               <div className="col-md-6">
-                <h6 className="fw-bold text-dark mb-2"><i className="bi bi-info-circle me-1 text-primary"></i> Role Overview</h6>
+                <h6 className="fw-bold text-dark mb-2">
+                  <i className="bi bi-info-circle me-1 text-primary"></i> Role Overview
+                </h6>
                 <p className="text-muted small">{job.description}</p>
 
-                <h6 className="fw-bold text-dark mt-4 mb-2"><i className="bi bi-check2-square me-1 text-success"></i> Requirements & Tech Stack</h6>
+                <h6 className="fw-bold text-dark mt-4 mb-2">
+                  <i className="bi bi-check2-square me-1 text-success"></i> Requirements & Tech Stack
+                </h6>
                 <div className="bg-light p-3 rounded border small text-muted">
-                  <pre className="mb-0" style={{ fontFamily: 'inherit', whiteSpace: 'pre-wrap' }}>{job.requirements || 'No specific requirements listed.'}</pre>
+                  <pre className="mb-0" style={{ fontFamily: 'inherit', whiteSpace: 'pre-wrap' }}>
+                    {job.requirements || 'No specific requirements listed.'}
+                  </pre>
                 </div>
 
                 <div className="mt-3 d-flex flex-wrap gap-3 small text-muted">
@@ -296,25 +283,34 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
                 </div>
               </div>
 
-              <div className="col-md-6 border-start">
-                {/* Proof Requirement Callout Card */}
+              {/* Right Column: Dynamic Proof Over Paper Form */}
+              <div className="col-md-6 border-start ps-md-4">
+                {/* Dynamic Title & Tagline matching recruiter selection */}
+                <div className="mb-3">
+                  <h6 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                    <i className="bi bi-code-slash text-primary"></i>
+                    {proofInfo.heading}
+                  </h6>
+                  <p className="text-muted small mb-0" style={{ fontSize: '0.78rem' }}>
+                    {proofInfo.tagline}
+                  </p>
+                </div>
+
+                {/* Recruiter Requirement Callout Badge Card */}
                 <div className={`p-2 rounded mb-3 border ${
-                  proofInfo.type === 'GITHUB_AND_DEMO' ? 'bg-primary-subtle border-primary-subtle text-primary-emphasis' :
-                  proofInfo.type === 'GITHUB_ONLY' ? 'bg-dark-subtle border-secondary-subtle text-dark' :
                   proofInfo.type === 'DEMO_ONLY' ? 'bg-info-subtle border-info-subtle text-info-emphasis' :
-                  'bg-warning-subtle border-warning-subtle text-warning-emphasis'
+                  proofInfo.type === 'GITHUB_ONLY' ? 'bg-dark-subtle border-secondary-subtle text-dark' :
+                  proofInfo.type === 'GITHUB_OR_RESUME' ? 'bg-warning-subtle border-warning-subtle text-warning-emphasis' :
+                  'bg-primary-subtle border-primary-subtle text-primary-emphasis'
                 }`}>
-                  <div className="d-flex align-items-center justify-content-between mb-1">
-                    <span className="fw-bold small">
-                      <i className="bi bi-patch-check-fill me-1"></i> Proof Requirement
+                  <div className="d-flex align-items-center justify-content-between">
+                    <span className="fw-bold" style={{ fontSize: '0.75rem' }}>
+                      <i className="bi bi-check-circle-fill me-1"></i> Recruiter Proof Rule:
                     </span>
                     <span className={`badge ${proofInfo.badgeClass}`} style={{ fontSize: '0.65rem' }}>
                       {proofInfo.badgeText}
                     </span>
                   </div>
-                  <p className="small mb-0" style={{ fontSize: '0.74rem' }}>
-                    {proofInfo.tagline}
-                  </p>
                 </div>
 
                 {feedback && (
@@ -324,67 +320,154 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
                 )}
 
                 <form onSubmit={handleSubmit}>
-                  {/* Proof 1: GitHub Repo URL */}
-                  <div className="mb-2">
-                    <label className="form-label small fw-bold mb-1 text-dark">
-                      <i className="bi bi-github text-dark me-1"></i> GitHub Repository URL{' '}
-                      {proofInfo.githubRequired ? (
-                        <span className="text-danger">*</span>
-                      ) : proofInfo.type === 'GITHUB_OR_RESUME' ? (
-                        !attachedFile && !resumeLink && !useProfileResume ? (
-                          <span className="badge bg-warning-subtle text-warning-emphasis ms-1" style={{ fontSize: '0.65rem' }}>Required if no Resume</span>
-                        ) : (
-                          <span className="text-muted fw-normal small">(Optional)</span>
-                        )
-                      ) : (
-                        <span className="text-muted fw-normal small">(Optional)</span>
-                      )}
-                    </label>
-                    <input
-                      type="url"
-                      className="form-control form-control-sm font-monospace"
-                      value={githubUrl}
-                      onChange={(e) => setGithubUrl(e.target.value)}
-                      placeholder="https://github.com/your-handle/project-repo"
-                      required={proofInfo.githubRequired}
-                    />
-                    <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>
-                      {proofInfo.type === 'GITHUB_ONLY'
-                        ? 'Mandatory: Repository verifying your framework implementation & code structure.'
-                        : proofInfo.type === 'GITHUB_AND_DEMO'
-                        ? 'Repository verifying your codebase and architecture.'
-                        : proofInfo.type === 'GITHUB_OR_RESUME'
-                        ? 'Submit your repo link OR upload your resume document below.'
-                        : 'Optional source repository link.'}
-                    </small>
-                  </div>
+                  {/* CASE 1: DEMO ONLY - Show Live Deployed URL as Primary Top Field */}
+                  {proofInfo.type === 'DEMO_ONLY' && (
+                    <>
+                      <div className="mb-3 p-2 bg-info-subtle border border-info-subtle rounded">
+                        <label className="form-label small fw-bold mb-1 text-dark">
+                          <i className="bi bi-globe me-1 text-primary"></i> Live Deployed Demo / Project URL <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="url"
+                          className="form-control form-control-sm border-primary"
+                          value={liveDemoUrl}
+                          onChange={(e) => setLiveDemoUrl(e.target.value)}
+                          placeholder="https://your-project.vercel.app"
+                          required
+                          autoFocus
+                        />
+                        <small className="text-muted d-block mt-1" style={{ fontSize: '0.7rem' }}>
+                          Mandatory: Public URL where the recruiter can test your working project.
+                        </small>
+                      </div>
 
-                  {/* Proof 2: Live Deployed Demo URL */}
-                  <div className="mb-2">
-                    <label className="form-label small fw-bold mb-1 text-dark">
-                      <i className="bi bi-globe me-1 text-primary"></i> Live Deployed Demo / Hackathon URL{' '}
-                      {proofInfo.demoRequired ? (
-                        <span className="text-danger">*</span>
-                      ) : (
-                        <span className="text-muted fw-normal small">(Optional)</span>
-                      )}
-                    </label>
-                    <input
-                      type="url"
-                      className="form-control form-control-sm"
-                      value={liveDemoUrl}
-                      onChange={(e) => setLiveDemoUrl(e.target.value)}
-                      placeholder="https://your-project.vercel.app"
-                      required={proofInfo.demoRequired}
-                    />
-                    {proofInfo.demoRequired && (
-                      <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>
-                        Mandatory: Working public URL where the recruiter can test your project live.
-                      </small>
-                    )}
-                  </div>
+                      <div className="mb-2">
+                        <label className="form-label small fw-bold mb-1 text-dark">
+                          <i className="bi bi-github text-dark me-1"></i> GitHub Repository URL <span className="text-muted fw-normal small">(Optional)</span>
+                        </label>
+                        <input
+                          type="url"
+                          className="form-control form-control-sm font-monospace"
+                          value={githubUrl}
+                          onChange={(e) => setGithubUrl(e.target.value)}
+                          placeholder="https://github.com/your-handle/project-repo"
+                        />
+                      </div>
+                    </>
+                  )}
 
-                  {/* Proof 3: Frameworks Used */}
+                  {/* CASE 2: GITHUB ONLY - Show GitHub URL as Primary Field */}
+                  {proofInfo.type === 'GITHUB_ONLY' && (
+                    <>
+                      <div className="mb-3 p-2 bg-light border border-dark-subtle rounded">
+                        <label className="form-label small fw-bold mb-1 text-dark">
+                          <i className="bi bi-github text-dark me-1"></i> GitHub Repository URL <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="url"
+                          className="form-control form-control-sm font-monospace border-dark"
+                          value={githubUrl}
+                          onChange={(e) => setGithubUrl(e.target.value)}
+                          placeholder="https://github.com/your-handle/project-repo"
+                          required
+                          autoFocus
+                        />
+                        <small className="text-muted d-block mt-1" style={{ fontSize: '0.7rem' }}>
+                          Mandatory: Public repo verifying your framework implementation and code structure.
+                        </small>
+                      </div>
+
+                      <div className="mb-2">
+                        <label className="form-label small fw-bold mb-1 text-dark">
+                          <i className="bi bi-globe me-1 text-primary"></i> Live Deployed Demo URL <span className="text-muted fw-normal small">(Optional)</span>
+                        </label>
+                        <input
+                          type="url"
+                          className="form-control form-control-sm"
+                          value={liveDemoUrl}
+                          onChange={(e) => setLiveDemoUrl(e.target.value)}
+                          placeholder="https://your-project.vercel.app"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* CASE 3: GITHUB + LIVE DEMO REQUIRED - Both Fields Required */}
+                  {proofInfo.type === 'GITHUB_AND_DEMO' && (
+                    <>
+                      <div className="mb-2">
+                        <label className="form-label small fw-bold mb-1 text-dark">
+                          <i className="bi bi-github text-dark me-1"></i> GitHub Repository URL <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="url"
+                          className="form-control form-control-sm font-monospace"
+                          value={githubUrl}
+                          onChange={(e) => setGithubUrl(e.target.value)}
+                          placeholder="https://github.com/your-handle/project-repo"
+                          required
+                        />
+                        <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>
+                          Repository verifying your backend/frontend code implementation.
+                        </small>
+                      </div>
+
+                      <div className="mb-2">
+                        <label className="form-label small fw-bold mb-1 text-dark">
+                          <i className="bi bi-globe me-1 text-primary"></i> Live Deployed Demo / Hackathon URL <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="url"
+                          className="form-control form-control-sm"
+                          value={liveDemoUrl}
+                          onChange={(e) => setLiveDemoUrl(e.target.value)}
+                          placeholder="https://your-project.vercel.app"
+                          required
+                        />
+                        <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>
+                          Live deployed link for recruiters to test the running project.
+                        </small>
+                      </div>
+                    </>
+                  )}
+
+                  {/* CASE 4: EITHER GITHUB OR RESUME */}
+                  {proofInfo.type === 'GITHUB_OR_RESUME' && (
+                    <>
+                      <div className="p-2 mb-2 bg-light rounded border">
+                        <label className="form-label small fw-bold mb-1 text-dark">
+                          <i className="bi bi-github text-dark me-1"></i> Option A: GitHub Repository URL{' '}
+                          {!attachedFile && !resumeLink && !useProfileResume ? (
+                            <span className="badge bg-warning text-dark ms-1" style={{ fontSize: '0.65rem' }}>Provide Repo OR Resume</span>
+                          ) : (
+                            <span className="text-muted fw-normal small">(Optional)</span>
+                          )}
+                        </label>
+                        <input
+                          type="url"
+                          className="form-control form-control-sm font-monospace"
+                          value={githubUrl}
+                          onChange={(e) => setGithubUrl(e.target.value)}
+                          placeholder="https://github.com/your-handle/project-repo"
+                        />
+                      </div>
+
+                      <div className="mb-2">
+                        <label className="form-label small fw-bold mb-1 text-dark">
+                          <i className="bi bi-globe me-1 text-primary"></i> Live Deployed Demo URL <span className="text-muted fw-normal small">(Optional)</span>
+                        </label>
+                        <input
+                          type="url"
+                          className="form-control form-control-sm"
+                          value={liveDemoUrl}
+                          onChange={(e) => setLiveDemoUrl(e.target.value)}
+                          placeholder="https://your-project.vercel.app"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Tech Stack Field */}
                   <div className="mb-2">
                     <label className="form-label small fw-bold mb-1 text-dark">
                       <i className="bi bi-layers me-1 text-info"></i> Primary Tech Stack Used <span className="text-muted fw-normal small">(Optional)</span>
@@ -398,9 +481,11 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
                     />
                   </div>
 
-                  {/* Cover Note */}
+                  {/* Architecture / Cover Note */}
                   <div className="mb-3">
-                    <label className="form-label small fw-bold mb-1">Architecture / Application Note <span className="text-muted fw-normal small">(Optional)</span></label>
+                    <label className="form-label small fw-bold mb-1 text-dark">
+                      Architecture / Application Note <span className="text-muted fw-normal small">(Optional)</span>
+                    </label>
                     <textarea
                       className="form-control form-control-sm"
                       rows="2"
@@ -410,14 +495,14 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
                     ></textarea>
                   </div>
 
-                  {/* Supporting Document / PDF */}
+                  {/* Supporting Document / PDF Section */}
                   <div className={`mb-3 p-2 rounded border ${proofInfo.type === 'GITHUB_OR_RESUME' ? 'bg-warning-subtle border-warning-subtle' : 'bg-light'}`}>
                     <div className="d-flex justify-content-between align-items-center mb-1">
                       <label className="form-label small fw-bold mb-0 text-dark" style={{ fontSize: '0.72rem' }}>
                         <i className="bi bi-file-earmark-pdf me-1 text-danger"></i>
                         {proofInfo.type === 'GITHUB_OR_RESUME' ? (
                           <>
-                            Resume PDF / Document{' '}
+                            Option B: Resume PDF / Architecture Document{' '}
                             {!githubUrl.trim() && (
                               <span className="badge bg-warning text-dark ms-1" style={{ fontSize: '0.65rem' }}>
                                 Required if no GitHub URL
@@ -448,7 +533,7 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
                   </div>
 
                   <button type="submit" className="btn btn-cobalt w-100 btn-sm py-2 fw-bold shadow-sm" disabled={submitting}>
-                    <i className="bi bi-send-check me-1"></i> {submitting ? 'Submitting Application...' : 'Submit Proof Application'}
+                    <i className="bi bi-send-check me-1"></i> {submitting ? 'Submitting Application...' : proofInfo.submitBtnText}
                   </button>
                 </form>
               </div>
@@ -459,4 +544,3 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
     </div>
   );
 }
-
