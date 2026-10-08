@@ -1,7 +1,6 @@
 package com.jobfins.service;
 
 import com.jobfins.dto.JobRequest;
-import com.jobfins.model.Application;
 import com.jobfins.model.Job;
 import com.jobfins.model.Role;
 import com.jobfins.model.User;
