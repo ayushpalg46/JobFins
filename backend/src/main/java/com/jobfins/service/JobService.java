@@ -6,6 +6,8 @@ import com.jobfins.model.Role;
 import com.jobfins.model.User;
 import com.jobfins.repository.ApplicationRepository;
 import com.jobfins.repository.JobRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,9 @@ public class JobService {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     /**
      * Get all active jobs (newest first).
@@ -91,9 +96,6 @@ public class JobService {
 
         return jobRepository.save(job);
     }
-
-    @jakarta.persistence.PersistenceContext
-    private jakarta.persistence.EntityManager entityManager;
 
     /**
      * Delete a job post (Recruiter only).
