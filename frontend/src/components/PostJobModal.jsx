@@ -65,7 +65,7 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
   const [salary, setSalary] = useState('₹12,00,000 - ₹18,00,000 / yr');
   const [customSalary, setCustomSalary] = useState('');
   const [selectedTech, setSelectedTech] = useState(['Spring Boot', 'Java 17/21']);
-  const [proofRequirement, setProofRequirement] = useState('GitHub Repo + Live Demo');
+  const [proofRequirement, setProofRequirement] = useState('GitHub Repository + Live Demo Required');
   const [enableFastResponse, setEnableFastResponse] = useState(false);
   const [description, setDescription] = useState('');
   const [requirements, setRequirements] = useState('');
@@ -276,10 +276,10 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
                         value={proofRequirement}
                         onChange={(e) => setProofRequirement(e.target.value)}
                       >
-                        <option value="GitHub Repo + Live Demo">GitHub Repository + Live Demo Required</option>
-                        <option value="GitHub Repo Only">GitHub Repository Required</option>
-                        <option value="Live Deployed URL Only">Live Deployed Project URL Required</option>
-                        <option value="GitHub Repo or PDF Resume">Either GitHub Repo or PDF Resume</option>
+                        <option value="GitHub Repository + Live Demo Required">GitHub Repository + Live Demo Required</option>
+                        <option value="GitHub Repository Required">GitHub Repository Required</option>
+                        <option value="Live Deployed Project URL Required">Live Deployed Project URL Required</option>
+                        <option value="Either GitHub Repo or PDF Resume">Either GitHub Repo or PDF Resume</option>
                       </select>
                     </div>
 
