@@ -33,6 +33,19 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
           submitBtnText: 'Submit Application (Repo or Resume)',
         };
       }
+
+      // Check both GitHub & Live Demo FIRST before single checks
+      if ((line.includes('github') || line.includes('repo')) && (line.includes('demo') || line.includes('live') || line.includes('deploy'))) {
+        return {
+          type: 'GITHUB_AND_DEMO',
+          title: 'GitHub Repository + Live Demo Required',
+          heading: '"Proof Over Paper" Application',
+          tagline: 'Get hired for what you\'ve actually built. Both your GitHub repo and a live deployed demo are required.',
+          badgeText: 'GitHub + Live Demo Required',
+          badgeClass: 'bg-primary-subtle text-primary border border-primary-subtle',
+          submitBtnText: 'Submit Proof Application (Code + Demo)',
+        };
+      }
       
       if (line.includes('live deployed') || line.includes('live demo') || line.includes('project url') || line.includes('url only')) {
         return {
@@ -46,7 +59,7 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
         };
       }
       
-      if (line.includes('github repository required') || line.includes('github repo only') || (line.includes('github') && !line.includes('demo') && !line.includes('live'))) {
+      if (line.includes('github') || line.includes('repo')) {
         return {
           type: 'GITHUB_ONLY',
           title: 'GitHub Repository Required',
@@ -57,22 +70,22 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
           submitBtnText: 'Submit GitHub Code Proof',
         };
       }
-      
-      if (line.includes('github') && (line.includes('demo') || line.includes('live'))) {
-        return {
-          type: 'GITHUB_AND_DEMO',
-          title: 'GitHub Repository + Live Demo Required',
-          heading: '"Proof Over Paper" Application',
-          tagline: 'Get hired for what you\'ve actually built. Both your GitHub repo and a live deployed demo are required.',
-          badgeText: 'GitHub + Live Demo Required',
-          badgeClass: 'bg-primary-subtle text-primary border border-primary-subtle',
-          submitBtnText: 'Submit Proof Application (Code + Demo)',
-        };
-      }
     }
 
     // Generic fallback checks across full text
-    if (req.includes('live deployed project url required') || req.includes('live deployed url only') || req.includes('live demo required')) {
+    if ((req.includes('github') || req.includes('repo')) && (req.includes('demo') || req.includes('live') || req.includes('deploy'))) {
+      return {
+        type: 'GITHUB_AND_DEMO',
+        title: 'GitHub Repository + Live Demo Required',
+        heading: '"Proof Over Paper" Application',
+        tagline: 'Get hired for what you\'ve actually built. Both your GitHub repo and a live deployed demo are required.',
+        badgeText: 'GitHub + Live Demo Required',
+        badgeClass: 'bg-primary-subtle text-primary border border-primary-subtle',
+        submitBtnText: 'Submit Proof Application (Code + Demo)',
+      };
+    }
+    
+    if (req.includes('live deployed') || req.includes('live demo') || req.includes('project url') || req.includes('url only')) {
       return {
         type: 'DEMO_ONLY',
         title: 'Live Deployed Project URL Required',
@@ -84,7 +97,7 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
       };
     }
     
-    if (req.includes('either github') || req.includes('github repo or pdf')) {
+    if (req.includes('either github') || req.includes('github repo or pdf') || req.includes('resume')) {
       return {
         type: 'GITHUB_OR_RESUME',
         title: 'Either GitHub Repo or PDF Resume',
@@ -96,7 +109,7 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
       };
     }
 
-    if (req.includes('github repository required') || req.includes('github repo only')) {
+    if (req.includes('github') || req.includes('repo')) {
       return {
         type: 'GITHUB_ONLY',
         title: 'GitHub Repository Required',
