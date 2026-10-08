@@ -1,8 +1,10 @@
 package com.jobfins.config;
 
+import com.jobfins.model.CareerTip;
 import com.jobfins.model.Job;
 import com.jobfins.model.Role;
 import com.jobfins.model.User;
+import com.jobfins.repository.CareerTipRepository;
 import com.jobfins.repository.JobRepository;
 import com.jobfins.repository.UserRepository;
 import org.slf4j.Logger;
@@ -28,7 +30,7 @@ public class DataInitializer implements CommandLineRunner {
     private JobRepository jobRepository;
 
     @Autowired
-    private com.jobfins.repository.CareerTipRepository careerTipRepository;
+    private CareerTipRepository careerTipRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -95,7 +97,7 @@ public class DataInitializer implements CommandLineRunner {
             // 4. Create Initial Career Tips (Authored by both Recruiter and Candidate)
             if (careerTipRepository.count() < 4) {
                 // Recruiter Post 1
-                com.jobfins.model.CareerTip tip1 = new com.jobfins.model.CareerTip(
+                CareerTip tip1 = new CareerTip(
                         "What Engineering Leaders Look For in Full Stack Take-Homes",
                         "Hiring Manager Insights",
                         "Advice from tech recruiting leads on passing codebase evaluations with flying colors.",
@@ -109,7 +111,7 @@ public class DataInitializer implements CommandLineRunner {
                 careerTipRepository.save(tip1);
 
                 // Candidate Post 1
-                com.jobfins.model.CareerTip tip2 = new com.jobfins.model.CareerTip(
+                CareerTip tip2 = new CareerTip(
                         "How I Prepared for Spring Boot 3 & Microservice Interviews in 30 Days",
                         "Technical Interview Prep",
                         "A candidate's hands-on roadmap to mastering Java 17+, Hibernate, and RESTful APIs.",
@@ -123,7 +125,7 @@ public class DataInitializer implements CommandLineRunner {
                 careerTipRepository.save(tip2);
 
                 // Recruiter Post 2
-                com.jobfins.model.CareerTip tip3 = new com.jobfins.model.CareerTip(
+                CareerTip tip3 = new CareerTip(
                         "The #1 Mistake Engineers Make in Offer & Salary Negotiations",
                         "Offer & Salary Negotiation",
                         "Senior Talent Partner perspective on navigating counter-offers and total compensation.",
@@ -137,7 +139,7 @@ public class DataInitializer implements CommandLineRunner {
                 careerTipRepository.save(tip3);
 
                 // Candidate Post 2
-                com.jobfins.model.CareerTip tip4 = new com.jobfins.model.CareerTip(
+                CareerTip tip4 = new CareerTip(
                         "From 0 Replies to 4 SDE Offers: My Proof-Over-Paper Strategy",
                         "Resume & Portfolio",
                         "Why replacing generic PDF buzzwords with live production demos 10x'd my callback rate.",
@@ -151,7 +153,7 @@ public class DataInitializer implements CommandLineRunner {
                 careerTipRepository.save(tip4);
 
                 // Recruiter Post 3
-                com.jobfins.model.CareerTip tip5 = new com.jobfins.model.CareerTip(
+                CareerTip tip5 = new CareerTip(
                         "Cracking System Design: How We Evaluate Database & Caching Choices",
                         "System Design & Microservices",
                         "What senior interviewers look for when asking you to design a high-throughput platform.",
@@ -165,7 +167,7 @@ public class DataInitializer implements CommandLineRunner {
                 careerTipRepository.save(tip5);
 
                 // Candidate Post 3
-                com.jobfins.model.CareerTip tip6 = new com.jobfins.model.CareerTip(
+                CareerTip tip6 = new CareerTip(
                         "5 Docker & CI/CD Concepts That Won Me My Cloud DevOps Role",
                         "Engineering Culture",
                         "Practical DevOps tips every backend and full stack engineer should practice.",
