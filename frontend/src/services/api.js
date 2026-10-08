@@ -22,6 +22,22 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Response interceptor: Handle expired/invalid JWT tokens gracefully
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      const isAuthRoute = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
+      if (!isAuthRoute && localStorage.getItem('jobfins_token')) {
+        console.warn('Authentication token expired or unauthorized. Clearing stored session.');
+        localStorage.removeItem('jobfins_token');
+        localStorage.removeItem('jobfins_user');
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const authService = {
   login: (email, password) => api.post('/auth/login', { email, password }),
   register: (data) => api.post('/auth/register', data),

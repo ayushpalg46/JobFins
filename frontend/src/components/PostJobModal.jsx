@@ -127,8 +127,12 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
         onClose();
       }, 1500);
     } catch (err) {
-      const serverError = err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response?.data : null) || err.message;
-      setError(serverError || 'Failed to post job. Please try again.');
+      if (err.response?.status === 403 || err.response?.status === 401) {
+        setError('Your recruiter authentication session has expired or is invalid. Please sign in again with your Recruiter account.');
+      } else {
+        const serverError = err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response?.data : null) || err.message;
+        setError(serverError || 'Failed to post job. Please check all fields and try again.');
+      }
     } finally {
       setLoading(false);
     }
