@@ -110,13 +110,15 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
     setLoading(true);
     setError(null);
     try {
+      const finalDesc = description.trim() || `We are looking for a skilled ${title || 'Software Engineer'} with hands-on expertise in ${selectedTech.join(', ') || 'modern software engineering'} to design and deliver scalable solutions.`;
+
       await onJobCreated({
-        title,
-        company: company || user.companyName,
+        title: (title || 'Software Engineer').trim(),
+        company: (company || user.companyName || 'Tech Innovations').trim(),
         location: finalLocation,
         jobType,
         salary: finalSalary,
-        description,
+        description: finalDesc,
         requirements: combinedReqs,
       });
       setSuccess(true);
@@ -125,7 +127,8 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
         onClose();
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to post job. Please try again.');
+      const serverError = err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response?.data : null) || err.message;
+      setError(serverError || 'Failed to post job. Please try again.');
     } finally {
       setLoading(false);
     }
