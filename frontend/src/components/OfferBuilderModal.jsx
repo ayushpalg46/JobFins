@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { applicationService } from '../services/api';
 
 export default function OfferBuilderModal({ candidate, isOpen, onClose, user, onOfferDispatched }) {
@@ -10,6 +10,29 @@ export default function OfferBuilderModal({ candidate, isOpen, onClose, user, on
   const [joiningDate, setJoiningDate] = useState('2026-11-01');
   const [statusMsg, setStatusMsg] = useState(null);
   const [isSending, setIsSending] = useState(false);
+
+  useEffect(() => {
+    if (candidate?.offerDetails) {
+      try {
+        const parsed = JSON.parse(candidate.offerDetails);
+        if (parsed.baseSalary) setBaseSalary(Number(parsed.baseSalary));
+        if (parsed.bonus) setBonus(Number(parsed.bonus));
+        if (parsed.esops) setEsops(Number(parsed.esops));
+        if (parsed.joiningBonus) setJoiningBonus(Number(parsed.joiningBonus));
+        if (parsed.department) setDepartment(parsed.department);
+        if (parsed.joiningDate) setJoiningDate(parsed.joiningDate);
+      } catch (e) {
+        console.error('Error parsing candidate offerDetails:', e);
+      }
+    } else {
+      setBaseSalary(2800000);
+      setBonus(400000);
+      setEsops(1200000);
+      setJoiningBonus(200000);
+      setDepartment('Core Engineering & Cloud Scale');
+      setJoiningDate('2026-11-01');
+    }
+  }, [candidate, isOpen]);
 
   if (!isOpen) return null;
 

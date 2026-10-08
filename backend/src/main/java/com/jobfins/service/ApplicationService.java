@@ -91,7 +91,20 @@ public class ApplicationService {
             throw new RuntimeException("Unauthorized: You can only update applicants for your own jobs.");
         }
 
-        application.setStatus(request.getStatus().toUpperCase());
+        String newStatus = request.getStatus().toUpperCase();
+        String currentStatus = application.getStatus() != null ? application.getStatus().toUpperCase() : "PENDING";
+
+        // Rule: Accepted candidate cannot be rejected
+        if ("ACCEPTED".equals(currentStatus) && "REJECTED".equals(newStatus)) {
+            throw new RuntimeException("Candidate has already been accepted with a formal offer and cannot be rejected.");
+        }
+
+        // Rule: Candidate must be shortlisted before being accepted
+        if ("ACCEPTED".equals(newStatus) && !"SHORTLISTED".equals(currentStatus) && !"ACCEPTED".equals(currentStatus)) {
+            throw new RuntimeException("Candidate must be shortlisted before being accepted.");
+        }
+
+        application.setStatus(newStatus);
         if (request.getOfferDetails() != null && !request.getOfferDetails().isBlank()) {
             application.setOfferDetails(request.getOfferDetails());
         }

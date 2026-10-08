@@ -314,54 +314,109 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
                     <td className="small text-muted">{app.appliedDate?.substring(0, 10)}</td>
                     <td>
                       <span className={`badge ${
-                        app.status === 'ACCEPTED' ? 'bg-success' :
-                        app.status === 'SHORTLISTED' ? 'bg-primary' :
-                        app.status === 'REJECTED' ? 'bg-danger' : 'bg-warning text-dark'
+                        app.status === 'ACCEPTED' ? 'bg-success text-white' :
+                        app.status === 'SHORTLISTED' ? 'bg-primary text-white' :
+                        app.status === 'REJECTED' ? 'bg-danger text-white' : 'bg-warning text-dark'
                       }`}>
-                        {app.status}
+                        {app.status === 'ACCEPTED' && <i className="bi bi-patch-check-fill me-1"></i>}
+                        {app.status === 'SHORTLISTED' && <i className="bi bi-star-fill me-1"></i>}
+                        {app.status === 'REJECTED' && <i className="bi bi-x-circle me-1"></i>}
+                        {(!app.status || app.status === 'PENDING') && <i className="bi bi-clock-history me-1"></i>}
+                        {app.status || 'PENDING'}
                       </span>
                     </td>
                     <td className="text-end">
-                      <div className="btn-group btn-group-sm">
-                        <button
-                          className="btn btn-outline-primary"
-                          onClick={() => handleStatusUpdate(app.id, 'SHORTLISTED')}
-                          title="Shortlist Candidate"
-                        >
-                          Shortlist
-                        </button>
-                        <button
-                          className="btn btn-outline-success"
-                          onClick={() => handleStatusUpdate(app.id, 'ACCEPTED')}
-                          title="Accept Candidate"
-                        >
-                          Accept
-                        </button>
-                        <button
-                          className="btn btn-cobalt"
-                          onClick={() =>
-                            onExtendOffer &&
-                            onExtendOffer({
-                              id: app.id,
-                              applicationId: app.id,
-                              name: app.seeker?.name || 'Candidate',
-                              role: app.job?.title || 'Software Engineer',
-                              location: app.job?.location || 'Mumbai / Hybrid',
-                              email: app.seeker?.email,
-                            })
-                          }
-                          title="Extend Formal Offer"
-                        >
-                          <i className="bi bi-file-earmark-check me-1"></i> Offer
-                        </button>
-                        <button
-                          className="btn btn-outline-danger"
-                          onClick={() => handleStatusUpdate(app.id, 'REJECTED')}
-                          title="Reject Candidate"
-                        >
-                          Reject
-                        </button>
-                      </div>
+                      {/* State 1: PENDING -> Can Shortlist or Reject */}
+                      {(!app.status || app.status === 'PENDING') && (
+                        <div className="btn-group btn-group-sm">
+                          <button
+                            className="btn btn-outline-primary"
+                            onClick={() => handleStatusUpdate(app.id, 'SHORTLISTED')}
+                            title="Shortlist Candidate for Interview"
+                          >
+                            <i className="bi bi-star me-1"></i> Shortlist
+                          </button>
+                          <button
+                            className="btn btn-outline-danger"
+                            onClick={() => handleStatusUpdate(app.id, 'REJECTED')}
+                            title="Reject Candidate"
+                          >
+                            <i className="bi bi-x-circle me-1"></i> Reject
+                          </button>
+                        </div>
+                      )}
+
+                      {/* State 2: SHORTLISTED -> Can Accept or Reject */}
+                      {app.status === 'SHORTLISTED' && (
+                        <div className="btn-group btn-group-sm">
+                          <button
+                            className="btn btn-success fw-bold"
+                            onClick={async () => {
+                              await handleStatusUpdate(app.id, 'ACCEPTED');
+                              if (onExtendOffer) {
+                                onExtendOffer({
+                                  id: app.id,
+                                  applicationId: app.id,
+                                  name: app.seeker?.name || 'Candidate',
+                                  role: app.job?.title || 'Software Engineer',
+                                  location: app.job?.location || 'Mumbai / Hybrid',
+                                  email: app.seeker?.email,
+                                  offerDetails: app.offerDetails,
+                                });
+                              }
+                            }}
+                            title="Accept Candidate and open Offer Letter Builder"
+                          >
+                            <i className="bi bi-check-circle me-1"></i> Accept
+                          </button>
+                          <button
+                            className="btn btn-outline-danger"
+                            onClick={() => handleStatusUpdate(app.id, 'REJECTED')}
+                            title="Reject Candidate"
+                          >
+                            <i className="bi bi-x-circle me-1"></i> Reject
+                          </button>
+                        </div>
+                      )}
+
+                      {/* State 3: ACCEPTED -> Offer Customization appeared, Reject is disabled/hidden */}
+                      {app.status === 'ACCEPTED' && (
+                        <div className="d-flex justify-content-end align-items-center gap-1">
+                          <button
+                            className="btn btn-cobalt btn-sm fw-bold shadow-sm"
+                            onClick={() =>
+                              onExtendOffer &&
+                              onExtendOffer({
+                                id: app.id,
+                                applicationId: app.id,
+                                name: app.seeker?.name || 'Candidate',
+                                role: app.job?.title || 'Software Engineer',
+                                location: app.job?.location || 'Mumbai / Hybrid',
+                                email: app.seeker?.email,
+                                offerDetails: app.offerDetails,
+                              })
+                            }
+                            title="Customise & Dispatch Formal Offer Letter"
+                          >
+                            <i className="bi bi-file-earmark-check-fill me-1"></i>
+                            {app.offerDetails ? 'Customise Offer' : 'Offer Letter'}
+                          </button>
+                        </div>
+                      )}
+
+                      {/* State 4: REJECTED -> Show Reconsider button */}
+                      {app.status === 'REJECTED' && (
+                        <div className="d-flex justify-content-end align-items-center gap-1">
+                          <button
+                            className="btn btn-outline-secondary btn-sm py-1"
+                            onClick={() => handleStatusUpdate(app.id, 'SHORTLISTED')}
+                            title="Re-evaluate and Shortlist Candidate"
+                            style={{ fontSize: '0.75rem' }}
+                          >
+                            <i className="bi bi-arrow-counterclockwise me-1"></i> Reconsider
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
