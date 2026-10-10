@@ -64,7 +64,13 @@ public class JobService {
 
         Job job = new Job();
         job.setTitle(request.getTitle());
-        job.setCompany(request.getCompany());
+
+        // Enforce the authenticated Recruiter's verified company name
+        String verifiedCompany = recruiter.getCompanyName() != null && !recruiter.getCompanyName().isBlank()
+                ? recruiter.getCompanyName().trim()
+                : (request.getCompany() != null && !request.getCompany().isBlank() ? request.getCompany().trim() : recruiter.getName());
+        job.setCompany(verifiedCompany);
+
         job.setLocation(request.getLocation());
         job.setJobType(request.getJobType());
         job.setSalary(request.getSalary());

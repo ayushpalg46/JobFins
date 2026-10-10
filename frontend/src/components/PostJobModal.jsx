@@ -57,8 +57,9 @@ const FREQUENT_TITLES = [
 ];
 
 export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOpenLogin }) {
+  const recruiterCompany = user?.companyName || user?.name || 'TechCorp Innovations';
   const [title, setTitle] = useState('');
-  const [company, setCompany] = useState(user?.companyName || '');
+  const [company, setCompany] = useState(recruiterCompany);
   const [location, setLocation] = useState(FREQUENT_LOCATIONS[0]);
   const [customLocation, setCustomLocation] = useState('');
   const [jobType, setJobType] = useState('Full-time');
@@ -73,6 +74,13 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  // Keep company synchronized with recruiter profile
+  React.useEffect(() => {
+    if (user) {
+      setCompany(user.companyName || user.name || 'TechCorp Innovations');
+    }
+  }, [user, isOpen]);
 
   if (!isOpen) return null;
 
@@ -112,9 +120,12 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
     try {
       const finalDesc = description.trim() || `We are looking for a skilled ${title || 'Software Engineer'} with hands-on expertise in ${selectedTech.join(', ') || 'modern software engineering'} to design and deliver scalable solutions.`;
 
+      // Enforce the recruiter's verified company name
+      const verifiedCompanyName = (user.companyName || user.name || company || 'TechCorp Innovations').trim();
+
       await onJobCreated({
         title: (title || 'Software Engineer').trim(),
-        company: (company || user.companyName || 'Tech Innovations').trim(),
+        company: verifiedCompanyName,
         location: finalLocation,
         jobType,
         salary: finalSalary,
@@ -197,19 +208,32 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
                       </datalist>
                     </div>
 
-                    {/* Company Name */}
+                    {/* Company Name (Auto-filled & Locked) */}
                     <div className="col-md-6">
-                      <label className="form-label small fw-bold text-dark">
-                        Company Name <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        value={company}
-                        onChange={(e) => setCompany(e.target.value)}
-                        placeholder="e.g. TechCorp Innovations"
-                        required
-                      />
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <label className="form-label small fw-bold text-dark mb-0">
+                          Company Name <span className="text-danger">*</span>
+                        </label>
+                        <span className="badge bg-secondary-subtle text-secondary border border-secondary-subtle" style={{ fontSize: '0.68rem' }}>
+                          <i className="bi bi-lock-fill me-1"></i> Verified Recruiter Profile
+                        </span>
+                      </div>
+                      <div className="input-group input-group-sm">
+                        <span className="input-group-text bg-light text-muted border-end-0">
+                          <i className="bi bi-building"></i>
+                        </span>
+                        <input
+                          type="text"
+                          className="form-control form-control-sm bg-light text-dark fw-bold border-start-0"
+                          value={user?.companyName || user?.name || company || 'TechCorp Innovations'}
+                          readOnly
+                          disabled
+                          title="Company Name is automatically linked to your verified Recruiter profile"
+                        />
+                      </div>
+                      <small className="text-muted d-block mt-1" style={{ fontSize: '0.7rem' }}>
+                        <i className="bi bi-shield-check text-success me-1"></i> Auto-filled from your Recruiter company profile (cannot be altered)
+                      </small>
                     </div>
 
                     {/* Tech Stack Chips Selector */}
