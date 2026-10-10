@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { userService } from '../services/api';
 
-export default function TalentSourcing({ onExtendOffer }) {
+export default function TalentSourcing({ onExtendOffer, syncTrigger }) {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -12,8 +12,10 @@ export default function TalentSourcing({ onExtendOffer }) {
 
   const frameworksList = ['Spring Boot', 'FastAPI', 'React', 'Flutter', 'Rust', 'Docker', 'PostgreSQL', 'Java', 'Python'];
 
-  const loadCandidates = async () => {
-    setLoading(true);
+  const loadCandidates = async (silent = false) => {
+    if (!silent && candidates.length === 0) {
+      setLoading(true);
+    }
     try {
       const res = await userService.getCandidates();
       const rawUsers = res.data || [];
@@ -46,7 +48,7 @@ export default function TalentSourcing({ onExtendOffer }) {
           skills,
           bio: bioText || 'Registered developer on JobFins platform specializing in modern software development.',
           createdAt: u.createdAt,
-          github: `https://github.com/${(u.name || 'developer').toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+          github: u.portfolioUrl || `https://github.com/${(u.name || 'developer').toLowerCase().replace(/[^a-z0-9]/g, '')}`,
           demo: `https://${(u.name || 'developer').toLowerCase().replace(/[^a-z0-9]/g, '')}-portfolio.vercel.app`,
           expectedCtc: '₹12 - ₹25 LPA',
           notice: 'Immediate / <15 Days',
@@ -63,8 +65,23 @@ export default function TalentSourcing({ onExtendOffer }) {
   };
 
   useEffect(() => {
-    loadCandidates();
-  }, []);
+    loadCandidates(candidates.length > 0);
+
+    // Auto-refresh polling every 3 seconds
+    const interval = setInterval(() => {
+      loadCandidates(true);
+    }, 3000);
+
+    const handleFocus = () => loadCandidates(true);
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [syncTrigger]);
 
   const handleInvite = (candidate) => {
     setInvitedList((prev) => [...prev, candidate.id]);

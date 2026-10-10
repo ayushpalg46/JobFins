@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { careerTipsService } from '../services/api';
 
-export default function CareerTips({ user, onOpenLogin }) {
+export default function CareerTips({ user, onOpenLogin, syncTrigger }) {
   const [tips, setTips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
@@ -40,8 +40,10 @@ export default function CareerTips({ user, onOpenLogin }) {
     { id: 'Engineering Culture', label: 'Engineering Culture' },
   ];
 
-  const loadTips = async () => {
-    setLoading(true);
+  const loadTips = async (silent = false) => {
+    if (!silent && tips.length === 0) {
+      setLoading(true);
+    }
     try {
       const res = await careerTipsService.getAllTips();
       setTips(res.data || []);
@@ -53,8 +55,23 @@ export default function CareerTips({ user, onOpenLogin }) {
   };
 
   useEffect(() => {
-    loadTips();
-  }, []);
+    loadTips(tips.length > 0);
+
+    // Auto-refresh polling every 3 seconds
+    const interval = setInterval(() => {
+      loadTips(true);
+    }, 3000);
+
+    const handleFocus = () => loadTips(true);
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [syncTrigger]);
 
   const handleLike = async (tipId) => {
     try {

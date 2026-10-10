@@ -56,11 +56,11 @@ export default function App() {
     loadJobs();
     loadStats();
 
-    // Background auto-refresh polling every 4 seconds to sync database changes automatically
+    // Background auto-refresh polling every 3 seconds to sync database changes automatically
     const syncInterval = setInterval(() => {
       loadJobs(true);
       loadStats();
-    }, 4000);
+    }, 3000);
 
     const handleFocusSync = () => {
       loadJobs(true);
@@ -255,6 +255,7 @@ export default function App() {
           />
         ) : currentView === 'talent-sourcing' && user?.role === 'ROLE_RECRUITER' ? (
           <TalentSourcing
+            syncTrigger={syncTrigger}
             onExtendOffer={(cand) => {
               setOfferCandidate(cand);
               setOfferModalOpen(true);
@@ -294,6 +295,7 @@ export default function App() {
         ) : currentView === 'career-tips' ? (
           <CareerTips
             user={user}
+            syncTrigger={syncTrigger}
             onOpenLogin={() => {
               setAuthMode('login');
               setAuthModalOpen(true);

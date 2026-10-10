@@ -25,10 +25,10 @@ export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncT
   useEffect(() => {
     fetchMyApplications(applications.length > 0);
 
-    // Auto-sync polling every 4 seconds in background
+    // Auto-sync polling every 3 seconds in background
     const syncTimer = setInterval(() => {
       fetchMyApplications(true);
-    }, 4000);
+    }, 3000);
 
     const handleFocus = () => fetchMyApplications(true);
     window.addEventListener('focus', handleFocus);

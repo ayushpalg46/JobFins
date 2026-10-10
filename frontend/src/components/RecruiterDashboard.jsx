@@ -29,10 +29,10 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
   useEffect(() => {
     fetchRecruiterData(myJobs.length > 0 || applicants.length > 0);
 
-    // Auto-sync polling every 4 seconds in background
+    // Auto-sync polling every 3 seconds in background
     const syncTimer = setInterval(() => {
       fetchRecruiterData(true);
-    }, 4000);
+    }, 3000);
 
     const handleFocus = () => fetchRecruiterData(true);
     window.addEventListener('focus', handleFocus);
