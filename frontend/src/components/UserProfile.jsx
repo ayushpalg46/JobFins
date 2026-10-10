@@ -144,11 +144,6 @@ export default function UserProfile({ user, onProfileUpdated, onFindJobs, onOpen
           }
         }
       }
-
-      // If user came from fresh registration or has incomplete profile, start in edit mode
-      if (user.isFirstTimeOnboarding || !user.contactNumber) {
-        setEditing(true);
-      }
     }
   }, [user, isRecruiter]);
 

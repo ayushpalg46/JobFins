@@ -46,11 +46,6 @@ export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncT
           <span className="badge bg-success text-white mb-1">Candidate Profile</span>
           <h2 className="h4 mb-0 text-dark fw-bold">{user?.name}</h2>
           <small className="text-muted"><i className="bi bi-envelope me-1"></i> {user?.email} &bull; <i className="bi bi-phone me-1"></i> {user?.contactNumber || 'Not provided'}</small>
-          {user?.bioOrSkills && (
-            <div className="mt-2 small text-primary fw-semibold">
-              <i className="bi bi-code-slash me-1"></i> Skills: {user.bioOrSkills}
-            </div>
-          )}
         </div>
         <button className="btn btn-cobalt btn-sm px-3" onClick={onFindJobs}>
           <i className="bi bi-search me-1"></i> Browse More Jobs
