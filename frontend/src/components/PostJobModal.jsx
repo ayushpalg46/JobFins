@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { userService } from '../services/api';
 
 const FREQUENT_LOCATIONS = [
   'Mumbai, Maharashtra (Hybrid)',
@@ -57,9 +58,8 @@ const FREQUENT_TITLES = [
 ];
 
 export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOpenLogin }) {
-  const recruiterCompany = user?.companyName || user?.name || 'TechCorp Innovations';
   const [title, setTitle] = useState('');
-  const [company, setCompany] = useState(recruiterCompany);
+  const [company, setCompany] = useState(user?.companyName || 'Enterprise Talent Corp');
   const [location, setLocation] = useState(FREQUENT_LOCATIONS[0]);
   const [customLocation, setCustomLocation] = useState('');
   const [jobType, setJobType] = useState('Full-time');
@@ -76,9 +76,24 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
   const [success, setSuccess] = useState(false);
 
   // Keep company synchronized with recruiter profile
-  React.useEffect(() => {
-    if (user) {
-      setCompany(user.companyName || user.name || 'TechCorp Innovations');
+  useEffect(() => {
+    if (isOpen) {
+      if (user?.companyName && user.companyName.trim() !== '') {
+        setCompany(user.companyName.trim());
+      } else {
+        // Fetch fresh profile from backend to ensure latest companyName is populated
+        userService.getProfile()
+          .then((res) => {
+            if (res.data?.companyName && res.data.companyName.trim() !== '') {
+              setCompany(res.data.companyName.trim());
+            } else {
+              setCompany('Enterprise Talent Corp');
+            }
+          })
+          .catch(() => {
+            setCompany('Enterprise Talent Corp');
+          });
+      }
     }
   }, [user, isOpen]);
 
@@ -121,7 +136,7 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
       const finalDesc = description.trim() || `We are looking for a skilled ${title || 'Software Engineer'} with hands-on expertise in ${selectedTech.join(', ') || 'modern software engineering'} to design and deliver scalable solutions.`;
 
       // Enforce the recruiter's verified company name
-      const verifiedCompanyName = (user.companyName || user.name || company || 'TechCorp Innovations').trim();
+      const verifiedCompanyName = (company || user?.companyName || 'Enterprise Talent Corp').trim();
 
       await onJobCreated({
         title: (title || 'Software Engineer').trim(),
@@ -225,7 +240,7 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
                         <input
                           type="text"
                           className="form-control form-control-sm bg-light text-dark fw-bold border-start-0"
-                          value={user?.companyName || user?.name || company || 'TechCorp Innovations'}
+                          value={company || user?.companyName || 'Enterprise Talent Corp'}
                           readOnly
                           disabled
                           title="Company Name is automatically linked to your verified Recruiter profile"

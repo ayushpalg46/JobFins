@@ -116,15 +116,24 @@ export default function App() {
       try {
         const parsed = JSON.parse(savedUser);
         setUser(parsed);
-        // Verify with backend that the session is valid in active database
-        authService.getProfile().catch((err) => {
-          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-            console.warn('Stored token is invalid or expired. Resetting session.');
-            localStorage.removeItem('jobfins_token');
-            localStorage.removeItem('jobfins_user');
-            setUser(null);
-          }
-        });
+        // Fetch fresh profile from backend to ensure latest companyName and profile fields are synchronized
+        authService
+          .getProfile()
+          .then((res) => {
+            if (res.data) {
+              const freshUser = { ...parsed, ...res.data };
+              setUser(freshUser);
+              localStorage.setItem('jobfins_user', JSON.stringify(freshUser));
+            }
+          })
+          .catch((err) => {
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+              console.warn('Stored token is invalid or expired. Resetting session.');
+              localStorage.removeItem('jobfins_token');
+              localStorage.removeItem('jobfins_user');
+              setUser(null);
+            }
+          });
       } catch (e) {
         localStorage.removeItem('jobfins_token');
         localStorage.removeItem('jobfins_user');
