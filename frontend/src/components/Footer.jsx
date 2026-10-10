@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Footer({ onOpenLogin, onOpenRegister, onOpenPostJob }) {
+export default function Footer({ onOpenPostJob }) {
   return (
     <footer>
       <div className="container text-center text-md-start">
@@ -13,23 +13,23 @@ export default function Footer({ onOpenLogin, onOpenRegister, onOpenPostJob }) {
               </span>
             </div>
             <p className="small text-muted mb-0" style={{ maxWidth: '420px' }}>
-              JobFin is India's leading recruitment platform connecting verified employers with elite tech and finance talent.
+              JobFins is India's leading recruitment platform connecting verified employers with elite tech and finance talent.
             </p>
           </div>
           <div className="col-md-3 col-6">
             <h6 className="text-dark fw-bold small text-uppercase mb-3">For Candidates</h6>
             <ul className="list-unstyled small mb-0">
               <li className="mb-2"><a className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Browse Jobs</a></li>
-              <li className="mb-2"><a className="cursor-pointer" onClick={onOpenLogin}>Candidate Login</a></li>
-              <li className="mb-2"><a className="cursor-pointer" onClick={onOpenRegister}>Create Account</a></li>
+              <li className="mb-2"><a className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Verified Opportunities</a></li>
+              <li className="mb-2"><a className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Fast Response Jobs</a></li>
             </ul>
           </div>
           <div className="col-md-3 col-6">
             <h6 className="text-dark fw-bold small text-uppercase mb-3">For Employers</h6>
             <ul className="list-unstyled small mb-0">
               <li className="mb-2"><a className="cursor-pointer" onClick={onOpenPostJob}>Post a Job</a></li>
-              <li className="mb-2"><a className="cursor-pointer" onClick={onOpenLogin}>Recruiter Login</a></li>
-              <li className="mb-2"><a className="cursor-pointer" onClick={onOpenRegister}>Employer Register</a></li>
+              <li className="mb-2"><a className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Talent Sourcing</a></li>
+              <li className="mb-2"><a className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Direct Offer Dispatch</a></li>
             </ul>
           </div>
         </div>

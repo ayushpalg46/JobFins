@@ -3,7 +3,6 @@ import Navbar from './components/Navbar';
 import HeroSearch from './components/HeroSearch';
 import JobCard from './components/JobCard';
 import JobDetailsModal from './components/JobDetailsModal';
-import AuthModal from './components/AuthModal';
 import AuthPage from './components/AuthPage';
 import PostJobModal from './components/PostJobModal';
 import RecruiterDashboard from './components/RecruiterDashboard';
@@ -15,13 +14,11 @@ import CareerTips from './components/CareerTips';
 import CompanyDirectory from './components/CompanyDirectory';
 import UserProfile from './components/UserProfile';
 import Footer from './components/Footer';
-import { authService, jobService, applicationService, labService } from './services/api';
+import { authService, jobService, applicationService } from './services/api';
 
 export default function App() {
   // Authentication state
   const [user, setUser] = useState(null);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
 
   // Navigation view state: 'home', 'recruiter-dashboard', 'seeker-dashboard', 'salary-guide', 'companies', 'career-tips', 'profile'
   const [currentView, setCurrentView] = useState('home');
@@ -229,14 +226,6 @@ export default function App() {
         onLogout={handleLogout}
         currentView={currentView}
         setCurrentView={setCurrentView}
-        onOpenLogin={() => {
-          setAuthMode('login');
-          setAuthModalOpen(true);
-        }}
-        onOpenRegister={() => {
-          setAuthMode('register');
-          setAuthModalOpen(true);
-        }}
         onOpenPostJob={() => setPostJobModalOpen(true)}
       />
 
@@ -296,10 +285,6 @@ export default function App() {
           <CareerTips
             user={user}
             syncTrigger={syncTrigger}
-            onOpenLogin={() => {
-              setAuthMode('login');
-              setAuthModalOpen(true);
-            }}
           />
         ) : (
           /* Home / Jobs View: Hero, Search Matrix, and Job Catalog */
@@ -380,24 +365,11 @@ export default function App() {
         user={user}
       />
 
-      <AuthModal
-        isOpen={authModalOpen}
-        mode={authMode}
-        onClose={() => setAuthModalOpen(false)}
-        onLogin={handleLogin}
-        onRegister={handleRegister}
-        onSwitchMode={(mode) => setAuthMode(mode)}
-      />
-
       <PostJobModal
         isOpen={postJobModalOpen}
         onClose={() => setPostJobModalOpen(false)}
         onJobCreated={handleJobCreated}
         user={user}
-        onOpenLogin={() => {
-          setAuthMode('login');
-          setAuthModalOpen(true);
-        }}
       />
 
       <OfferBuilderModal
@@ -410,14 +382,6 @@ export default function App() {
 
       {/* Footer */}
       <Footer
-        onOpenLogin={() => {
-          setAuthMode('login');
-          setAuthModalOpen(true);
-        }}
-        onOpenRegister={() => {
-          setAuthMode('register');
-          setAuthModalOpen(true);
-        }}
         onOpenPostJob={() => setPostJobModalOpen(true)}
       />
     </div>

@@ -80,6 +80,4 @@ export const careerTipsService = {
   getCategories: () => api.get('/career-tips/categories'),
 };
 
-export const labService = portalService;
-
 export default api;
