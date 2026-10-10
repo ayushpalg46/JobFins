@@ -328,30 +328,6 @@ export default function UserProfile({ user, onProfileUpdated, onFindJobs, onOpen
     }
   };
 
-  // Calculate Profile Completeness Percentage
-  const calculateCompleteness = () => {
-    let score = 0;
-    let total = 6;
-    if (isRecruiter) {
-      if (companyName) score++;
-      if (email) score++;
-      if (contactNumber) score++;
-      if (location) score++;
-      if (companyWebsite) score++;
-      if (companyDescription) score++;
-    } else {
-      if (name) score++;
-      if (email) score++;
-      if (contactNumber) score++;
-      if (location) score++;
-      if (selectedSkills.length > 0) score++;
-      if (portfolioUrl || resumeFileName || resumeUrl) score++;
-    }
-    return Math.round((score / total) * 100);
-  };
-
-  const completeness = calculateCompleteness();
-
   return (
     <div className="container py-4">
       {/* Onboarding Welcome Alert if fresh account */}
@@ -405,7 +381,7 @@ export default function UserProfile({ user, onProfileUpdated, onFindJobs, onOpen
               </div>
             </div>
 
-            {/* Right Action & Completeness */}
+            {/* Right Action */}
             <div className="d-flex flex-column align-items-md-end gap-2">
               <div className="d-flex gap-2">
                 {!editing ? (
@@ -437,21 +413,6 @@ export default function UserProfile({ user, onProfileUpdated, onFindJobs, onOpen
                     </button>
                   </div>
                 )}
-              </div>
-              
-              {/* Completeness Meter */}
-              <div className="bg-white bg-opacity-10 p-2 px-3 rounded-3 text-white-50 small mt-1" style={{ minWidth: '220px' }}>
-                <div className="d-flex justify-content-between mb-1">
-                  <span className="text-white text-xs fw-semibold">Profile Completeness</span>
-                  <span className="text-warning fw-bold">{completeness}%</span>
-                </div>
-                <div className="progress" style={{ height: '6px' }}>
-                  <div
-                    className={`progress-bar ${completeness === 100 ? 'bg-success' : 'bg-warning'}`}
-                    role="progressbar"
-                    style={{ width: `${completeness}%` }}
-                  ></div>
-                </div>
               </div>
             </div>
           </div>
