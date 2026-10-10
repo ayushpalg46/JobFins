@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { userService } from '../services/api';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 
 export default function TalentSourcing({ onExtendOffer, syncTrigger }) {
   const [candidates, setCandidates] = useState([]);
@@ -48,8 +49,8 @@ export default function TalentSourcing({ onExtendOffer, syncTrigger }) {
           skills,
           bio: bioText || 'Registered developer on JobFins platform specializing in modern software development.',
           createdAt: u.createdAt,
-          github: u.portfolioUrl || `https://github.com/${(u.name || 'developer').toLowerCase().replace(/[^a-z0-9]/g, '')}`,
-          demo: `https://${(u.name || 'developer').toLowerCase().replace(/[^a-z0-9]/g, '')}-portfolio.vercel.app`,
+          github: u.portfolioUrl || '',
+          demo: u.portfolioUrl || '',
           expectedCtc: '₹12 - ₹25 LPA',
           notice: 'Immediate / <15 Days',
           match: 95 - (idx % 10),
@@ -64,24 +65,7 @@ export default function TalentSourcing({ onExtendOffer, syncTrigger }) {
     }
   };
 
-  useEffect(() => {
-    loadCandidates(candidates.length > 0);
-
-    // Auto-refresh polling every 3 seconds
-    const interval = setInterval(() => {
-      loadCandidates(true);
-    }, 3000);
-
-    const handleFocus = () => loadCandidates(true);
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleFocus);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleFocus);
-    };
-  }, [syncTrigger]);
+  useAutoRefresh(loadCandidates, 3000, [syncTrigger]);
 
   const handleInvite = (candidate) => {
     setInvitedList((prev) => [...prev, candidate.id]);

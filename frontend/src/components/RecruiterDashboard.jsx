@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { jobService, applicationService } from '../services/api';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 
 export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer, syncTrigger, onSyncTrigger }) {
   const [myJobs, setMyJobs] = useState([]);
@@ -26,24 +27,7 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
     }
   };
 
-  useEffect(() => {
-    fetchRecruiterData(myJobs.length > 0 || applicants.length > 0);
-
-    // Auto-sync polling every 3 seconds in background
-    const syncTimer = setInterval(() => {
-      fetchRecruiterData(true);
-    }, 3000);
-
-    const handleFocus = () => fetchRecruiterData(true);
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleFocus);
-
-    return () => {
-      clearInterval(syncTimer);
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleFocus);
-    };
-  }, [syncTrigger]);
+  useAutoRefresh(fetchRecruiterData, 3000, [syncTrigger]);
 
   const handleStatusUpdate = async (applicationId, newStatus) => {
     try {

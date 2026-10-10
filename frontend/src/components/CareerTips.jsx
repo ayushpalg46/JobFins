@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { careerTipsService } from '../services/api';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 
 export default function CareerTips({ user, onOpenLogin, syncTrigger }) {
   const [tips, setTips] = useState([]);
@@ -54,24 +55,7 @@ export default function CareerTips({ user, onOpenLogin, syncTrigger }) {
     }
   };
 
-  useEffect(() => {
-    loadTips(tips.length > 0);
-
-    // Auto-refresh polling every 3 seconds
-    const interval = setInterval(() => {
-      loadTips(true);
-    }, 3000);
-
-    const handleFocus = () => loadTips(true);
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleFocus);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleFocus);
-    };
-  }, [syncTrigger]);
+  useAutoRefresh(loadTips, 3000, [syncTrigger]);
 
   const handleLike = async (tipId) => {
     try {

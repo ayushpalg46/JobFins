@@ -78,22 +78,7 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
   // Keep company synchronized with recruiter profile
   useEffect(() => {
     if (isOpen) {
-      if (user?.companyName && user.companyName.trim() !== '') {
-        setCompany(user.companyName.trim());
-      } else {
-        // Fetch fresh profile from backend to ensure latest companyName is populated
-        userService.getProfile()
-          .then((res) => {
-            if (res.data?.companyName && res.data.companyName.trim() !== '') {
-              setCompany(res.data.companyName.trim());
-            } else {
-              setCompany('Enterprise Talent Corp');
-            }
-          })
-          .catch(() => {
-            setCompany('Enterprise Talent Corp');
-          });
-      }
+      setCompany(user?.companyName?.trim() || 'Enterprise Talent Corp');
     }
   }, [user, isOpen]);
 
@@ -135,12 +120,9 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
     try {
       const finalDesc = description.trim() || `We are looking for a skilled ${title || 'Software Engineer'} with hands-on expertise in ${selectedTech.join(', ') || 'modern software engineering'} to design and deliver scalable solutions.`;
 
-      // Enforce the recruiter's verified company name
-      const verifiedCompanyName = (company || user?.companyName || 'Enterprise Talent Corp').trim();
-
       await onJobCreated({
         title: (title || 'Software Engineer').trim(),
-        company: verifiedCompanyName,
+        company: (company || user?.companyName || 'Enterprise Talent Corp').trim(),
         location: finalLocation,
         jobType,
         salary: finalSalary,

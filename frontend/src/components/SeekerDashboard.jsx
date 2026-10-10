@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { applicationService } from '../services/api';
 import SeekerOfferLetterModal from './SeekerOfferLetterModal';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 
 export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncTrigger }) {
   const [applications, setApplications] = useState([]);
@@ -22,24 +23,7 @@ export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncT
     }
   };
 
-  useEffect(() => {
-    fetchMyApplications(applications.length > 0);
-
-    // Auto-sync polling every 3 seconds in background
-    const syncTimer = setInterval(() => {
-      fetchMyApplications(true);
-    }, 3000);
-
-    const handleFocus = () => fetchMyApplications(true);
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleFocus);
-
-    return () => {
-      clearInterval(syncTimer);
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleFocus);
-    };
-  }, [syncTrigger]);
+  useAutoRefresh(fetchMyApplications, 3000, [syncTrigger]);
 
   const getStatusBadge = (status) => {
     switch (status) {
