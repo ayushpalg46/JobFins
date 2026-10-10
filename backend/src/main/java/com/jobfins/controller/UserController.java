@@ -61,6 +61,18 @@ public class UserController {
         if (profileData.getContactNumber() != null) user.setContactNumber(profileData.getContactNumber());
         if (profileData.getBioOrSkills() != null) user.setBioOrSkills(profileData.getBioOrSkills());
         if (profileData.getCompanyName() != null) user.setCompanyName(profileData.getCompanyName());
+        if (profileData.getLocation() != null) user.setLocation(profileData.getLocation());
+        if (profileData.getPortfolioUrl() != null) user.setPortfolioUrl(profileData.getPortfolioUrl());
+        if (profileData.getResumeUrl() != null) user.setResumeUrl(profileData.getResumeUrl());
+        if (profileData.getResumeFileName() != null) user.setResumeFileName(profileData.getResumeFileName());
+        if (profileData.getResumeFileSize() != null) user.setResumeFileSize(profileData.getResumeFileSize());
+        if (profileData.getResumeUploadDate() != null) user.setResumeUploadDate(profileData.getResumeUploadDate());
+        if (profileData.getResumeBase64() != null) user.setResumeBase64(profileData.getResumeBase64());
+        if (profileData.getCompanyWebsite() != null) user.setCompanyWebsite(profileData.getCompanyWebsite());
+        if (profileData.getCompanyDescription() != null) user.setCompanyDescription(profileData.getCompanyDescription());
+        if (profileData.getHiringPreferences() != null) user.setHiringPreferences(profileData.getHiringPreferences());
+        if (profileData.getExperienceLevel() != null) user.setExperienceLevel(profileData.getExperienceLevel());
+        if (profileData.getExperienceDetails() != null) user.setExperienceDetails(profileData.getExperienceDetails());
 
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok(savedUser);

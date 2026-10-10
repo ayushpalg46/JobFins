@@ -174,6 +174,15 @@ export default function App() {
 
   const handleRegister = async (registerData) => {
     await authService.register(registerData);
+    // Immediately log the newly registered user in and route them to complete their full profile details
+    const res = await authService.login(registerData.email, registerData.password);
+    const { token, id, name, role, companyName } = res.data;
+    const userData = { id, name, email: registerData.email, role, companyName, isFirstTimeOnboarding: true };
+    localStorage.setItem('jobfins_token', token);
+    localStorage.setItem('jobfins_user', JSON.stringify(userData));
+    setUser(userData);
+    triggerGlobalSync();
+    setCurrentView('profile');
   };
 
   const handleLogout = () => {

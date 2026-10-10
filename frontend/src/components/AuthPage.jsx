@@ -40,11 +40,6 @@ export default function AuthPage({ onLogin, onRegister }) {
           password: password.trim(),
           role,
         });
-
-        setSuccessMsg('Registration successful! Logging you in...');
-        setTimeout(async () => {
-          await onLogin(email.trim(), password.trim());
-        }, 1200);
       }
     } catch (err) {
       console.error('Auth error:', err);

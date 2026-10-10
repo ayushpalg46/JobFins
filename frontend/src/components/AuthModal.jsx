@@ -29,11 +29,7 @@ export default function AuthModal({ isOpen, mode, onClose, onLogin, onRegister, 
           password,
           role,
         });
-        setSuccessMsg('Registration successful! Logging you in...');
-        setTimeout(async () => {
-          await onLogin(email, password);
-          onClose();
-        }, 1200);
+        onClose();
       }
     } catch (err) {
       setError(err.response?.data?.message || err.response?.data?.error || 'Authentication failed. Please check your credentials.');
