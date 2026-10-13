@@ -78,10 +78,10 @@ public class CompanyController {
                     map.put("name", c.getCompanyName());
                     map.put("industry", c.getDescription() != null ? c.getDescription() : "Enterprise Software & Cloud");
                     map.put("headquarters", c.getHeadquarters() != null ? c.getHeadquarters() : "Bangalore, India");
-                    map.put("openPositions", c.getOpenPositions() != null ? c.getOpenPositions() : 8);
-                    map.put("rating", c.getRating() != null ? c.getRating() : 4.8);
+                    map.put("openPositions", c.getOpenPositions() != null ? c.getOpenPositions() : Integer.valueOf(8));
+                    map.put("rating", c.getRating() != null ? c.getRating() : Double.valueOf(4.8));
                     map.put("website", c.getWebsite() != null ? c.getWebsite() : "https://jobfins.com");
-                    map.put("verified", c.getIsVerified() != null ? c.getIsVerified() : true);
+                    map.put("verified", c.getIsVerified() != null ? c.getIsVerified() : Boolean.TRUE);
                     mapped.add(map);
                 }
                 return ResponseEntity.ok(mapped);

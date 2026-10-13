@@ -66,7 +66,6 @@ public class JobController {
             Job createdJob = jobService.createJob(request, recruiter);
             return ResponseEntity.ok(createdJob);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().body(new ApiResponse("ERROR", e.getMessage()));
         }
     }
