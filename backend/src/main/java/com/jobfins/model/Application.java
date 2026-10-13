@@ -54,6 +54,19 @@ public class Application {
     @Column(name = "offer_details", columnDefinition = "LONGTEXT")
     private String offerDetails;
 
+    // --- ATS Evaluation Attributes ---
+    private Integer atsScore;
+    private String atsStatus;
+    private String atsKeywordsMatched;
+
+    // --- Embedded Digital Offer Letter Attributes ---
+    private String baseSalary;
+    private String performanceBonus;
+    private String stockOptions;
+    private String joiningDate;
+    private String reportingManager;
+    private String acceptanceDeadline;
+
     // Relational association to OfferLetter entity
     @OneToOne(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @com.fasterxml.jackson.annotation.JsonIgnore
@@ -153,5 +166,77 @@ public class Application {
 
     public void setAppliedDate(LocalDateTime appliedDate) {
         this.appliedDate = appliedDate;
+    }
+
+    public Integer getAtsScore() {
+        return atsScore;
+    }
+
+    public void setAtsScore(Integer atsScore) {
+        this.atsScore = atsScore;
+    }
+
+    public String getAtsStatus() {
+        return atsStatus;
+    }
+
+    public void setAtsStatus(String atsStatus) {
+        this.atsStatus = atsStatus;
+    }
+
+    public String getAtsKeywordsMatched() {
+        return atsKeywordsMatched;
+    }
+
+    public void setAtsKeywordsMatched(String atsKeywordsMatched) {
+        this.atsKeywordsMatched = atsKeywordsMatched;
+    }
+
+    public String getBaseSalary() {
+        return baseSalary;
+    }
+
+    public void setBaseSalary(String baseSalary) {
+        this.baseSalary = baseSalary;
+    }
+
+    public String getPerformanceBonus() {
+        return performanceBonus;
+    }
+
+    public void setPerformanceBonus(String performanceBonus) {
+        this.performanceBonus = performanceBonus;
+    }
+
+    public String getStockOptions() {
+        return stockOptions;
+    }
+
+    public void setStockOptions(String stockOptions) {
+        this.stockOptions = stockOptions;
+    }
+
+    public String getJoiningDate() {
+        return joiningDate;
+    }
+
+    public void setJoiningDate(String joiningDate) {
+        this.joiningDate = joiningDate;
+    }
+
+    public String getReportingManager() {
+        return reportingManager;
+    }
+
+    public void setReportingManager(String reportingManager) {
+        this.reportingManager = reportingManager;
+    }
+
+    public String getAcceptanceDeadline() {
+        return acceptanceDeadline;
+    }
+
+    public void setAcceptanceDeadline(String acceptanceDeadline) {
+        this.acceptanceDeadline = acceptanceDeadline;
     }
 }

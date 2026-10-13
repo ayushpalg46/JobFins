@@ -168,6 +168,15 @@ public class DataInitializer implements CommandLineRunner {
                         "https://github.com/ayushpalg46/JobFins"
                 );
                 sampleApp.setStatus("ACCEPTED");
+                sampleApp.setAtsScore(96);
+                sampleApp.setAtsStatus("HIGH_MATCH");
+                sampleApp.setAtsKeywordsMatched("Java 17, Spring Boot, MySQL, REST API, Microservices");
+                sampleApp.setBaseSalary("₹18,00,000 / annum");
+                sampleApp.setPerformanceBonus("₹2,00,000 annual variable");
+                sampleApp.setStockOptions("₹6,00,000 ESOPs (4 yr vesting)");
+                sampleApp.setJoiningDate("2026-11-01");
+                sampleApp.setReportingManager("Engineering Director");
+                sampleApp.setAcceptanceDeadline("Within 7 Days");
                 String offerJson = "{\"offerId\":\"JOBFIN-OFFER-1024\",\"candidateName\":\"Ayush Pal\",\"role\":\"Java Backend Developer\",\"department\":\"Core Engineering & Cloud Scale\",\"joiningDate\":\"2026-11-01\",\"baseSalary\":1800000,\"bonus\":200000,\"esops\":600000,\"joiningBonus\":100000,\"totalFirstYearCtc\":2250000,\"acceptanceDeadline\":\"7 Days\"}";
                 sampleApp.setOfferDetails(offerJson);
                 Application savedApp = applicationRepository.save(sampleApp);

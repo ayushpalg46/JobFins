@@ -53,6 +53,16 @@ public class ApplicationService {
                 request.getResumeLink()
         );
 
+        // Automatic ATS Evaluation Score simulation
+        int atsScore = 88;
+        if (seeker.getBioOrSkills() != null && !seeker.getBioOrSkills().isBlank()) {
+            atsScore = 92;
+            String skills = seeker.getBioOrSkills();
+            application.setAtsKeywordsMatched(skills.length() > 80 ? skills.substring(0, 80) : skills);
+        }
+        application.setAtsScore(atsScore);
+        application.setAtsStatus(atsScore >= 80 ? "HIGH_MATCH" : "MODERATE_MATCH");
+
         return applicationRepository.save(application);
     }
 
@@ -112,6 +122,15 @@ public class ApplicationService {
         application.setStatus(newStatus);
         if (request.getOfferDetails() != null && !request.getOfferDetails().isBlank()) {
             application.setOfferDetails(request.getOfferDetails());
+            try {
+                com.fasterxml.jackson.databind.JsonNode root = new com.fasterxml.jackson.databind.ObjectMapper().readTree(request.getOfferDetails());
+                if (root.has("baseSalary")) application.setBaseSalary("₹" + root.get("baseSalary").asText());
+                if (root.has("bonus")) application.setPerformanceBonus("₹" + root.get("bonus").asText());
+                if (root.has("esops")) application.setStockOptions("₹" + root.get("esops").asText());
+                if (root.has("joiningDate")) application.setJoiningDate(root.get("joiningDate").asText());
+                if (root.has("department")) application.setReportingManager(root.get("department").asText());
+                if (root.has("acceptanceDeadline")) application.setAcceptanceDeadline(root.get("acceptanceDeadline").asText());
+            } catch (com.fasterxml.jackson.core.JsonProcessingException | RuntimeException ignored) {}
             syncOfferLetterEntity(application, request.getOfferDetails());
         }
         return applicationRepository.save(application);
