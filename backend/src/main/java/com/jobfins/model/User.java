@@ -31,6 +31,11 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", nullable = true)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private RoleEntity roleEntity;
+
     // Additional profile fields
     private String companyName;        // For Recruiters
     private String contactNumber;      // For both
@@ -243,6 +248,14 @@ public class User {
 
     public void setExperienceDetails(String experienceDetails) {
         this.experienceDetails = experienceDetails;
+    }
+
+    public RoleEntity getRoleEntity() {
+        return roleEntity;
+    }
+
+    public void setRoleEntity(RoleEntity roleEntity) {
+        this.roleEntity = roleEntity;
     }
 
     public LocalDateTime getCreatedAt() {

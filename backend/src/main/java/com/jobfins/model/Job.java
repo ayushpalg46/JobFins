@@ -42,6 +42,12 @@ public class Job {
     @JoinColumn(name = "recruiter_id", nullable = false)
     private User recruiter;
 
+    // Association to verified Company entity
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "company_id", nullable = true)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private Company companyEntity;
+
     // Default constructor
     public Job() {
     }
@@ -142,5 +148,13 @@ public class Job {
 
     public void setRecruiter(User recruiter) {
         this.recruiter = recruiter;
+    }
+
+    public Company getCompanyEntity() {
+        return companyEntity;
+    }
+
+    public void setCompanyEntity(Company companyEntity) {
+        this.companyEntity = companyEntity;
     }
 }

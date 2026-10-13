@@ -1,10 +1,12 @@
 package com.jobfins.service;
 
 import com.jobfins.dto.JobRequest;
+import com.jobfins.model.Company;
 import com.jobfins.model.Job;
 import com.jobfins.model.Role;
 import com.jobfins.model.User;
 import com.jobfins.repository.ApplicationRepository;
+import com.jobfins.repository.CompanyRepository;
 import com.jobfins.repository.JobRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -25,6 +27,9 @@ public class JobService {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -77,6 +82,16 @@ public class JobService {
         job.setDescription(request.getDescription());
         job.setRequirements(request.getRequirements());
         job.setRecruiter(recruiter);
+
+        // Associate verified Company entity if present
+        try {
+            Company comp = companyRepository.findFirstByCompanyName(verifiedCompany)
+                    .or(() -> companyRepository.findFirstByRecruiterId(recruiter.getId()))
+                    .orElse(null);
+            if (comp != null) {
+                job.setCompanyEntity(comp);
+            }
+        } catch (Exception ignored) {}
 
         return jobRepository.save(job);
     }

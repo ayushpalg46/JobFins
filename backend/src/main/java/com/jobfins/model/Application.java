@@ -2,17 +2,7 @@ package com.jobfins.model;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 /**
  * Application Entity representing a Seeker applying for a specific Job. Maps to
@@ -51,6 +41,11 @@ public class Application {
     @Lob
     @Column(name = "offer_details", columnDefinition = "LONGTEXT")
     private String offerDetails;
+
+    // Relational association to OfferLetter entity
+    @OneToOne(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private OfferLetter offerLetterEntity;
 
     private LocalDateTime appliedDate;
 
@@ -130,6 +125,14 @@ public class Application {
 
     public void setOfferDetails(String offerDetails) {
         this.offerDetails = offerDetails;
+    }
+
+    public OfferLetter getOfferLetterEntity() {
+        return offerLetterEntity;
+    }
+
+    public void setOfferLetterEntity(OfferLetter offerLetterEntity) {
+        this.offerLetterEntity = offerLetterEntity;
     }
 
     public LocalDateTime getAppliedDate() {

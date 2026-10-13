@@ -5,6 +5,10 @@ import com.jobfins.dto.LoginRequest;
 import com.jobfins.dto.RegisterRequest;
 import com.jobfins.model.Role;
 import com.jobfins.model.User;
+import com.jobfins.model.Company;
+import com.jobfins.model.RoleEntity;
+import com.jobfins.repository.CompanyRepository;
+import com.jobfins.repository.RoleRepository;
 import com.jobfins.repository.UserRepository;
 import com.jobfins.security.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,12 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -60,11 +70,36 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(userRole);
+        try {
+            RoleEntity roleEntity = roleRepository.findByRoleName(userRole.name()).orElse(null);
+            user.setRoleEntity(roleEntity);
+        } catch (Exception ignored) {}
+
         user.setCompanyName(request.getCompanyName());
         user.setContactNumber(request.getContactNumber());
         user.setBioOrSkills(request.getBioOrSkills());
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        // If Recruiter registered with company name, ensure Company entity exists
+        if (userRole == Role.ROLE_RECRUITER && request.getCompanyName() != null && !request.getCompanyName().isBlank()) {
+            try {
+                String cName = request.getCompanyName().trim();
+                if (companyRepository.findByCompanyName(cName).isEmpty()) {
+                    Company newCompany = new Company(
+                            cName,
+                            "https://" + cName.toLowerCase().replaceAll("[^a-z0-9]", "") + ".com",
+                            "Hiring organization on JobFins platform.",
+                            "India / Remote",
+                            "Within 48 Hours",
+                            savedUser
+                    );
+                    companyRepository.save(newCompany);
+                }
+            } catch (Exception ignored) {}
+        }
+
+        return savedUser;
     }
 
     /**

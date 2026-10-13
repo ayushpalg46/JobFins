@@ -1,12 +1,7 @@
 package com.jobfins.config;
 
-import com.jobfins.model.CareerTip;
-import com.jobfins.model.Job;
-import com.jobfins.model.Role;
-import com.jobfins.model.User;
-import com.jobfins.repository.CareerTipRepository;
-import com.jobfins.repository.JobRepository;
-import com.jobfins.repository.UserRepository;
+import com.jobfins.model.*;
+import com.jobfins.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
- * DataInitializer seeds initial recruiters, seekers, and sample jobs
- * on application start if database is empty.
+ * DataInitializer seeds initial roles, companies, recruiters, seekers, jobs,
+ * applications, offer letters, and career tips on application start.
  */
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -27,7 +22,19 @@ public class DataInitializer implements CommandLineRunner {
     private UserRepository userRepository;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
+
+    @Autowired
     private JobRepository jobRepository;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private OfferLetterRepository offerLetterRepository;
 
     @Autowired
     private CareerTipRepository careerTipRepository;
@@ -38,36 +45,91 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         try {
-            log.info("Checking database initialization for JobFins...");
+            log.info("Checking database initialization across all 7 entities for JobFins...");
 
-            // 1. Create Recruiter Account
+            // 1. Seed Roles Table
+            RoleEntity roleSeeker = roleRepository.findByRoleName("ROLE_SEEKER")
+                    .orElseGet(() -> roleRepository.save(new RoleEntity("ROLE_SEEKER", "Candidate with proof of work and application privileges")));
+
+            RoleEntity roleRecruiter = roleRepository.findByRoleName("ROLE_RECRUITER")
+                    .orElseGet(() -> roleRepository.save(new RoleEntity("ROLE_RECRUITER", "Enterprise Recruiter with verified hiring and offer generation rights")));
+
+            // 2. Create Recruiter Account
             if (userRepository.findByEmail("recruiter@jobfins.com").isEmpty()) {
                 User recruiter = new User();
                 recruiter.setName("TechCorp Recruiter");
                 recruiter.setEmail("recruiter@jobfins.com");
                 recruiter.setPassword(passwordEncoder.encode("password123"));
                 recruiter.setRole(Role.ROLE_RECRUITER);
+                recruiter.setRoleEntity(roleRecruiter);
                 recruiter.setCompanyName("TechCorp Innovations");
+                recruiter.setCompanyWebsite("https://techcorp-innovations.com");
+                recruiter.setCompanyDescription("Leading enterprise cloud & software engineering firm.");
                 recruiter.setContactNumber("+91 9876543210");
+                recruiter.setLocation("Bangalore, Karnataka");
                 recruiter.setBioOrSkills("Technical Talent Acquisition Lead");
                 userRepository.save(recruiter);
             }
 
             User recruiter = userRepository.findByEmail("recruiter@jobfins.com").orElse(null);
 
-            // 2. Create Seeker Accounts (Diverse Demo Candidates for Talent Sourcing)
-            seedSeekerIfMissing("Ayush Pal", "seeker@jobfins.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices");
-            seedSeekerIfMissing("Maya Chen", "maya.chen@example.com", "+91 9823411223", "Staff Backend Architect | FastAPI, Python, Go, Docker, Kubernetes, PostgreSQL");
-            seedSeekerIfMissing("Elena Rostova", "elena.rostova@example.com", "+91 9711223344", "Senior Cloud & DevOps SRE | Kubernetes, Docker, Terraform, Rust, Linux, AWS");
-            seedSeekerIfMissing("Rahul Sharma", "rahul.sharma@example.com", "+91 9812345678", "Java Backend Engineer II | Spring Boot, Java 17, MySQL, Redis, Kafka");
-            seedSeekerIfMissing("Sneha Kapoor", "sneha.kapoor@example.com", "+91 9988776655", "Lead Mobile & Frontend Engineer | React, Flutter, Next.js, TypeScript, Node.js");
-            seedSeekerIfMissing("Vikramaditya Roy", "vikram.roy@example.com", "+91 9876501234", "High-Throughput Systems Engineer | Rust, Go, gRPC, Cassandra, Docker, Kafka");
-            seedSeekerIfMissing("Ananya Deshmukh", "ananya.d@example.com", "+91 9123478901", "Full Stack Python & React Engineer | Django, FastAPI, React, PostgreSQL, Celery");
-            seedSeekerIfMissing("Karthik Venkat", "karthik.v@example.com", "+91 9445566778", "Senior Microservices Architect | Java 21, Spring Boot, AWS, Kafka, DynamoDB");
-            seedSeekerIfMissing("Rohan Verma", "rohan.verma@example.com", "+91 9789012345", "Cloud Native Platform Engineer | Docker, Kubernetes, Helm, Go, GCP, Terraform");
-            seedSeekerIfMissing("Zoya Al-Mansoor", "zoya.tech@example.com", "+91 9654321098", "Frontend Performance Specialist | Next.js, React, Tailwind, GraphQL, Vite");
+            // 3. Seed Companies Table
+            Company techCorp = companyRepository.findFirstByCompanyName("TechCorp Innovations")
+                    .orElseGet(() -> {
+                        Company c = new Company(
+                                "TechCorp Innovations",
+                                "https://techcorp-innovations.com",
+                                "Pioneering cloud-native microservices architecture, enterprise analytics, and modern web applications.",
+                                "Bangalore, Karnataka",
+                                "Within 24-48 Hours",
+                                recruiter
+                        );
+                        c.setRating(4.8);
+                        c.setOpenPositions(8);
+                        c.setIsVerified(true);
+                        return companyRepository.save(c);
+                    });
 
-            // 3. Create Sample Jobs
+            if (companyRepository.findFirstByCompanyName("FinPay Solutions").isEmpty()) {
+                Company finpay = new Company(
+                        "FinPay Solutions",
+                        "https://finpay-solutions.com",
+                        "Next-generation digital ledger management and financial infrastructure.",
+                        "Mumbai, Maharashtra",
+                        "<24h Guaranteed",
+                        null
+                );
+                finpay.setRating(4.9);
+                finpay.setOpenPositions(6);
+                finpay.setIsVerified(true);
+                companyRepository.save(finpay);
+            }
+
+            if (companyRepository.findFirstByCompanyName("CloudScale Technologies").isEmpty()) {
+                Company cloudscale = new Company(
+                        "CloudScale Technologies",
+                        "https://cloudscale.io",
+                        "Automating container orchestration, continuous deployment, and cloud infrastructure.",
+                        "Pune / Remote",
+                        "Within 48 Hours",
+                        null
+                );
+                cloudscale.setRating(4.7);
+                cloudscale.setOpenPositions(5);
+                cloudscale.setIsVerified(true);
+                companyRepository.save(cloudscale);
+            }
+
+            // 4. Create Seeker Accounts (Diverse Demo Candidates for Talent Sourcing)
+            seedSeekerIfMissing("Ayush Pal", "seeker@jobfins.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker);
+            seedSeekerIfMissing("Maya Chen", "maya.chen@example.com", "+91 9823411223", "Staff Backend Architect | FastAPI, Python, Go, Docker, Kubernetes, PostgreSQL", roleSeeker);
+            seedSeekerIfMissing("Elena Rostova", "elena.rostova@example.com", "+91 9711223344", "Senior Cloud & DevOps SRE | Kubernetes, Docker, Terraform, Rust, Linux, AWS", roleSeeker);
+            seedSeekerIfMissing("Rahul Sharma", "rahul.sharma@example.com", "+91 9812345678", "Java Backend Engineer II | Spring Boot, Java 17, MySQL, Redis, Kafka", roleSeeker);
+            seedSeekerIfMissing("Sneha Kapoor", "sneha.kapoor@example.com", "+91 9988776655", "Lead Mobile & Frontend Engineer | React, Flutter, Next.js, TypeScript, Node.js", roleSeeker);
+
+            User mainSeeker = userRepository.findByEmail("seeker@jobfins.com").orElse(null);
+
+            // 5. Create Sample Jobs (Linked to Recruiter and Company)
             if (jobRepository.count() == 0 && recruiter != null) {
                 Job job1 = new Job(
                         "Java Backend Developer",
@@ -79,11 +141,12 @@ public class DataInitializer implements CommandLineRunner {
                         "Java 17, Spring Boot, MySQL, REST APIs, Docker",
                         recruiter
                 );
+                job1.setCompanyEntity(techCorp);
                 jobRepository.save(job1);
 
                 Job job2 = new Job(
                         "Full Stack Java Engineer",
-                        "InnoWave Systems",
+                        "TechCorp Innovations",
                         "Mumbai / Hybrid",
                         "Full-time",
                         "₹15 - 22 LPA",
@@ -91,12 +154,41 @@ public class DataInitializer implements CommandLineRunner {
                         "React.js, Java, Spring Security, Hibernate, Vite",
                         recruiter
                 );
+                job2.setCompanyEntity(techCorp);
                 jobRepository.save(job2);
             }
 
-            // 4. Create Initial Career Tips (Authored by both Recruiter and Candidate)
+            // 6. Seed Sample Application & Offer Letter (Core USP)
+            Job sampleJob = jobRepository.findAll().stream().findFirst().orElse(null);
+            if (sampleJob != null && mainSeeker != null && applicationRepository.count() == 0) {
+                Application sampleApp = new Application(
+                        sampleJob,
+                        mainSeeker,
+                        "Excited to apply with full stack expertise in Spring Boot and React.",
+                        "https://github.com/ayushpalg46/JobFins"
+                );
+                sampleApp.setStatus("ACCEPTED");
+                String offerJson = "{\"offerId\":\"JOBFIN-OFFER-1024\",\"candidateName\":\"Ayush Pal\",\"role\":\"Java Backend Developer\",\"department\":\"Core Engineering & Cloud Scale\",\"joiningDate\":\"2026-11-01\",\"baseSalary\":1800000,\"bonus\":200000,\"esops\":600000,\"joiningBonus\":100000,\"totalFirstYearCtc\":2250000,\"acceptanceDeadline\":\"7 Days\"}";
+                sampleApp.setOfferDetails(offerJson);
+                Application savedApp = applicationRepository.save(sampleApp);
+
+                // Seed OfferLetter Entity
+                OfferLetter offerLetter = new OfferLetter(
+                        savedApp,
+                        "₹18,00,000 / annum",
+                        "₹2,00,000 annual variable",
+                        "₹6,00,000 ESOPs (4 yr vesting)",
+                        "2026-11-01",
+                        "Engineering Director",
+                        "Within 7 Days"
+                );
+                offerLetter.setTermsAndConditions(offerJson);
+                offerLetter.setStatus("ISSUED");
+                offerLetterRepository.save(offerLetter);
+            }
+
+            // 7. Create Initial Career Tips (Authored by Recruiter & Candidate)
             if (careerTipRepository.count() < 4) {
-                // Recruiter Post 1
                 CareerTip tip1 = new CareerTip(
                         "What Engineering Leaders Look For in Full Stack Take-Homes",
                         "Hiring Manager Insights",
@@ -107,10 +199,10 @@ public class DataInitializer implements CommandLineRunner {
                         "TechCorp Innovations",
                         "recruiter@jobfins.com"
                 );
+                tip1.setAuthorUser(recruiter);
                 tip1.setLikesCount(32);
                 careerTipRepository.save(tip1);
 
-                // Candidate Post 1
                 CareerTip tip2 = new CareerTip(
                         "How I Prepared for Spring Boot 3 & Microservice Interviews in 30 Days",
                         "Technical Interview Prep",
@@ -121,10 +213,10 @@ public class DataInitializer implements CommandLineRunner {
                         null,
                         "seeker@jobfins.com"
                 );
+                tip2.setAuthorUser(mainSeeker);
                 tip2.setLikesCount(45);
                 careerTipRepository.save(tip2);
 
-                // Recruiter Post 2
                 CareerTip tip3 = new CareerTip(
                         "The #1 Mistake Engineers Make in Offer & Salary Negotiations",
                         "Offer & Salary Negotiation",
@@ -138,7 +230,6 @@ public class DataInitializer implements CommandLineRunner {
                 tip3.setLikesCount(28);
                 careerTipRepository.save(tip3);
 
-                // Candidate Post 2
                 CareerTip tip4 = new CareerTip(
                         "From 0 Replies to 4 SDE Offers: My Proof-Over-Paper Strategy",
                         "Resume & Portfolio",
@@ -151,49 +242,22 @@ public class DataInitializer implements CommandLineRunner {
                 );
                 tip4.setLikesCount(56);
                 careerTipRepository.save(tip4);
-
-                // Recruiter Post 3
-                CareerTip tip5 = new CareerTip(
-                        "Cracking System Design: How We Evaluate Database & Caching Choices",
-                        "System Design & Microservices",
-                        "What senior interviewers look for when asking you to design a high-throughput platform.",
-                        "• Clarify functional vs non-functional requirements (read-heavy vs write-heavy, latency SLA, consistency vs availability).\n• Choose appropriate storage: PostgreSQL/MySQL for ACID financial ledger; Redis for caching hot data and session rate-limiting.\n• Don't jump straight into microservices if a modular monolith solves the throughput requirements with less network overhead.",
-                        "Arjun Mehta",
-                        "ROLE_RECRUITER",
-                        "FinScale Cloud Systems",
-                        "arjun.vp@finscale.dev"
-                );
-                tip5.setLikesCount(39);
-                careerTipRepository.save(tip5);
-
-                // Candidate Post 3
-                CareerTip tip6 = new CareerTip(
-                        "5 Docker & CI/CD Concepts That Won Me My Cloud DevOps Role",
-                        "Engineering Culture",
-                        "Practical DevOps tips every backend and full stack engineer should practice.",
-                        "1. Multi-stage Docker builds to reduce container image sizes from 600MB to 80MB.\n2. Non-root user permissions inside Docker containers for security compliance.\n3. Health checks (`HEALTHCHECK --interval=30s`) so container orchestrators know when Spring Boot is ready.\n4. GitHub Actions workflow for automated compile, test, and container push on every PR.",
-                        "Elena Rostova",
-                        "ROLE_SEEKER",
-                        null,
-                        "elena.rostova@example.com"
-                );
-                tip6.setLikesCount(41);
-                careerTipRepository.save(tip6);
             }
 
-            log.info("Sample database initialization completed successfully.");
+            log.info("JobFins database initialization across all 7 entities completed successfully.");
         } catch (Exception e) {
             log.warn("Data initialization encountered an error: {}", e.getMessage());
         }
     }
 
-    private void seedSeekerIfMissing(String name, String email, String phone, String bio) {
+    private void seedSeekerIfMissing(String name, String email, String phone, String bio, RoleEntity roleSeeker) {
         if (userRepository.findByEmail(email).isEmpty()) {
             User seeker = new User();
             seeker.setName(name);
             seeker.setEmail(email);
             seeker.setPassword(passwordEncoder.encode("password123"));
             seeker.setRole(Role.ROLE_SEEKER);
+            seeker.setRoleEntity(roleSeeker);
             seeker.setContactNumber(phone);
             seeker.setBioOrSkills(bio);
             userRepository.save(seeker);

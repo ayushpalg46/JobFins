@@ -1,8 +1,13 @@
 package com.jobfins.controller;
 
+import com.jobfins.model.Company;
+import com.jobfins.repository.CompanyRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +20,10 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class CompanyController {
 
-    private final List<Map<String, Object>> companies = List.of(
+    @Autowired
+    private CompanyRepository companyRepository;
+
+    private final List<Map<String, Object>> fallbackCompanies = List.of(
             Map.of(
                     "id", 1,
                     "name", "TechCorp Innovations",
@@ -60,12 +68,32 @@ public class CompanyController {
 
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getAllCompanies() {
-        return ResponseEntity.ok(companies);
+        try {
+            List<Company> dbCompanies = companyRepository.findAll();
+            if (!dbCompanies.isEmpty()) {
+                List<Map<String, Object>> mapped = new ArrayList<>();
+                for (Company c : dbCompanies) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", c.getId());
+                    map.put("name", c.getCompanyName());
+                    map.put("industry", c.getDescription() != null ? c.getDescription() : "Enterprise Software & Cloud");
+                    map.put("headquarters", c.getHeadquarters() != null ? c.getHeadquarters() : "Bangalore, India");
+                    map.put("openPositions", c.getOpenPositions() != null ? c.getOpenPositions() : 8);
+                    map.put("rating", c.getRating() != null ? c.getRating() : 4.8);
+                    map.put("website", c.getWebsite() != null ? c.getWebsite() : "https://jobfins.com");
+                    map.put("verified", c.getIsVerified() != null ? c.getIsVerified() : true);
+                    mapped.add(map);
+                }
+                return ResponseEntity.ok(mapped);
+            }
+        } catch (Exception ignored) {
+        }
+        return ResponseEntity.ok(fallbackCompanies);
     }
 
     @GetMapping("/featured")
     public ResponseEntity<List<Map<String, Object>>> getFeaturedCompanies() {
-        return ResponseEntity.ok(companies.subList(0, 2));
+        return ResponseEntity.ok(fallbackCompanies.subList(0, 2));
     }
 
     @GetMapping("/locations")

@@ -31,6 +31,11 @@ public class CareerTip {
 
     private String authorEmail;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = true)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private User authorUser;
+
     private int likesCount = 0;
 
     private LocalDateTime createdAt;
@@ -136,6 +141,14 @@ public class CareerTip {
 
     public void setLikesCount(int likesCount) {
         this.likesCount = likesCount;
+    }
+
+    public User getAuthorUser() {
+        return authorUser;
+    }
+
+    public void setAuthorUser(User authorUser) {
+        this.authorUser = authorUser;
     }
 
     public LocalDateTime getCreatedAt() {

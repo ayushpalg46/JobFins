@@ -6,8 +6,10 @@ import com.jobfins.model.Application;
 import com.jobfins.model.Job;
 import com.jobfins.model.Role;
 import com.jobfins.model.User;
+import com.jobfins.model.OfferLetter;
 import com.jobfins.repository.ApplicationRepository;
 import com.jobfins.repository.JobRepository;
+import com.jobfins.repository.OfferLetterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,9 @@ public class ApplicationService {
 
     @Autowired
     private JobRepository jobRepository;
+
+    @Autowired
+    private OfferLetterRepository offerLetterRepository;
 
     /**
      * Seeker applies for a job post.
@@ -107,7 +112,29 @@ public class ApplicationService {
         application.setStatus(newStatus);
         if (request.getOfferDetails() != null && !request.getOfferDetails().isBlank()) {
             application.setOfferDetails(request.getOfferDetails());
+            syncOfferLetterEntity(application, request.getOfferDetails());
         }
         return applicationRepository.save(application);
+    }
+
+    private void syncOfferLetterEntity(Application application, String offerJson) {
+        try {
+            OfferLetter offer = offerLetterRepository.findByApplicationId(application.getId())
+                    .orElse(new OfferLetter());
+            offer.setApplication(application);
+            offer.setStatus("ISSUED");
+            offer.setTermsAndConditions(offerJson);
+            if (offerJson != null && offerJson.contains("baseSalary")) {
+                com.fasterxml.jackson.databind.JsonNode root = new com.fasterxml.jackson.databind.ObjectMapper().readTree(offerJson);
+                if (root.has("baseSalary")) offer.setBaseSalary("₹" + root.get("baseSalary").asText());
+                if (root.has("bonus")) offer.setPerformanceBonus("₹" + root.get("bonus").asText());
+                if (root.has("esops")) offer.setStockOptions("₹" + root.get("esops").asText());
+                if (root.has("joiningDate")) offer.setJoiningDate(root.get("joiningDate").asText());
+                if (root.has("department")) offer.setReportingManager(root.get("department").asText());
+                if (root.has("acceptanceDeadline")) offer.setAcceptanceSla(root.get("acceptanceDeadline").asText());
+            }
+            offerLetterRepository.save(offer);
+        } catch (Exception ignored) {
+        }
     }
 }
