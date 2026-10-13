@@ -1,19 +1,24 @@
 # ==============================================================================
-# Multi-stage Dockerfile for JobFins Spring Boot Backend (Root Context)
-# Compatible with default Render root repository builds
+# Universal Multi-stage Dockerfile for JobFins Spring Boot Backend
+# Compatible with ANY build context: repository root (.) OR backend folder (backend/)
 # ==============================================================================
 
 # Stage 1: Build Application with Maven on Official Eclipse Temurin 17
 FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
 
-# Copy pom.xml and resolve dependencies
-COPY backend/pom.xml ./pom.xml
-RUN mvn dependency:go-offline -B
+# Copy build context into staging area
+COPY . /build/
 
-# Copy source code and package executable fat JAR
-COPY backend/src ./src
-RUN mvn clean package -DskipTests -B
+# Dynamically detect context (root vs backend) and compile executable JAR
+RUN if [ -f /build/pom.xml ]; then \
+        echo "==> Build context is backend directory" && cp -r /build/* /app/; \
+    elif [ -f /build/backend/pom.xml ]; then \
+        echo "==> Build context is repository root" && cp -r /build/backend/* /app/; \
+    else \
+        echo "ERROR: pom.xml not found in build context" && exit 1; \
+    fi && \
+    cd /app && mvn clean package -DskipTests -B
 
 # Stage 2: Hardened Production Runtime (LTS)
 FROM eclipse-temurin:17-jre
