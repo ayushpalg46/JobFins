@@ -14,7 +14,7 @@ import CareerTips from './components/CareerTips';
 import CompanyDirectory from './components/CompanyDirectory';
 import UserProfile from './components/UserProfile';
 import Footer from './components/Footer';
-import { authService, jobService, applicationService } from './services/api';
+import { authService, jobService, applicationService, portalService, labService } from './services/api';
 
 export default function App() {
   // Authentication state
@@ -156,8 +156,10 @@ export default function App() {
 
   const loadStats = async () => {
     try {
-      const res = await labService.getDashboardStats();
-      setStats(res.data);
+      const res = await portalService.getDashboardStats();
+      if (res?.data) {
+        setStats(res.data);
+      }
     } catch (err) {
       console.error('Error loading stats:', err);
     }
@@ -298,6 +300,7 @@ export default function App() {
               setTypeFilter={setTypeFilter}
               onSearch={loadJobs}
               stats={stats}
+              jobs={jobs}
             />
 
             <section className="py-5" id="jobs-section">

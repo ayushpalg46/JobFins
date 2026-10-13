@@ -9,6 +9,7 @@ export default function HeroSearch({
   setTypeFilter,
   onSearch,
   stats,
+  jobs = [],
 }) {
   const frameworks = [
     'Spring Boot',
@@ -116,19 +117,29 @@ export default function HeroSearch({
         <div className="row g-3 justify-content-center mt-4">
           <div className="col-12 col-sm-4">
             <div className="telemetry-card">
-              <div className="stat-num">{stats?.totalJobs !== undefined ? `${stats.totalJobs} Active` : '6 Active'}</div>
+              <div className="stat-num">
+                {stats?.totalJobs !== undefined ? `${stats.totalJobs} Active` : `${jobs?.length || 0} Active`}
+              </div>
               <div className="stat-label">Verified Job Posts</div>
             </div>
           </div>
           <div className="col-12 col-sm-4">
             <div className="telemetry-card">
-              <div className="stat-num text-primary">{stats?.totalRecruiters !== undefined ? `${stats.totalRecruiters} Recruiters` : '2 Recruiters'}</div>
+              <div className="stat-num text-primary">
+                {stats?.totalRecruiters !== undefined
+                  ? `${stats.totalRecruiters} ${stats.totalRecruiters === 1 ? 'Recruiter' : 'Recruiters'}`
+                  : '0 Recruiters'}
+              </div>
               <div className="stat-label">Top Hiring Companies</div>
             </div>
           </div>
           <div className="col-12 col-sm-4">
             <div className="telemetry-card">
-              <div className="stat-num text-success">{stats?.totalSeekers !== undefined ? `${stats.totalSeekers} Candidates` : '2 Candidates'}</div>
+              <div className="stat-num text-success">
+                {stats?.totalSeekers !== undefined
+                  ? `${stats.totalSeekers} ${stats.totalSeekers === 1 ? 'Candidate' : 'Candidates'}`
+                  : '0 Candidates'}
+              </div>
               <div className="stat-label">Registered Seekers</div>
             </div>
           </div>
