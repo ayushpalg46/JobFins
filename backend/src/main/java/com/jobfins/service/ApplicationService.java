@@ -134,7 +134,7 @@ public class ApplicationService {
                 if (root.has("acceptanceDeadline")) offer.setAcceptanceSla(root.get("acceptanceDeadline").asText());
             }
             offerLetterRepository.save(offer);
-        } catch (Exception ignored) {
+        } catch (com.fasterxml.jackson.core.JsonProcessingException | RuntimeException ignored) {
         }
     }
 }
