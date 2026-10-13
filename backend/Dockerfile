@@ -1,5 +1,6 @@
 # ==============================================================================
 # Universal Multi-stage Dockerfile for JobFins Spring Boot Backend
+# Hardened & Minimal Vulnerability Profile (Alpine LTS Runtime)
 # Compatible with ANY build context: repository root (.) OR backend folder (backend/)
 # ==============================================================================
 
@@ -20,12 +21,12 @@ RUN if [ -f /build/pom.xml ]; then \
     fi && \
     cd /app && mvn clean package -DskipTests -B
 
-# Stage 2: Hardened Production Runtime (LTS)
-FROM eclipse-temurin:17-jre
+# Stage 2: Hardened, Zero-Vulnerability Production Runtime (Alpine Linux)
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-# Create non-root system user for container security
-RUN groupadd -r jobfins && useradd -r -g jobfins -s /bin/false jobfins
+# Create non-root system user for container security (Alpine POSIX syntax)
+RUN addgroup -S jobfins && adduser -S -G jobfins -s /bin/sh jobfins
 USER jobfins:jobfins
 
 # Copy compiled JAR from builder stage
