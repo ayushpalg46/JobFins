@@ -24,7 +24,7 @@ RUN groupadd -r jobfins && useradd -r -g jobfins -s /bin/false jobfins
 USER jobfins:jobfins
 
 # Copy compiled JAR from builder stage
-COPY --from=builder --chown=jobfins:jobfins /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder --chown=jobfins:jobfins /app/target/*.jar app.jar
 
 # Render dynamic port environment variable
 ENV PORT=8080
