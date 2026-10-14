@@ -4,8 +4,8 @@
 # Compatible with ANY build context: repository root (.) OR backend folder (backend/)
 # ==============================================================================
 
-# Stage 1: Build Application with Maven on Ubuntu 24.04 LTS (Noble)
-FROM maven:3.9-eclipse-temurin-17-noble AS builder
+# Stage 1: Build Application with Zero-Vulnerability Chainguard Maven Builder
+FROM cgr.dev/chainguard/maven:latest AS builder
 WORKDIR /app
 
 # Copy build context into staging area
