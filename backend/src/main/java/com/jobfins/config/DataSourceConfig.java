@@ -61,6 +61,10 @@ public class DataSourceConfig {
         }
 
         // 2. Configured external database (Aiven MySQL / PostgreSQL / custom JDBC)
+        if (effectiveUrl.startsWith("mysql://")) {
+            effectiveUrl = "jdbc:" + effectiveUrl;
+        }
+
         if (isValidCustomUrl(effectiveUrl)) {
             if (effectiveUrl.startsWith("jdbc:mysql://") || effectiveUrl.startsWith("jdbc:postgresql://")) {
                 try {
@@ -69,7 +73,8 @@ public class DataSourceConfig {
                         String[] parts = uri.getUserInfo().split(":", 2);
                         effectiveUser = parts[0];
                         if (parts.length > 1) effectivePass = parts[1];
-                        effectiveUrl = "jdbc:" + uri.getScheme() + "://" + uri.getHost() + (uri.getPort() != -1 ? ":" + uri.getPort() : "") + uri.getPath();
+                        String query = uri.getQuery() != null ? "?" + uri.getQuery() : "";
+                        effectiveUrl = "jdbc:" + uri.getScheme() + "://" + uri.getHost() + (uri.getPort() != -1 ? ":" + uri.getPort() : "") + uri.getPath() + query;
                     }
                 } catch (Exception ignored) {}
             }
@@ -123,6 +128,6 @@ public class DataSourceConfig {
     private boolean isValidCustomUrl(String url) {
         if (url == null || url.isBlank() || isPlaceholder(url)) return false;
         if (url.contains("localhost") || url.contains("127.0.0.1")) return false;
-        return url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:h2:") || url.startsWith("jdbc:mariadb:");
+        return url.startsWith("jdbc:mysql:") || url.startsWith("mysql:") || url.startsWith("jdbc:postgresql:") || url.startsWith("postgres:") || url.startsWith("jdbc:h2:") || url.startsWith("jdbc:mariadb:");
     }
 }
