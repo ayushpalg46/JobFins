@@ -25,8 +25,9 @@ RUN if [ -f /build/pom.xml ]; then \
 FROM eclipse-temurin:17-jre-alpine-3.21
 WORKDIR /app
 
-# Create non-root system user for container security (Alpine POSIX syntax)
-RUN addgroup -S jobfins && adduser -S -G jobfins -s /bin/sh jobfins
+# Upgrade OS packages & create non-root system user for container security
+RUN apk update && apk upgrade --no-cache && \
+    addgroup -S jobfins && adduser -S -G jobfins -s /bin/sh jobfins
 USER jobfins:jobfins
 
 # Copy compiled JAR from builder stage
