@@ -87,7 +87,16 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApplySubmit, u
     setAttachedFile(file);
     const reader = new FileReader();
     reader.onload = () => {
-      setAttachedFileBase64(reader.result);
+      let result = reader.result;
+      // Normalize MIME type based on exact file extension
+      if (file.name.toLowerCase().endsWith('.docx') && !result.includes('wordprocessingml')) {
+        result = result.replace(/^data:[^;]*;base64,/, 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,');
+      } else if (file.name.toLowerCase().endsWith('.pdf') && !result.includes('application/pdf')) {
+        result = result.replace(/^data:[^;]*;base64,/, 'data:application/pdf;base64,');
+      } else if (file.name.toLowerCase().endsWith('.doc') && !result.includes('msword')) {
+        result = result.replace(/^data:[^;]*;base64,/, 'data:application/msword;base64,');
+      }
+      setAttachedFileBase64(result);
       setUseProfileResume(false);
       setFeedback(null);
     };

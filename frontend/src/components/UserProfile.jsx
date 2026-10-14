@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { userService } from '../services/api';
+import { downloadResumeDocument } from '../utils/documentViewer';
 
 // Curated industry tech stack catalogue grouped by domain
 const TECH_STACK_CATALOGUE = {
@@ -225,7 +226,14 @@ export default function UserProfile({ user, onProfileUpdated, onFindJobs, onOpen
 
     const reader = new FileReader();
     reader.onload = () => {
-      const base64Data = reader.result;
+      let base64Data = reader.result;
+      if (file.name.toLowerCase().endsWith('.docx') && !base64Data.includes('wordprocessingml')) {
+        base64Data = base64Data.replace(/^data:[^;]*;base64,/, 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,');
+      } else if (file.name.toLowerCase().endsWith('.pdf') && !base64Data.includes('application/pdf')) {
+        base64Data = base64Data.replace(/^data:[^;]*;base64,/, 'data:application/pdf;base64,');
+      } else if (file.name.toLowerCase().endsWith('.doc') && !base64Data.includes('msword')) {
+        base64Data = base64Data.replace(/^data:[^;]*;base64,/, 'data:application/msword;base64,');
+      }
       setResumeFileName(file.name);
       setResumeFileSize(file.size);
       setResumeUploadDate(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }));
@@ -1343,9 +1351,13 @@ export default function UserProfile({ user, onProfileUpdated, onFindJobs, onOpen
                 ></iframe>
               </div>
               <div className="modal-footer bg-light">
-                <a href={resumeBase64} download={resumeFileName || 'Resume.pdf'} className="btn btn-success btn-sm fw-bold">
-                  <i className="bi bi-download me-1"></i> Download PDF
-                </a>
+                <button
+                  type="button"
+                  onClick={() => downloadResumeDocument(resumeBase64, user?.name, resumeFileName)}
+                  className="btn btn-success btn-sm fw-bold"
+                >
+                  <i className="bi bi-download me-1"></i> Download Resume
+                </button>
                 <button type="button" className="btn btn-secondary btn-sm fw-bold" onClick={() => setShowResumeModal(false)}>
                   Close
                 </button>

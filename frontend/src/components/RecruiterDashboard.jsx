@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { jobService, applicationService } from '../services/api';
 import { useAutoRefresh } from '../hooks/useAutoRefresh';
+import ResumePreviewModal from './ResumePreviewModal';
+import { detectResumeType, downloadResumeDocument } from '../utils/documentViewer';
 
 export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer, syncTrigger, onSyncTrigger }) {
   const [myJobs, setMyJobs] = useState([]);
@@ -8,6 +10,7 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
   const [activeTab, setActiveTab] = useState('jobs'); // 'jobs' or 'applicants'
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
+  const [previewResumeData, setPreviewResumeData] = useState(null);
 
   const fetchRecruiterData = async (silent = false) => {
     if (!silent && myJobs.length === 0 && applicants.length === 0) {
@@ -260,37 +263,65 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
                               </p>
                             )}
 
-                            {app.resumeLink && (
-                              app.resumeLink.startsWith('data:') ? (
-                                <a
-                                  href={app.resumeLink}
-                                  download={`${(app.seeker?.name || 'Candidate').replace(/\s+/g, '_')}_Resume.pdf`}
-                                  className="btn btn-outline-secondary btn-sm py-0 px-2 mt-1"
-                                  style={{ fontSize: '0.72rem' }}
-                                >
-                                  <i className="bi bi-download me-1"></i> PDF Resume
-                                </a>
-                              ) : !ghMatch && app.resumeLink.includes('github.com') ? (
+                            {app.resumeLink && (() => {
+                              const docInfo = detectResumeType(app.resumeLink);
+                              if (docInfo.isDataUrl) {
+                                return (
+                                  <div className="d-flex align-items-center gap-1 mt-1 flex-wrap">
+                                    <button
+                                      type="button"
+                                      className={`btn btn-sm py-0 px-2 fw-semibold d-inline-flex align-items-center gap-1 ${
+                                        docInfo.isPdf ? 'btn-outline-danger' : 'btn-outline-primary'
+                                      }`}
+                                      style={{ fontSize: '0.72rem' }}
+                                      onClick={() =>
+                                        setPreviewResumeData({
+                                          link: app.resumeLink,
+                                          name: app.seeker?.name || 'Candidate',
+                                          title: app.job?.title || 'Applied Position',
+                                        })
+                                      }
+                                      title={`Preview ${docInfo.label}`}
+                                    >
+                                      <i className={`bi ${docInfo.icon}`}></i> {docInfo.isPdf ? 'Preview PDF' : 'View Docx'}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="btn btn-outline-secondary btn-sm py-0 px-2 fw-semibold"
+                                      style={{ fontSize: '0.72rem' }}
+                                      onClick={() => downloadResumeDocument(app.resumeLink, app.seeker?.name || 'Candidate')}
+                                      title={`Download ${docInfo.label}`}
+                                    >
+                                      <i className="bi bi-download"></i>
+                                    </button>
+                                  </div>
+                                );
+                              }
+                              if (docInfo.isGithub && !ghMatch) {
+                                return (
+                                  <a
+                                    href={app.resumeLink}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="tech-tag-cyber text-decoration-none py-1 px-2 mt-1 d-inline-block"
+                                    style={{ fontSize: '0.72rem' }}
+                                  >
+                                    <i className="bi bi-github"></i> Candidate GitHub
+                                  </a>
+                                );
+                              }
+                              return (
                                 <a
                                   href={app.resumeLink}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="tech-tag-cyber text-decoration-none py-1 px-2"
-                                >
-                                  <i className="bi bi-github"></i> Candidate GitHub
-                                </a>
-                              ) : (
-                                <a
-                                  href={app.resumeLink}
-                                  target="_blank"
-                                  rel="noreferrer"
                                   className="btn btn-outline-secondary btn-sm py-0 px-2 mt-1"
                                   style={{ fontSize: '0.72rem' }}
                                 >
-                                  <i className="bi bi-file-earmark-pdf me-1"></i> View Attached Doc
+                                  <i className="bi bi-box-arrow-up-right me-1"></i> {docInfo.label}
                                 </a>
-                              )
-                            )}
+                              );
+                            })()}
                           </div>
                         );
                       })()}
@@ -409,6 +440,15 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
           </table>
         </div>
       )}
+
+      {/* Interactive Resume Preview Modal for Recruiters */}
+      <ResumePreviewModal
+        show={Boolean(previewResumeData)}
+        onClose={() => setPreviewResumeData(null)}
+        resumeLink={previewResumeData?.link}
+        candidateName={previewResumeData?.name}
+        jobTitle={previewResumeData?.title}
+      />
     </div>
   );
 }
