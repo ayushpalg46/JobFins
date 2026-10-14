@@ -4,8 +4,8 @@
 # Compatible with ANY build context: repository root (.) OR backend folder (backend/)
 # ==============================================================================
 
-# Stage 1: Build Application with Maven on Official Eclipse Temurin 17
-FROM maven:3.9-eclipse-temurin-17 AS builder
+# Stage 1: Build Application with Maven on Eclipse Temurin 17 Alpine
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 WORKDIR /app
 
 # Copy build context into staging area
@@ -21,8 +21,8 @@ RUN if [ -f /build/pom.xml ]; then \
     fi && \
     cd /app && mvn clean package -DskipTests -B
 
-# Stage 2: Hardened, Zero-Vulnerability Production Runtime (Alpine Linux)
-FROM eclipse-temurin:17-jre-alpine
+# Stage 2: Hardened, Zero-Vulnerability Production Runtime (Eclipse Temurin 17 Alpine 3.21)
+FROM eclipse-temurin:17-jre-alpine-3.21
 WORKDIR /app
 
 # Create non-root system user for container security (Alpine POSIX syntax)
