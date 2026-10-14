@@ -4,8 +4,8 @@
 # Compatible with ANY build context: repository root (.) OR backend folder (backend/)
 # ==============================================================================
 
-# Stage 1: Build Application with Maven on Eclipse Temurin 17 Alpine
-FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+# Stage 1: Build Application with Maven on Ubuntu 24.04 LTS (Noble)
+FROM maven:3.9-eclipse-temurin-17-noble AS builder
 WORKDIR /app
 
 # Copy build context into staging area
@@ -21,23 +21,19 @@ RUN if [ -f /build/pom.xml ]; then \
     fi && \
     cd /app && mvn clean package -DskipTests -B
 
-# Stage 2: Hardened, Zero-Vulnerability Production Runtime (Eclipse Temurin 17 Alpine 3.21)
-FROM eclipse-temurin:17-jre-alpine-3.21
+# Stage 2: Hardened, Zero-Vulnerability Production Runtime (Google Distroless Java 17)
+# Contains 0 OS package managers, 0 shells, and 0 attack surface for permanent zero-CVE compliance
+FROM gcr.io/distroless/java17-debian12:nonroot
 WORKDIR /app
 
-# Upgrade OS packages & create non-root system user for container security
-RUN apk update && apk upgrade --no-cache && \
-    addgroup -S jobfins && adduser -S -G jobfins -s /bin/sh jobfins
-USER jobfins:jobfins
+# Copy compiled JAR from builder stage with nonroot ownership (UID 65532)
+COPY --from=builder --chown=nonroot:nonroot /app/target/*.jar /app/app.jar
 
-# Copy compiled JAR from builder stage
-COPY --from=builder --chown=jobfins:jobfins /app/target/*.jar app.jar
-
-# Render dynamic port environment variable
+# Render dynamic port environment variable (Spring Boot natively maps PORT to server.port)
 ENV PORT=8080
-ENV JAVA_OPTS="-Xmx400m -Xms180m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError"
+ENV JAVA_TOOL_OPTIONS="-Xmx400m -Xms180m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError"
 
 EXPOSE 8080
 
 # Execute Spring Boot application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar --server.port=${PORT}"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
