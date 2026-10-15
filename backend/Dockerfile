@@ -4,9 +4,14 @@
 # Compatible with ANY build context: repository root (.) OR backend folder (backend/)
 # ==============================================================================
 
-# Stage 1: Build Application with Zero-Vulnerability Chainguard Maven Builder
-FROM cgr.dev/chainguard/maven:latest AS builder
+# Stage 1: Build Application with stable Maven Builder
+FROM maven:3.9.6-eclipse-temurin-17-alpine AS builder
 WORKDIR /app
+
+# Crucial for Render Free Tier: Cap Maven & Javac JVM memory to 384MB with SerialGC
+# This prevents the container from exceeding Render's 512MB RAM limit and getting killed (OOM exit 137)
+ENV MAVEN_OPTS="-Xmx384m -Xms128m -XX:+UseSerialGC -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+ENV JAVA_TOOL_OPTIONS="-Xmx384m -Xms128m -XX:+UseSerialGC"
 
 # Copy build context into staging area
 COPY . /build/
@@ -19,7 +24,8 @@ RUN if [ -f /build/pom.xml ]; then \
     else \
         echo "ERROR: pom.xml not found in build context" && exit 1; \
     fi && \
-    cd /app && mvn clean package -DskipTests -B
+    rm -rf /build && \
+    mvn clean package -DskipTests -B --no-transfer-progress
 
 # Stage 2: Hardened, Zero-Vulnerability Production Runtime (Google Distroless Java 17)
 # Contains 0 OS package managers, 0 shells, and 0 attack surface for permanent zero-CVE compliance
@@ -31,7 +37,7 @@ COPY --from=builder --chown=nonroot:nonroot /app/target/*.jar /app/app.jar
 
 # Render dynamic port environment variable (Spring Boot natively maps PORT to server.port)
 ENV PORT=8080
-ENV JAVA_TOOL_OPTIONS="-Xmx400m -Xms180m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError"
+ENV JAVA_TOOL_OPTIONS="-Xmx384m -Xms128m -XX:+UseSerialGC -XX:+ExitOnOutOfMemoryError"
 
 EXPOSE 8080
 
