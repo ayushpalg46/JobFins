@@ -4,8 +4,9 @@
 # Compatible with ANY build context: repository root (.) OR backend folder (backend/)
 # ==============================================================================
 
-# Stage 1: Build Application with stable Maven Builder
-FROM maven:3.9.6-eclipse-temurin-17-alpine AS builder
+# Stage 1: Build Application with Zero-Vulnerability Chainguard Maven Builder
+FROM cgr.dev/chainguard/maven:latest AS builder
+USER root
 WORKDIR /app
 
 # Crucial for Render Free Tier: Cap Maven & Javac JVM memory to 384MB with SerialGC
