@@ -6,8 +6,18 @@ import { useEffect } from 'react';
 export function useAutoRefresh(callback, intervalMs = 3000, deps = []) {
   useEffect(() => {
     callback(true);
-    const timer = setInterval(() => callback(true), intervalMs);
-    const handleFocus = () => callback(true);
+    const timer = setInterval(() => {
+      // Only execute poll request if the browser tab is actively visible to the user
+      if (typeof document !== 'undefined' && !document.hidden) {
+        callback(true);
+      }
+    }, intervalMs);
+
+    const handleFocus = () => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        callback(true);
+      }
+    };
 
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleFocus);

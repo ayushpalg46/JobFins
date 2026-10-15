@@ -80,9 +80,29 @@ public class UserController {
 
     /**
      * Get all registered job seekers for recruiter talent sourcing.
+     * Streamlined to omit heavy multi-megabyte resumeBase64 payloads, reducing response from MBs to KBs.
      */
     @GetMapping("/candidates")
     public ResponseEntity<?> getAllCandidates() {
-        return ResponseEntity.ok(userRepository.findByRole(com.jobfins.model.Role.ROLE_SEEKER));
+        java.util.List<User> seekers = userRepository.findByRole(com.jobfins.model.Role.ROLE_SEEKER);
+        java.util.List<java.util.Map<String, Object>> candidateList = seekers.stream().map(u -> {
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", u.getId());
+            map.put("name", u.getName());
+            map.put("email", u.getEmail());
+            map.put("role", u.getRole());
+            map.put("contactNumber", u.getContactNumber());
+            map.put("bioOrSkills", u.getBioOrSkills());
+            map.put("location", u.getLocation());
+            map.put("portfolioUrl", u.getPortfolioUrl());
+            map.put("resumeUrl", u.getResumeUrl());
+            map.put("resumeFileName", u.getResumeFileName());
+            map.put("resumeFileSize", u.getResumeFileSize());
+            map.put("resumeUploadDate", u.getResumeUploadDate());
+            map.put("experienceLevel", u.getExperienceLevel());
+            map.put("createdAt", u.getCreatedAt());
+            return map;
+        }).collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(candidateList);
     }
 }

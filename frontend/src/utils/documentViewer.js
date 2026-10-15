@@ -21,6 +21,24 @@ export function detectResumeType(link, preferredName = '') {
 
   const trimmed = link.trim();
 
+  if (trimmed.startsWith('ON_DEMAND_REF:')) {
+    const isDocx = trimmed.endsWith(':docx');
+    return {
+      type: isDocx ? 'DOCX' : 'PDF',
+      extension: isDocx ? '.docx' : '.pdf',
+      mime: isDocx ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf',
+      label: isDocx ? 'Word Document (.docx)' : 'PDF Document',
+      badgeClass: isDocx ? 'bg-primary-subtle text-primary border-primary-subtle' : 'bg-danger-subtle text-danger border-danger-subtle',
+      icon: isDocx ? 'bi-file-earmark-word-fill text-primary' : 'bi-file-earmark-pdf-fill text-danger',
+      isPdf: !isDocx,
+      isDocx: isDocx,
+      isDoc: false,
+      isDataUrl: true,
+      isOnDemand: true,
+      isExternalUrl: false,
+    };
+  }
+
   if (trimmed.startsWith('data:')) {
     const commaIndex = trimmed.indexOf(',');
     const header = commaIndex !== -1 ? trimmed.substring(0, commaIndex) : '';

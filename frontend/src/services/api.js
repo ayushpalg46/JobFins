@@ -59,6 +59,8 @@ export const applicationService = {
   getApplicantsForJob: (jobId) => api.get(`/applications/job/${jobId}`),
   getAllApplicantsForRecruiter: () => api.get('/applications/recruiter/all'),
   updateStatus: (applicationId, status, offerDetails = null) => api.put(`/applications/${applicationId}/status`, { status, offerDetails }),
+  withdrawApplication: (applicationId) => api.put(`/applications/${applicationId}/withdraw`),
+  getResume: (applicationId) => api.get(`/applications/${applicationId}/resume`),
 };
 
 export const userService = {

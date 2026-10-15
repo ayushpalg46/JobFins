@@ -8,6 +8,8 @@ export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncT
   const [loading, setLoading] = useState(true);
   const [selectedOfferApp, setSelectedOfferApp] = useState(null);
   const [offerModalOpen, setOfferModalOpen] = useState(false);
+  const [withdrawingId, setWithdrawingId] = useState(null);
+  const [message, setMessage] = useState(null);
 
   const fetchMyApplications = async (silent = false) => {
     if (!silent && applications.length === 0) {
@@ -25,12 +27,46 @@ export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncT
 
   useAutoRefresh(fetchMyApplications, 3000, [syncTrigger]);
 
+  const handleWithdrawApplication = async (app) => {
+    const isAccepted = app.status === 'ACCEPTED';
+    const confirmMsg = isAccepted
+      ? `The recruiter has extended an offer for "${app.job?.title}". Are you sure you want to withdraw your application and decline the position?`
+      : `Are you sure you want to withdraw your application for "${app.job?.title}" at ${app.job?.company || 'this company'}?`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    setWithdrawingId(app.id);
+    try {
+      await applicationService.withdrawApplication(app.id);
+      setApplications((prev) =>
+        prev.map((a) => (a.id === app.id ? { ...a, status: 'WITHDRAWN' } : a))
+      );
+      setMessage({
+        type: 'warning',
+        text: `Application for "${app.job?.title}" has been successfully withdrawn.`,
+      });
+      setTimeout(() => setMessage(null), 4000);
+      if (onSyncTrigger) onSyncTrigger();
+    } catch (err) {
+      console.error('Failed to withdraw application:', err);
+      setMessage({
+        type: 'danger',
+        text: err.response?.data?.message || 'Failed to withdraw application. Please try again.',
+      });
+      setTimeout(() => setMessage(null), 4000);
+    } finally {
+      setWithdrawingId(null);
+    }
+  };
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'ACCEPTED':
         return <span className="badge bg-success"><i className="bi bi-check-circle me-1"></i> Offer Extended</span>;
       case 'SHORTLISTED':
         return <span className="badge bg-primary"><i className="bi bi-star me-1"></i> Shortlisted</span>;
+      case 'WITHDRAWN':
+        return <span className="badge bg-secondary"><i className="bi bi-dash-circle me-1"></i> Withdrawn</span>;
       case 'REJECTED':
         return <span className="badge bg-danger"><i className="bi bi-x-circle me-1"></i> Not Selected</span>;
       default:
@@ -51,6 +87,12 @@ export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncT
           <i className="bi bi-search me-1"></i> Browse More Jobs
         </button>
       </div>
+
+      {message && (
+        <div className={`alert alert-${message.type} py-2 small alert-dismissible fade show`} role="alert">
+          {message.text}
+        </div>
+      )}
 
       <div className="card border-0 shadow-sm rounded-3">
         <div className="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
@@ -97,19 +139,45 @@ export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncT
                       <td className="small text-muted">{app.appliedDate?.substring(0, 10)}</td>
                       <td>{getStatusBadge(app.status)}</td>
                       <td className="text-end">
-                        {(app.status === 'ACCEPTED' || app.offerDetails) ? (
-                          <button
-                            className="btn btn-success btn-sm py-1 px-3 fw-bold shadow-sm"
-                            onClick={() => {
-                              setSelectedOfferApp(app);
-                              setOfferModalOpen(true);
-                            }}
-                          >
-                            <i className="bi bi-file-earmark-check-fill me-1"></i> View Offer Letter
-                          </button>
-                        ) : (
-                          <span className="text-muted small italic">Awaiting Recruiter Review</span>
-                        )}
+                        <div className="d-flex align-items-center justify-content-end gap-2 flex-wrap">
+                          {(app.status === 'ACCEPTED' || app.offerDetails) && (
+                            <button
+                              className="btn btn-success btn-sm py-1 px-3 fw-bold shadow-sm"
+                              onClick={() => {
+                                setSelectedOfferApp(app);
+                                setOfferModalOpen(true);
+                              }}
+                            >
+                              <i className="bi bi-file-earmark-check-fill me-1"></i> View Offer Letter
+                            </button>
+                          )}
+
+                          {app.status === 'WITHDRAWN' ? (
+                            <span className="badge bg-light text-secondary border py-1 px-2" style={{ fontSize: '0.75rem' }}>
+                              <i className="bi bi-slash-circle me-1"></i> Application Withdrawn
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-outline-danger btn-sm py-1 px-2 fw-semibold"
+                              style={{ fontSize: '0.75rem' }}
+                              disabled={withdrawingId === app.id}
+                              onClick={() => handleWithdrawApplication(app)}
+                              title="Withdraw your application for this position"
+                            >
+                              {withdrawingId === app.id ? (
+                                <>
+                                  <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                  Withdrawing...
+                                </>
+                              ) : (
+                                <>
+                                  <i className="bi bi-dash-circle me-1"></i> Withdraw
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))

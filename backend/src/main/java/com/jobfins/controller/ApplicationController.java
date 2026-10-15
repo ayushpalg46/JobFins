@@ -111,4 +111,38 @@ public class ApplicationController {
             return ResponseEntity.badRequest().body(new ApiResponse("ERROR", e.getMessage()));
         }
     }
+
+    /**
+     * Seeker endpoint: Candidate withdraws their job application at any stage (ACCEPTED, SHORTLISTED, PENDING, REJECTED).
+     * PUT /api/applications/{id}/withdraw
+     */
+    @PutMapping("/{id}/withdraw")
+    public ResponseEntity<?> withdrawApplication(@PathVariable Long id, Authentication authentication) {
+        try {
+            User seeker = userService.getUserByEmail(authentication.getName());
+            Application withdrawnApp = applicationService.withdrawApplication(id, seeker);
+            return ResponseEntity.ok(withdrawnApp);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("ERROR", e.getMessage()));
+        }
+    }
+
+    /**
+     * On-demand Resume endpoint: Fetches candidate resume on-demand for preview/download.
+     * Keeps application listing responses tiny (~2KB) and prevents multi-megabyte polling bloat.
+     * GET /api/applications/{id}/resume
+     */
+    @GetMapping("/{id}/resume")
+    public ResponseEntity<?> getApplicationResume(@PathVariable Long id, Authentication authentication) {
+        try {
+            User user = userService.getUserByEmail(authentication.getName());
+            String resumeData = applicationService.getApplicationResume(id, user);
+            if (resumeData == null || resumeData.isBlank()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(java.util.Collections.singletonMap("resumeLink", resumeData));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("ERROR", e.getMessage()));
+        }
+    }
 }

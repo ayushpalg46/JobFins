@@ -49,6 +49,7 @@ public class Job {
     // Many jobs can be posted by one Recruiter
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recruiter_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"password", "resumeBase64", "companyDescription", "hiringPreferences", "experienceDetails"})
     private User recruiter;
 
     // Association to verified Company entity

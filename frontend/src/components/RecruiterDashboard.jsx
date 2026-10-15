@@ -11,6 +11,39 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
   const [previewResumeData, setPreviewResumeData] = useState(null);
+  const [loadingResumeAppId, setLoadingResumeAppId] = useState(null);
+
+  const resolveResumeAndExecute = async (app, actionType = 'preview') => {
+    let link = app.resumeLink;
+    if (link && link.startsWith('ON_DEMAND_REF:')) {
+      setLoadingResumeAppId(app.id);
+      try {
+        const res = await applicationService.getResume(app.id);
+        if (res.data?.resumeLink) {
+          link = res.data.resumeLink;
+          app.resumeLink = link; // Cache in memory
+        }
+      } catch (err) {
+        console.error('Failed to load on-demand resume:', err);
+        setMessage({ type: 'danger', text: 'Failed to retrieve candidate resume from server.' });
+        setTimeout(() => setMessage(null), 3500);
+        setLoadingResumeAppId(null);
+        return;
+      } finally {
+        setLoadingResumeAppId(null);
+      }
+    }
+
+    if (actionType === 'preview') {
+      setPreviewResumeData({
+        link,
+        name: app.seeker?.name || 'Candidate',
+        title: app.job?.title || 'Applied Position',
+      });
+    } else if (actionType === 'download') {
+      downloadResumeDocument(link, app.seeker?.name || 'Candidate');
+    }
+  };
 
   const fetchRecruiterData = async (silent = false) => {
     if (!silent && myJobs.length === 0 && applicants.length === 0) {
@@ -274,22 +307,23 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
                                         docInfo.isPdf ? 'btn-outline-danger' : 'btn-outline-primary'
                                       }`}
                                       style={{ fontSize: '0.72rem' }}
-                                      onClick={() =>
-                                        setPreviewResumeData({
-                                          link: app.resumeLink,
-                                          name: app.seeker?.name || 'Candidate',
-                                          title: app.job?.title || 'Applied Position',
-                                        })
-                                      }
+                                      disabled={loadingResumeAppId === app.id}
+                                      onClick={() => resolveResumeAndExecute(app, 'preview')}
                                       title={`Preview ${docInfo.label}`}
                                     >
-                                      <i className={`bi ${docInfo.icon}`}></i> {docInfo.isPdf ? 'Preview PDF' : 'View Docx'}
+                                      {loadingResumeAppId === app.id ? (
+                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                      ) : (
+                                        <i className={`bi ${docInfo.icon}`}></i>
+                                      )}
+                                      {docInfo.isPdf ? 'Preview PDF' : 'View Docx'}
                                     </button>
                                     <button
                                       type="button"
                                       className="btn btn-outline-secondary btn-sm py-0 px-2 fw-semibold"
                                       style={{ fontSize: '0.72rem' }}
-                                      onClick={() => downloadResumeDocument(app.resumeLink, app.seeker?.name || 'Candidate')}
+                                      disabled={loadingResumeAppId === app.id}
+                                      onClick={() => resolveResumeAndExecute(app, 'download')}
                                       title={`Download ${docInfo.label}`}
                                     >
                                       <i className="bi bi-download"></i>
@@ -331,16 +365,27 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
                       <span className={`badge ${
                         app.status === 'ACCEPTED' ? 'bg-success text-white' :
                         app.status === 'SHORTLISTED' ? 'bg-primary text-white' :
+                        app.status === 'WITHDRAWN' ? 'bg-secondary text-white' :
                         app.status === 'REJECTED' ? 'bg-danger text-white' : 'bg-warning text-dark'
                       }`}>
                         {app.status === 'ACCEPTED' && <i className="bi bi-patch-check-fill me-1"></i>}
                         {app.status === 'SHORTLISTED' && <i className="bi bi-star-fill me-1"></i>}
+                        {app.status === 'WITHDRAWN' && <i className="bi bi-dash-circle me-1"></i>}
                         {app.status === 'REJECTED' && <i className="bi bi-x-circle me-1"></i>}
                         {(!app.status || app.status === 'PENDING') && <i className="bi bi-clock-history me-1"></i>}
                         {app.status || 'PENDING'}
                       </span>
                     </td>
                     <td className="text-end">
+                      {/* State: WITHDRAWN -> Candidate withdrew application */}
+                      {app.status === 'WITHDRAWN' && (
+                        <div className="d-flex justify-content-end align-items-center gap-1">
+                          <span className="badge bg-light text-secondary border py-1 px-2" style={{ fontSize: '0.75rem' }}>
+                            <i className="bi bi-slash-circle me-1"></i> Candidate Withdrew
+                          </span>
+                        </div>
+                      )}
+
                       {/* State 1: PENDING -> Can Shortlist or Reject */}
                       {(!app.status || app.status === 'PENDING') && (
                         <div className="btn-group btn-group-sm">

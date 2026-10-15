@@ -36,6 +36,7 @@ public class Application {
     // Many applications can belong to one Seeker
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "seeker_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"password", "resumeBase64", "experienceDetails"})
     private User seeker;
 
     @Lob

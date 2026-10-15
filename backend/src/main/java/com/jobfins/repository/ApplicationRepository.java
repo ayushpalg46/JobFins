@@ -22,6 +22,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     // Find all applications across all jobs belonging to a specific recruiter
     List<Application> findByJobRecruiterIdOrderByAppliedDateDesc(Long recruiterId);
 
+    // Find application by job ID and seeker ID
+    java.util.Optional<Application> findByJobIdAndSeekerId(Long jobId, Long seekerId);
+
     // Check if seeker has already applied to a job
     boolean existsByJobIdAndSeekerId(Long jobId, Long seekerId);
 
