@@ -65,7 +65,7 @@ public class DataInitializer implements CommandLineRunner {
             String recruiterEmail = isDocker ? "recruiter@gmail.com" : "recruiter@jobfins.com";
             String recruiterPassword = isDocker ? "qwerty123" : "password123";
 
-            String seekerEmail = isDocker ? "candidate@gmail.com.com" : "seeker@jobfins.com";
+            String seekerEmail = isDocker ? "candidate@gmail.com" : "seeker@jobfins.com";
             String seekerPassword = isDocker ? "qwerty123" : "password123";
 
             // If running in Docker and existing records from previous volume run exist, migrate them to new credentials
@@ -78,8 +78,15 @@ public class DataInitializer implements CommandLineRunner {
                     }
                 });
                 userRepository.findByEmail("seeker@jobfins.com").ifPresent(oldSeeker -> {
-                    if (userRepository.findByEmail("candidate@gmail.com.com").isEmpty()) {
-                        oldSeeker.setEmail("candidate@gmail.com.com");
+                    if (userRepository.findByEmail("candidate@gmail.com").isEmpty()) {
+                        oldSeeker.setEmail("candidate@gmail.com");
+                        oldSeeker.setPassword(passwordEncoder.encode("qwerty123"));
+                        userRepository.save(oldSeeker);
+                    }
+                });
+                userRepository.findByEmail("candidate@gmail.com.com").ifPresent(oldSeeker -> {
+                    if (userRepository.findByEmail("candidate@gmail.com").isEmpty()) {
+                        oldSeeker.setEmail("candidate@gmail.com");
                         oldSeeker.setPassword(passwordEncoder.encode("qwerty123"));
                         userRepository.save(oldSeeker);
                     }
@@ -154,7 +161,6 @@ public class DataInitializer implements CommandLineRunner {
 
             // 4. Create Seeker Accounts (Diverse Demo Candidates for Talent Sourcing)
             if (isDocker) {
-                seedSeekerIfMissing("Candidate Seeker", "candidate@gmail.com.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, seekerPassword);
                 seedSeekerIfMissing("Candidate Seeker", "candidate@gmail.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, seekerPassword);
             } else {
                 seedSeekerIfMissing("Ayush Pal", "seeker@jobfins.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, seekerPassword);
@@ -164,9 +170,7 @@ public class DataInitializer implements CommandLineRunner {
             seedSeekerIfMissing("Rahul Sharma", "rahul.sharma@example.com", "+91 9812345678", "Java Backend Engineer II | Spring Boot, Java 17, MySQL, Redis, Kafka", roleSeeker);
             seedSeekerIfMissing("Sneha Kapoor", "sneha.kapoor@example.com", "+91 9988776655", "Lead Mobile & Frontend Engineer | React, Flutter, Next.js, TypeScript, Node.js", roleSeeker);
 
-            User mainSeeker = userRepository.findByEmail(seekerEmail).orElseGet(() ->
-                    userRepository.findByEmail("candidate@gmail.com").orElse(null)
-            );
+            User mainSeeker = userRepository.findByEmail(seekerEmail).orElse(null);
 
             // 5. Create Sample Jobs (Linked to Recruiter and Company)
             if (jobRepository.count() == 0 && recruiter != null) {

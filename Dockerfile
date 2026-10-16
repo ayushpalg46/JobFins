@@ -11,14 +11,15 @@ WORKDIR /app
 
 # Crucial for Render Free Tier: Cap Maven & Javac JVM memory to 384MB with SerialGC
 # This prevents the container from exceeding Render's 512MB RAM limit and getting killed (OOM exit 137)
-ENV MAVEN_OPTS="-Xmx384m -Xms128m -XX:+UseSerialGC -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+ENV MAVEN_OPTS="-Xmx384m -Xms128m -XX:+UseSerialGC -Dmaven.wagon.http.retryHandler.count=5 -Dmaven.wagon.http.retryHandler.requestSentKeepAliveRuntime=true -Dmaven.wagon.http.pool=false -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
 ENV JAVA_TOOL_OPTIONS="-Xmx384m -Xms128m -XX:+UseSerialGC"
 
 # Copy build context into staging area
 COPY . /build/
 
-# Dynamically detect context (root vs backend) and compile executable JAR
-RUN if [ -f /build/pom.xml ]; then \
+# Dynamically detect context (root vs backend) and compile executable JAR with cache mount and retry handler
+RUN --mount=type=cache,target=/root/.m2 \
+    if [ -f /build/pom.xml ]; then \
         echo "==> Build context is backend directory" && cp -r /build/* /app/; \
     elif [ -f /build/backend/pom.xml ]; then \
         echo "==> Build context is repository root" && cp -r /build/backend/* /app/; \
