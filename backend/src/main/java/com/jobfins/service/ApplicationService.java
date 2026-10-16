@@ -130,7 +130,7 @@ public class ApplicationService {
             root.put("candidateAccepted", true);
             root.put("candidateAcceptedAt", java.time.LocalDateTime.now().toString());
             application.setOfferDetails(mapper.writeValueAsString(root));
-        } catch (Exception ignored) {
+        } catch (com.fasterxml.jackson.core.JsonProcessingException | RuntimeException ignored) {
         }
 
         // Also update relational OfferLetter entity status to ACCEPTED
