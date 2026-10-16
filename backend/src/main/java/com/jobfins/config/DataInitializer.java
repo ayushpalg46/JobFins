@@ -54,12 +54,44 @@ public class DataInitializer implements CommandLineRunner {
             RoleEntity roleRecruiter = roleRepository.findByRoleName("ROLE_RECRUITER")
                     .orElseGet(() -> roleRepository.save(new RoleEntity("ROLE_RECRUITER", "Enterprise Recruiter with verified hiring and offer generation rights")));
 
+            // Determine environment: Docker vs Render vs Local
+            boolean isRender = "true".equalsIgnoreCase(System.getenv("RENDER"));
+            boolean isDocker = !isRender && (
+                    "true".equalsIgnoreCase(System.getenv("DOCKER_DEMO_ACCOUNTS"))
+                    || "true".equalsIgnoreCase(System.getenv("DOCKER_ENVIRONMENT"))
+                    || (System.getenv("SPRING_DATASOURCE_URL") != null && System.getenv("SPRING_DATASOURCE_URL").contains("mysqldb"))
+            );
+
+            String recruiterEmail = isDocker ? "recruiter@gmail.com" : "recruiter@jobfins.com";
+            String recruiterPassword = isDocker ? "qwerty123" : "password123";
+
+            String seekerEmail = isDocker ? "candidate@gmail.com.com" : "seeker@jobfins.com";
+            String seekerPassword = isDocker ? "qwerty123" : "password123";
+
+            // If running in Docker and existing records from previous volume run exist, migrate them to new credentials
+            if (isDocker) {
+                userRepository.findByEmail("recruiter@jobfins.com").ifPresent(oldRec -> {
+                    if (userRepository.findByEmail("recruiter@gmail.com").isEmpty()) {
+                        oldRec.setEmail("recruiter@gmail.com");
+                        oldRec.setPassword(passwordEncoder.encode("qwerty123"));
+                        userRepository.save(oldRec);
+                    }
+                });
+                userRepository.findByEmail("seeker@jobfins.com").ifPresent(oldSeeker -> {
+                    if (userRepository.findByEmail("candidate@gmail.com.com").isEmpty()) {
+                        oldSeeker.setEmail("candidate@gmail.com.com");
+                        oldSeeker.setPassword(passwordEncoder.encode("qwerty123"));
+                        userRepository.save(oldSeeker);
+                    }
+                });
+            }
+
             // 2. Create Recruiter Account
-            if (userRepository.findByEmail("recruiter@jobfins.com").isEmpty()) {
+            if (userRepository.findByEmail(recruiterEmail).isEmpty()) {
                 User recruiter = new User();
                 recruiter.setName("TechCorp Recruiter");
-                recruiter.setEmail("recruiter@jobfins.com");
-                recruiter.setPassword(passwordEncoder.encode("password123"));
+                recruiter.setEmail(recruiterEmail);
+                recruiter.setPassword(passwordEncoder.encode(recruiterPassword));
                 recruiter.setRole(Role.ROLE_RECRUITER);
                 recruiter.setRoleEntity(roleRecruiter);
                 recruiter.setCompanyName("TechCorp Innovations");
@@ -71,7 +103,7 @@ public class DataInitializer implements CommandLineRunner {
                 userRepository.save(recruiter);
             }
 
-            User recruiter = userRepository.findByEmail("recruiter@jobfins.com").orElse(null);
+            User recruiter = userRepository.findByEmail(recruiterEmail).orElse(null);
 
             // 3. Seed Companies Table
             Company techCorp = companyRepository.findFirstByCompanyName("TechCorp Innovations")
@@ -121,13 +153,20 @@ public class DataInitializer implements CommandLineRunner {
             }
 
             // 4. Create Seeker Accounts (Diverse Demo Candidates for Talent Sourcing)
-            seedSeekerIfMissing("Ayush Pal", "seeker@jobfins.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker);
+            if (isDocker) {
+                seedSeekerIfMissing("Candidate Seeker", "candidate@gmail.com.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, "qwerty123");
+                seedSeekerIfMissing("Candidate Seeker", "candidate@gmail.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, "qwerty123");
+            } else {
+                seedSeekerIfMissing("Ayush Pal", "seeker@jobfins.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, "password123");
+            }
             seedSeekerIfMissing("Maya Chen", "maya.chen@example.com", "+91 9823411223", "Staff Backend Architect | FastAPI, Python, Go, Docker, Kubernetes, PostgreSQL", roleSeeker);
             seedSeekerIfMissing("Elena Rostova", "elena.rostova@example.com", "+91 9711223344", "Senior Cloud & DevOps SRE | Kubernetes, Docker, Terraform, Rust, Linux, AWS", roleSeeker);
             seedSeekerIfMissing("Rahul Sharma", "rahul.sharma@example.com", "+91 9812345678", "Java Backend Engineer II | Spring Boot, Java 17, MySQL, Redis, Kafka", roleSeeker);
             seedSeekerIfMissing("Sneha Kapoor", "sneha.kapoor@example.com", "+91 9988776655", "Lead Mobile & Frontend Engineer | React, Flutter, Next.js, TypeScript, Node.js", roleSeeker);
 
-            User mainSeeker = userRepository.findByEmail("seeker@jobfins.com").orElse(null);
+            User mainSeeker = userRepository.findByEmail(seekerEmail).orElseGet(() ->
+                    userRepository.findByEmail("candidate@gmail.com").orElse(null)
+            );
 
             // 5. Create Sample Jobs (Linked to Recruiter and Company)
             if (jobRepository.count() == 0 && recruiter != null) {
@@ -206,7 +245,7 @@ public class DataInitializer implements CommandLineRunner {
                         "TechCorp Recruiter",
                         "ROLE_RECRUITER",
                         "TechCorp Innovations",
-                        "recruiter@jobfins.com"
+                        recruiterEmail
                 );
                 tip1.setAuthorUser(recruiter);
                 tip1.setLikesCount(32);
@@ -220,7 +259,7 @@ public class DataInitializer implements CommandLineRunner {
                         "Ayush Pal",
                         "ROLE_SEEKER",
                         null,
-                        "seeker@jobfins.com"
+                        seekerEmail
                 );
                 tip2.setAuthorUser(mainSeeker);
                 tip2.setLikesCount(45);
@@ -260,11 +299,15 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedSeekerIfMissing(String name, String email, String phone, String bio, RoleEntity roleSeeker) {
+        seedSeekerIfMissing(name, email, phone, bio, roleSeeker, "password123");
+    }
+
+    private void seedSeekerIfMissing(String name, String email, String phone, String bio, RoleEntity roleSeeker, String rawPassword) {
         if (userRepository.findByEmail(email).isEmpty()) {
             User seeker = new User();
             seeker.setName(name);
             seeker.setEmail(email);
-            seeker.setPassword(passwordEncoder.encode("password123"));
+            seeker.setPassword(passwordEncoder.encode(rawPassword));
             seeker.setRole(Role.ROLE_SEEKER);
             seeker.setRoleEntity(roleSeeker);
             seeker.setContactNumber(phone);

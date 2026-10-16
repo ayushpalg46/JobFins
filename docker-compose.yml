@@ -35,6 +35,7 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "true"
       PORT: 8080
+      DOCKER_DEMO_ACCOUNTS: "true"
     depends_on:
       mysqldb:
         condition: service_healthy
