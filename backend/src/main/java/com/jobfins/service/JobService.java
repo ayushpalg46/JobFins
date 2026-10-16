@@ -8,6 +8,7 @@ import com.jobfins.model.User;
 import com.jobfins.repository.ApplicationRepository;
 import com.jobfins.repository.CompanyRepository;
 import com.jobfins.repository.JobRepository;
+import com.jobfins.repository.OfferLetterRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class JobService {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private OfferLetterRepository offerLetterRepository;
 
     @Autowired
     private CompanyRepository companyRepository;
@@ -130,16 +134,19 @@ public class JobService {
             throw new RuntimeException("Unauthorized: You can only delete your own job postings.");
         }
 
-        // 1. Delete all dependent candidate applications first via direct SQL
+        // 1. Delete all dependent digital offer letters first to satisfy foreign key constraints
+        offerLetterRepository.deleteByJobId(id);
+
+        // 2. Delete all dependent candidate applications via direct SQL
         applicationRepository.deleteByJobId(id);
 
-        // 2. Flush and clear persistence context to ensure application deletes execute immediately in MySQL
+        // 3. Flush and clear persistence context to ensure application deletes execute immediately in MySQL
         if (entityManager != null) {
             entityManager.flush();
             entityManager.clear();
         }
 
-        // 3. Delete the job row
+        // 4. Delete the job row
         jobRepository.deleteJobByIdNative(id);
     }
 
