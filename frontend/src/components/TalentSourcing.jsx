@@ -290,7 +290,7 @@ export default function TalentSourcing({ onExtendOffer, syncTrigger }) {
 
                         <button
                           className="btn btn-cobalt btn-sm px-3 shadow-sm fw-bold"
-                          onClick={() => onExtendOffer && onExtendOffer(candidate)}
+                          onClick={() => onExtendOffer && onExtendOffer({ ...candidate, salary: candidate.expectedCtc })}
                         >
                           <i className="bi bi-file-earmark-text me-1"></i> Extend Direct Offer
                         </button>

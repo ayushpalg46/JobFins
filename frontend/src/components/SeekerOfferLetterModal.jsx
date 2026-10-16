@@ -19,11 +19,13 @@ export default function SeekerOfferLetterModal({ isOpen, onClose, application })
   const company = offer?.companyName || application.job?.company || 'TechCorp Innovations';
   const department = offer?.department || 'Core Engineering & Cloud Scale';
   const joiningDate = offer?.joiningDate || '2026-11-01';
-  const baseSalary = offer?.baseSalary || 2800000;
-  const bonus = offer?.bonus || 400000;
-  const esops = offer?.esops || 1200000;
-  const joiningBonus = offer?.joiningBonus || 200000;
-  const totalFirstYearCtc = offer?.totalFirstYearCtc || (baseSalary + bonus + joiningBonus + Math.round(esops / 4));
+  const baseSalary = offer?.baseSalary !== undefined && offer?.baseSalary !== null ? Number(offer.baseSalary) : 1000000;
+  const bonus = offer?.bonus !== undefined && offer?.bonus !== null ? Number(offer.bonus) : 0;
+  const esops = offer?.esops !== undefined && offer?.esops !== null ? Number(offer.esops) : 0;
+  const joiningBonus = offer?.joiningBonus !== undefined && offer?.joiningBonus !== null ? Number(offer.joiningBonus) : 0;
+  const totalFirstYearCtc = offer?.totalFirstYearCtc !== undefined && offer?.totalFirstYearCtc !== null
+    ? Number(offer.totalFirstYearCtc)
+    : (baseSalary + bonus + joiningBonus + Math.round(esops / 4));
   const offerId = offer?.offerId || `JOBFIN-OFFER-${application.id * 1111}`;
   const issuedDate = offer?.issuedDate || new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 
