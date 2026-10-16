@@ -154,10 +154,10 @@ public class DataInitializer implements CommandLineRunner {
 
             // 4. Create Seeker Accounts (Diverse Demo Candidates for Talent Sourcing)
             if (isDocker) {
-                seedSeekerIfMissing("Candidate Seeker", "candidate@gmail.com.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, "qwerty123");
-                seedSeekerIfMissing("Candidate Seeker", "candidate@gmail.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, "qwerty123");
+                seedSeekerIfMissing("Candidate Seeker", "candidate@gmail.com.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, seekerPassword);
+                seedSeekerIfMissing("Candidate Seeker", "candidate@gmail.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, seekerPassword);
             } else {
-                seedSeekerIfMissing("Ayush Pal", "seeker@jobfins.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, "password123");
+                seedSeekerIfMissing("Ayush Pal", "seeker@jobfins.com", "+91 9123456780", "Senior Full Stack Java Lead | Spring Boot, React, Docker, PostgreSQL, Microservices", roleSeeker, seekerPassword);
             }
             seedSeekerIfMissing("Maya Chen", "maya.chen@example.com", "+91 9823411223", "Staff Backend Architect | FastAPI, Python, Go, Docker, Kubernetes, PostgreSQL", roleSeeker);
             seedSeekerIfMissing("Elena Rostova", "elena.rostova@example.com", "+91 9711223344", "Senior Cloud & DevOps SRE | Kubernetes, Docker, Terraform, Rust, Linux, AWS", roleSeeker);
