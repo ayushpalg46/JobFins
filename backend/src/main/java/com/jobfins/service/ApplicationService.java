@@ -98,6 +98,51 @@ public class ApplicationService {
     }
 
     /**
+     * Candidate formally accepts and signs the digital offer letter.
+     * Transitions status to OFFER_ACCEPTED and synchronizes with OfferLetter entity so the recruiter
+     * receives immediate confirmation on their dashboard.
+     */
+    public Application acceptOffer(Long applicationId, User seeker) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found with ID: " + applicationId));
+
+        // Verify that the application belongs to the logged-in candidate
+        if (!application.getSeeker().getId().equals(seeker.getId())) {
+            throw new RuntimeException("Unauthorized: You can only accept offers extended to you.");
+        }
+
+        String currentStatus = application.getStatus() != null ? application.getStatus().toUpperCase() : "";
+        if (!"ACCEPTED".equals(currentStatus) && !"OFFER_ACCEPTED".equals(currentStatus)) {
+            throw new RuntimeException("No active formal offer available to accept for this application.");
+        }
+
+        application.setStatus("OFFER_ACCEPTED");
+
+        // Embed candidate acceptance confirmation into offerDetails JSON
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.node.ObjectNode root;
+            if (application.getOfferDetails() != null && !application.getOfferDetails().isBlank()) {
+                root = (com.fasterxml.jackson.databind.node.ObjectNode) mapper.readTree(application.getOfferDetails());
+            } else {
+                root = mapper.createObjectNode();
+            }
+            root.put("candidateAccepted", true);
+            root.put("candidateAcceptedAt", java.time.LocalDateTime.now().toString());
+            application.setOfferDetails(mapper.writeValueAsString(root));
+        } catch (Exception ignored) {
+        }
+
+        // Also update relational OfferLetter entity status to ACCEPTED
+        offerLetterRepository.findByApplicationId(application.getId()).ifPresent(offer -> {
+            offer.setStatus("ACCEPTED");
+            offerLetterRepository.save(offer);
+        });
+
+        return applicationRepository.save(application);
+    }
+
+    /**
      * Get on-demand candidate resume data for preview or download.
      */
     public String getApplicationResume(Long applicationId, User user) {
@@ -192,12 +237,12 @@ public class ApplicationService {
         String currentStatus = application.getStatus() != null ? application.getStatus().toUpperCase() : "PENDING";
 
         // Rule: Accepted candidate cannot be rejected
-        if ("ACCEPTED".equals(currentStatus) && "REJECTED".equals(newStatus)) {
+        if (("ACCEPTED".equals(currentStatus) || "OFFER_ACCEPTED".equals(currentStatus)) && "REJECTED".equals(newStatus)) {
             throw new RuntimeException("Candidate has already been accepted with a formal offer and cannot be rejected.");
         }
 
         // Rule: Candidate must be shortlisted before being accepted
-        if ("ACCEPTED".equals(newStatus) && !"SHORTLISTED".equals(currentStatus) && !"ACCEPTED".equals(currentStatus)) {
+        if ("ACCEPTED".equals(newStatus) && !"SHORTLISTED".equals(currentStatus) && !"ACCEPTED".equals(currentStatus) && !"OFFER_ACCEPTED".equals(currentStatus)) {
             throw new RuntimeException("Candidate must be shortlisted before being accepted.");
         }
 

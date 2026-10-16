@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { applicationService } from '../services/api';
 
-export default function SeekerOfferLetterModal({ isOpen, onClose, application }) {
+export default function SeekerOfferLetterModal({ isOpen, onClose, application, onOfferAccepted }) {
   if (!isOpen || !application) return null;
+
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [localAccepted, setLocalAccepted] = useState(false);
+  const [actionMsg, setActionMsg] = useState(null);
 
   let offer = null;
   if (application.offerDetails) {
@@ -13,6 +18,8 @@ export default function SeekerOfferLetterModal({ isOpen, onClose, application })
       console.error('Failed to parse offer details:', e);
     }
   }
+
+  const isAccepted = application.status === 'OFFER_ACCEPTED' || offer?.candidateAccepted === true || localAccepted;
 
   const candidateName = offer?.candidateName || application.seeker?.name || 'Candidate';
   const role = offer?.role || application.job?.title || 'Software Engineer';
@@ -33,22 +40,56 @@ export default function SeekerOfferLetterModal({ isOpen, onClose, application })
     window.print();
   };
 
+  const handleAcceptOffer = async () => {
+    setIsAccepting(true);
+    setActionMsg(null);
+    try {
+      await applicationService.acceptOffer(application.id);
+      setLocalAccepted(true);
+      setActionMsg({
+        type: 'success',
+        text: `🎉 Congratulations! You have officially accepted the offer for "${role}" with ${company}. The recruiter has been notified in real time.`,
+      });
+      if (onOfferAccepted) {
+        onOfferAccepted();
+      }
+    } catch (err) {
+      console.error('Failed to accept offer:', err);
+      setActionMsg({
+        type: 'danger',
+        text: err.response?.data?.message || 'Failed to accept offer. Please try again.',
+      });
+    } finally {
+      setIsAccepting(false);
+    }
+  };
+
   return (
     <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', zIndex: 1060 }}>
       <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div className="modal-content border-0 shadow-lg rounded-3">
           {/* Header */}
-          <div className="modal-header bg-success text-white py-3 px-4">
+          <div className={`modal-header ${isAccepted ? 'bg-success' : 'bg-primary'} text-white py-3 px-4`}>
             <div>
-              <span className="badge bg-white text-success fw-bold mb-1">Official Offer Letter</span>
+              <span className="badge bg-white text-dark fw-bold mb-1">
+                {isAccepted ? 'Official Employment Offer (Signed & Accepted)' : 'Official Offer Letter'}
+              </span>
               <h5 className="modal-title fw-bold text-white mb-0">
-                <i className="bi bi-award-fill me-2"></i> Congratulations, {candidateName}!
+                <i className={`bi ${isAccepted ? 'bi-patch-check-fill' : 'bi-award-fill'} me-2`}></i>
+                {isAccepted ? `Offer Accepted • Congratulations, ${candidateName}!` : `Congratulations, ${candidateName}!`}
               </h5>
             </div>
             <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
           </div>
 
           <div className="modal-body p-4 bg-light">
+            {actionMsg && (
+              <div className={`alert alert-${actionMsg.type} py-2 mb-3 small d-flex align-items-center shadow-sm`}>
+                <i className={`bi ${actionMsg.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'} me-2 fs-5`}></i>
+                <div>{actionMsg.text}</div>
+              </div>
+            )}
+
             {/* Offer Banner */}
             <div className="p-3 bg-white rounded-3 border shadow-sm mb-4 d-flex flex-wrap justify-content-between align-items-center">
               <div>
@@ -58,9 +99,15 @@ export default function SeekerOfferLetterModal({ isOpen, onClose, application })
                 </h3>
               </div>
               <div>
-                <span className="badge bg-success-subtle text-success border border-success-subtle p-2 px-3">
-                  <i className="bi bi-check-circle-fill me-1"></i> Offer Extended & Verified
-                </span>
+                {isAccepted ? (
+                  <span className="badge bg-success text-white p-2 px-3 shadow-sm fs-7">
+                    <i className="bi bi-award-fill me-1"></i> Offer Accepted & Signed
+                  </span>
+                ) : (
+                  <span className="badge bg-primary-subtle text-primary border border-primary-subtle p-2 px-3">
+                    <i className="bi bi-clock-history me-1"></i> Offer Extended &bull; Awaiting Your Acceptance
+                  </span>
+                )}
               </div>
             </div>
 
@@ -136,9 +183,15 @@ export default function SeekerOfferLetterModal({ isOpen, onClose, application })
                   <p className="text-muted small mb-0">{company}</p>
                 </div>
                 <div className="text-end">
-                  <span className="badge bg-success small py-1 px-2">
-                    <i className="bi bi-shield-lock-fill me-1"></i> Digitally Signed & Verified
-                  </span>
+                  {isAccepted ? (
+                    <span className="badge bg-success small py-1 px-2">
+                      <i className="bi bi-patch-check-fill me-1"></i> Candidate Signed & Accepted
+                    </span>
+                  ) : (
+                    <span className="badge bg-primary small py-1 px-2">
+                      <i className="bi bi-shield-lock-fill me-1"></i> Digitally Signed & Verified
+                    </span>
+                  )}
                   <small className="text-muted d-block mt-1 font-monospace" style={{ fontSize: '0.72rem' }}>
                     #{offerId}-VERIFIED
                   </small>
@@ -148,17 +201,45 @@ export default function SeekerOfferLetterModal({ isOpen, onClose, application })
           </div>
 
           {/* Footer Actions */}
-          <div className="modal-footer bg-white py-2 px-4 d-flex justify-content-between">
-            <span className="text-muted small">
-              <i className="bi bi-info-circle me-1"></i> You can print or save this offer letter for your records.
-            </span>
+          <div className="modal-footer bg-white py-3 px-4 d-flex justify-content-between align-items-center">
+            <div>
+              {isAccepted ? (
+                <span className="text-success fw-semibold small">
+                  <i className="bi bi-check-circle-fill me-1"></i> You officially accepted and signed this offer of employment.
+                </span>
+              ) : (
+                <span className="text-muted small">
+                  <i className="bi bi-info-circle me-1"></i> Review all terms before accepting your official offer letter.
+                </span>
+              )}
+            </div>
             <div className="d-flex gap-2">
               <button type="button" className="btn btn-outline-secondary btn-sm px-3" onClick={onClose}>
                 Close
               </button>
-              <button type="button" className="btn btn-success btn-sm px-4 fw-bold" onClick={handlePrint}>
+              <button type="button" className="btn btn-outline-dark btn-sm px-3" onClick={handlePrint}>
                 <i className="bi bi-printer me-1"></i> Print / Save PDF
               </button>
+
+              {!isAccepted && (
+                <button
+                  type="button"
+                  className="btn btn-success btn-sm px-4 fw-bold shadow-sm"
+                  disabled={isAccepting}
+                  onClick={handleAcceptOffer}
+                >
+                  {isAccepting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+                      Accepting & Signing...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-patch-check-fill me-1"></i> Accept & Sign Offer
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>

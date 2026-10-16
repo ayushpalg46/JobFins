@@ -213,18 +213,51 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
         </div>
       ) : (
         // Applicants Tab
-        <div className="table-responsive bg-white rounded-3 border shadow-sm">
-          <table className="table table-hover align-middle mb-0">
-            <thead className="table-light small text-uppercase">
-              <tr>
-                <th>Candidate</th>
-                <th>Applied For</th>
-                <th>Cover Letter & Resume</th>
-                <th>Applied Date</th>
-                <th>Status</th>
-                <th className="text-end">Update Status</th>
-              </tr>
-            </thead>
+        <div>
+          {/* Real-time Candidate Pipeline Counters */}
+          <div className="row g-2 mb-3">
+            <div className="col-md-3">
+              <div className="p-3 bg-white rounded-3 border shadow-sm">
+                <small className="text-muted fw-bold text-uppercase d-block" style={{ fontSize: '0.7rem' }}>Total Applicants</small>
+                <h4 className="fw-bold text-dark mb-0">{applicants.length}</h4>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="p-3 bg-white rounded-3 border shadow-sm">
+                <small className="text-muted fw-bold text-uppercase d-block" style={{ fontSize: '0.7rem' }}>Shortlisted</small>
+                <h4 className="fw-bold text-primary mb-0">{applicants.filter(a => a.status === 'SHORTLISTED').length}</h4>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="p-3 bg-white rounded-3 border shadow-sm">
+                <small className="text-muted fw-bold text-uppercase d-block" style={{ fontSize: '0.7rem' }}>Offers Awaiting Candidate</small>
+                <h4 className="fw-bold text-warning-emphasis mb-0">{applicants.filter(a => a.status === 'ACCEPTED').length}</h4>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="p-3 bg-success-subtle rounded-3 border border-success-subtle shadow-sm">
+                <small className="text-success fw-bold text-uppercase d-block" style={{ fontSize: '0.7rem' }}>
+                  <i className="bi bi-award-fill me-1"></i> Offers Accepted by Candidates
+                </small>
+                <h4 className="fw-bold text-success mb-0">
+                  {applicants.filter(a => a.status === 'OFFER_ACCEPTED').length}
+                </h4>
+              </div>
+            </div>
+          </div>
+
+          <div className="table-responsive bg-white rounded-3 border shadow-sm">
+            <table className="table table-hover align-middle mb-0">
+              <thead className="table-light small text-uppercase">
+                <tr>
+                  <th>Candidate</th>
+                  <th>Applied For</th>
+                  <th>Cover Letter & Resume</th>
+                  <th>Applied Date</th>
+                  <th>Status</th>
+                  <th className="text-end">Update Status</th>
+                </tr>
+              </thead>
             <tbody>
               {applicants.length === 0 ? (
                 <tr>
@@ -363,17 +396,21 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
                     <td className="small text-muted">{app.appliedDate?.substring(0, 10)}</td>
                     <td>
                       <span className={`badge ${
-                        app.status === 'ACCEPTED' ? 'bg-success text-white' :
-                        app.status === 'SHORTLISTED' ? 'bg-primary text-white' :
+                        app.status === 'OFFER_ACCEPTED' ? 'bg-success text-white py-1 px-2 shadow-sm' :
+                        app.status === 'ACCEPTED' ? 'bg-primary text-white py-1 px-2' :
+                        app.status === 'SHORTLISTED' ? 'bg-info text-white' :
                         app.status === 'WITHDRAWN' ? 'bg-secondary text-white' :
                         app.status === 'REJECTED' ? 'bg-danger text-white' : 'bg-warning text-dark'
                       }`}>
-                        {app.status === 'ACCEPTED' && <i className="bi bi-patch-check-fill me-1"></i>}
+                        {app.status === 'OFFER_ACCEPTED' && <i className="bi bi-award-fill me-1"></i>}
+                        {app.status === 'ACCEPTED' && <i className="bi bi-send-check-fill me-1"></i>}
                         {app.status === 'SHORTLISTED' && <i className="bi bi-star-fill me-1"></i>}
                         {app.status === 'WITHDRAWN' && <i className="bi bi-dash-circle me-1"></i>}
                         {app.status === 'REJECTED' && <i className="bi bi-x-circle me-1"></i>}
                         {(!app.status || app.status === 'PENDING') && <i className="bi bi-clock-history me-1"></i>}
-                        {app.status || 'PENDING'}
+                        {app.status === 'OFFER_ACCEPTED' ? 'Offer Accepted by Candidate' :
+                         app.status === 'ACCEPTED' ? 'Offer Extended (Pending)' :
+                         app.status || 'PENDING'}
                       </span>
                     </td>
                     <td className="text-end">
@@ -441,9 +478,12 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
                         </div>
                       )}
 
-                      {/* State 3: ACCEPTED -> Offer Customization appeared, Reject is disabled/hidden */}
+                      {/* State 3: ACCEPTED -> Offer Extended, waiting for candidate */}
                       {app.status === 'ACCEPTED' && (
                         <div className="d-flex justify-content-end align-items-center gap-1">
+                          <span className="badge bg-light text-primary border py-1 px-2" style={{ fontSize: '0.72rem' }}>
+                            <i className="bi bi-hourglass-split me-1"></i> Awaiting Candidate Response
+                          </span>
                           <button
                             className="btn btn-cobalt btn-sm fw-bold shadow-sm"
                             onClick={() =>
@@ -458,12 +498,43 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
                                 job: app.job,
                                 email: app.seeker?.email,
                                 offerDetails: app.offerDetails,
+                                status: app.status,
                               })
                             }
                             title="Customise & Dispatch Formal Offer Letter"
                           >
                             <i className="bi bi-file-earmark-check-fill me-1"></i>
                             {app.offerDetails ? 'Customise Offer' : 'Offer Letter'}
+                          </button>
+                        </div>
+                      )}
+
+                      {/* State 3.5: OFFER_ACCEPTED -> Candidate accepted! */}
+                      {app.status === 'OFFER_ACCEPTED' && (
+                        <div className="d-flex justify-content-end align-items-center gap-1">
+                          <span className="badge bg-success text-white py-1 px-2 shadow-sm fw-semibold" style={{ fontSize: '0.75rem' }}>
+                            <i className="bi bi-patch-check-fill me-1"></i> Candidate Accepted!
+                          </span>
+                          <button
+                            className="btn btn-outline-success btn-sm fw-bold shadow-sm"
+                            onClick={() =>
+                              onExtendOffer &&
+                              onExtendOffer({
+                                id: app.id,
+                                applicationId: app.id,
+                                name: app.seeker?.name || 'Candidate',
+                                role: app.job?.title || 'Software Engineer',
+                                location: app.job?.location || 'Mumbai / Hybrid',
+                                salary: app.job?.salary,
+                                job: app.job,
+                                email: app.seeker?.email,
+                                offerDetails: app.offerDetails,
+                                status: app.status,
+                              })
+                            }
+                            title="View Formal Offer Letter Accepted by Candidate"
+                          >
+                            <i className="bi bi-file-earmark-check me-1"></i> View Signed Offer
                           </button>
                         </div>
                       )}
@@ -488,7 +559,8 @@ export default function RecruiterDashboard({ user, onOpenPostJob, onExtendOffer,
             </tbody>
           </table>
         </div>
-      )}
+      </div>
+    )}
 
       {/* Interactive Resume Preview Modal for Recruiters */}
       <ResumePreviewModal

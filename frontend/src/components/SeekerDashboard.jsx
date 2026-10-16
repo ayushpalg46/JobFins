@@ -61,8 +61,10 @@ export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncT
 
   const getStatusBadge = (status) => {
     switch (status) {
+      case 'OFFER_ACCEPTED':
+        return <span className="badge bg-success text-white py-1 px-2 shadow-sm"><i className="bi bi-award-fill me-1"></i> Offer Accepted & Signed</span>;
       case 'ACCEPTED':
-        return <span className="badge bg-success"><i className="bi bi-check-circle me-1"></i> Offer Extended</span>;
+        return <span className="badge bg-primary-subtle text-primary border border-primary-subtle py-1 px-2"><i className="bi bi-gift-fill me-1"></i> Offer Extended (Action Required)</span>;
       case 'SHORTLISTED':
         return <span className="badge bg-primary"><i className="bi bi-star me-1"></i> Shortlisted</span>;
       case 'WITHDRAWN':
@@ -140,15 +142,16 @@ export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncT
                       <td>{getStatusBadge(app.status)}</td>
                       <td className="text-end">
                         <div className="d-flex align-items-center justify-content-end gap-2 flex-wrap">
-                          {(app.status === 'ACCEPTED' || app.offerDetails) && (
+                          {(app.status === 'ACCEPTED' || app.status === 'OFFER_ACCEPTED' || app.offerDetails) && (
                             <button
-                              className="btn btn-success btn-sm py-1 px-3 fw-bold shadow-sm"
+                              className={`btn ${app.status === 'OFFER_ACCEPTED' ? 'btn-outline-success' : 'btn-success'} btn-sm py-1 px-3 fw-bold shadow-sm`}
                               onClick={() => {
                                 setSelectedOfferApp(app);
                                 setOfferModalOpen(true);
                               }}
                             >
-                              <i className="bi bi-file-earmark-check-fill me-1"></i> View Offer Letter
+                              <i className="bi bi-file-earmark-check-fill me-1"></i>
+                              {app.status === 'OFFER_ACCEPTED' ? 'View Signed Offer' : 'Review & Accept Offer'}
                             </button>
                           )}
 
@@ -193,6 +196,13 @@ export default function SeekerDashboard({ user, onFindJobs, syncTrigger, onSyncT
         isOpen={offerModalOpen}
         onClose={() => setOfferModalOpen(false)}
         application={selectedOfferApp}
+        onOfferAccepted={() => {
+          fetchMyApplications();
+          if (onSyncTrigger) onSyncTrigger();
+          if (selectedOfferApp) {
+            setSelectedOfferApp({ ...selectedOfferApp, status: 'OFFER_ACCEPTED' });
+          }
+        }}
       />
     </div>
   );

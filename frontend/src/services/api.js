@@ -60,6 +60,7 @@ export const applicationService = {
   getAllApplicantsForRecruiter: () => api.get('/applications/recruiter/all'),
   updateStatus: (applicationId, status, offerDetails = null) => api.put(`/applications/${applicationId}/status`, { status, offerDetails }),
   withdrawApplication: (applicationId) => api.put(`/applications/${applicationId}/withdraw`),
+  acceptOffer: (applicationId) => api.put(`/applications/${applicationId}/accept-offer`),
   getResume: (applicationId) => api.get(`/applications/${applicationId}/resume`),
 };
 

@@ -125,6 +125,14 @@ export default function OfferBuilderModal({ candidate, isOpen, onClose, user, on
     location: 'Bengaluru / Mumbai (Hybrid)',
   };
 
+  let isCandidateAccepted = candidate?.status === 'OFFER_ACCEPTED';
+  if (candidate?.offerDetails) {
+    try {
+      const p = typeof candidate.offerDetails === 'string' ? JSON.parse(candidate.offerDetails) : candidate.offerDetails;
+      if (p.candidateAccepted) isCandidateAccepted = true;
+    } catch (e) {}
+  }
+
   const totalFirstYearCtc = baseSalary + bonus + joiningBonus + Math.round(esops / 4);
 
   // Dynamic slider bounds calibrated to the job's compensation metric
@@ -207,6 +215,18 @@ export default function OfferBuilderModal({ candidate, isOpen, onClose, user, on
           </div>
 
           <div className="modal-body p-4 bg-light">
+            {isCandidateAccepted && (
+              <div className="alert alert-success d-flex align-items-center mb-3 py-2 px-3 shadow-sm border border-success-subtle">
+                <i className="bi bi-patch-check-fill text-success fs-3 me-3"></i>
+                <div>
+                  <h6 className="fw-bold text-success mb-0">Candidate Formally Accepted & Signed This Offer!</h6>
+                  <small className="text-muted">
+                    {targetCandidate.name} reviewed the compensation terms and confirmed acceptance.
+                  </small>
+                </div>
+              </div>
+            )}
+
             {statusMsg && (
               <div className={`alert alert-${statusMsg.type} py-2 mb-3 small`}>
                 {statusMsg.text}

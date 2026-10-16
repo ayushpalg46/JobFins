@@ -128,6 +128,21 @@ public class ApplicationController {
     }
 
     /**
+     * Seeker endpoint: Candidate formally accepts and signs the digital offer letter.
+     * PUT /api/applications/{id}/accept-offer
+     */
+    @PutMapping("/{id}/accept-offer")
+    public ResponseEntity<?> acceptOffer(@PathVariable Long id, Authentication authentication) {
+        try {
+            User seeker = userService.getUserByEmail(authentication.getName());
+            Application acceptedApp = applicationService.acceptOffer(id, seeker);
+            return ResponseEntity.ok(acceptedApp);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("ERROR", e.getMessage()));
+        }
+    }
+
+    /**
      * On-demand Resume endpoint: Fetches candidate resume on-demand for preview/download.
      * Keeps application listing responses tiny (~2KB) and prevents multi-megabyte polling bloat.
      * GET /api/applications/{id}/resume
