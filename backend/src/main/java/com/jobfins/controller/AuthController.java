@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * AuthController handles user registration, login, and authentication verification.
- * (Experiment 4: @RestController, @CrossOrigin, @PostMapping, @RequestBody)
- * (Experiment 6: JWT Authentication Endpoint)
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -67,7 +65,7 @@ public class AuthController {
     }
 
     /**
-     * Secured endpoint for JWT validation testing (Experiment 6).
+     * Secured endpoint for JWT validation testing.
      * GET /api/auth/hello
      */
     @GetMapping("/hello")

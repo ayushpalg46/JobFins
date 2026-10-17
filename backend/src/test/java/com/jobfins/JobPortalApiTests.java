@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for all REST API endpoints:
  * Auth, Dashboard Stats, Jobs CRUD, and Applications.
- * (Experiment 4, 5, 6 Verification).
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -42,7 +41,7 @@ public class JobPortalApiTests {
     @Test
     @Order(1)
     void testDashboardStatsPublicEndpoint() throws Exception {
-        // Experiment 4: GET /api/dashboard/stats
+        // GET /api/dashboard/stats
         mockMvc.perform(get("/api/dashboard/stats"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalJobs").exists())
@@ -53,7 +52,7 @@ public class JobPortalApiTests {
     @Test
     @Order(2)
     void testPublicJobsListing() throws Exception {
-        // Experiment 4: GET /api/jobs
+        // GET /api/jobs
         mockMvc.perform(get("/api/jobs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
@@ -62,7 +61,7 @@ public class JobPortalApiTests {
     @Test
     @Order(3)
     void testRecruiterLogin() throws Exception {
-        // Experiment 6: POST /api/auth/login
+        // POST /api/auth/login
         LoginRequest loginRequest = new LoginRequest("recruiter@jobfins.com", "password123");
 
         MvcResult result = mockMvc.perform(post("/api/auth/login")
@@ -80,7 +79,7 @@ public class JobPortalApiTests {
     @Test
     @Order(4)
     void testSeekerLogin() throws Exception {
-        // Experiment 6: POST /api/auth/login
+        // POST /api/auth/login
         LoginRequest loginRequest = new LoginRequest("seeker@jobfins.com", "password123");
 
         MvcResult result = mockMvc.perform(post("/api/auth/login")
@@ -98,7 +97,7 @@ public class JobPortalApiTests {
     @Test
     @Order(5)
     void testRecruiterPostJob() throws Exception {
-        // Experiment 4 & 6: Recruiter posts a job using Bearer token
+        // Recruiter posts a job using Bearer token
         JobRequest jobRequest = new JobRequest();
         jobRequest.setTitle("Senior Quantitative Analyst");
         jobRequest.setCompany("FinTech Global");
@@ -120,7 +119,7 @@ public class JobPortalApiTests {
     @Test
     @Order(6)
     void testSeekerSearchJobs() throws Exception {
-        // Experiment 4: Search jobs with keyword
+        // Search jobs with keyword
         mockMvc.perform(get("/api/jobs?keyword=Java"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());

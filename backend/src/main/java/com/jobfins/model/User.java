@@ -17,13 +17,13 @@ import java.time.LocalDateTime;
 
 /**
  * User Entity representing both Recruiters and Job Seekers.
- * Maps to the "users" table in MySQL (Experiment 5).
+ * Maps to the "users" table in MySQL.
  */
 @Entity
 @Table(name = "users")
 public class User {
 
-    // Primary Key with Auto-increment strategy (Experiment 5)
+    // Primary Key with Auto-increment strategy
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

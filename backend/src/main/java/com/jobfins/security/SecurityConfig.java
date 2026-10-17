@@ -24,7 +24,6 @@ import java.util.List;
 /**
  * Security configuration class for Spring Security 6+.
  * Configures route access rules, stateless JWT filter, and CORS.
- * (Experiment 6: SecurityFilterChain, BCryptPasswordEncoder, AuthenticationManager).
  */
 @Configuration
 @EnableWebSecurity
@@ -34,7 +33,7 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // Password encoder bean for hashing passwords (Experiment 6)
+    // Password encoder bean for hashing passwords
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

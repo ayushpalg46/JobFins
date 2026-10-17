@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 
 /**
  * DTO for creating or updating a Job post.
- * (Experiment 4: @RequestBody DTO mapping).
  */
 public class JobRequest {
 

@@ -56,7 +56,7 @@ public class SystemInfoController {
     }
 
     /**
-     * Secured endpoint for JWT validation testing (Experiment 6).
+     * Secured endpoint for JWT validation testing.
      * GET /api/hello
      */
     @GetMapping("/hello")

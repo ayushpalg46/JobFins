@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 /**
  * Job Entity representing a job vacancy posted by a Recruiter.
- * Maps to the "jobs" table in MySQL (Experiment 5).
+ * Maps to the "jobs" table in MySQL.
  */
 @Entity
 @Table(name = "jobs")

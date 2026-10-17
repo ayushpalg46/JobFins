@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * ApplicationController handles REST endpoints for submitting and reviewing job applications.
- * (Experiment 4: REST Controller & CRUD operations).
  */
 @RestController
 @RequestMapping("/api/applications")

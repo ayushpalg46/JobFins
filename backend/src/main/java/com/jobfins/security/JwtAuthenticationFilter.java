@@ -18,7 +18,6 @@ import java.io.IOException;
 /**
  * JwtAuthenticationFilter intercepts incoming HTTP requests, extracts the
  * "Authorization: Bearer <token>" header, verifies the token, and sets the user authentication in SecurityContext.
- * (Experiment 6: JwtAuthenticationFilter / OncePerRequestFilter).
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

@@ -16,7 +16,6 @@ import java.util.List;
 
 /**
  * JobController handles REST endpoints for viewing, searching, and managing job postings.
- * (Experiment 4: REST Controller & CRUD operations).
  */
 @RestController
 @RequestMapping("/api/jobs")

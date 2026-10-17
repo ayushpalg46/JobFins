@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 /**
  * DTO for User Login.
- * Handles incoming JSON payload in AuthController (Experiment 4 & 6).
+ * Handles incoming JSON payload in AuthController.
  */
 public class LoginRequest {
 

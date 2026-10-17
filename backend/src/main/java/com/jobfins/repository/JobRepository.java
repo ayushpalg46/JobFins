@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * JobRepository interface providing CRUD methods and search queries for Jobs.
- * Extends JpaRepository<Job, Long> (Experiment 5).
+ * Extends JpaRepository<Job, Long>.
  */
 @Repository
 public interface JobRepository extends JpaRepository<Job, Long> {

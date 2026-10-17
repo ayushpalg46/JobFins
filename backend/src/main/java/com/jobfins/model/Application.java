@@ -18,7 +18,7 @@ import jakarta.persistence.Table;
 
 /**
  * Application Entity representing a Seeker applying for a specific Job. Maps to
- * the "applications" table in MySQL (Experiment 5).
+ * the "applications" table in MySQL.
  */
 @Entity
 @Table(name = "applications")

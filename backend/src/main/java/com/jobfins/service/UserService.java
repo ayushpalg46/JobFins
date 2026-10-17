@@ -59,7 +59,7 @@ public class UserService {
             }
         }
 
-        // Create new user entity and encode password (Experiment 6)
+        // Create new user entity and encode password
         User user = new User();
         String initialName = request.getName();
         if (initialName == null || initialName.trim().isEmpty()) {
@@ -115,7 +115,7 @@ public class UserService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Generate JWT token (Experiment 6)
+        // Generate JWT token
         String jwtToken = jwtUtils.generateToken(user);
 
         return new AuthResponse(

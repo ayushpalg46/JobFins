@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 /**
  * Custom UserDetailsService to load user from database by email.
- * (Experiment 6: UserDetailsService).
  */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

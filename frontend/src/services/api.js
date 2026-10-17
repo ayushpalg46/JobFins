@@ -10,7 +10,7 @@ const api = axios.create({
   },
 });
 
-// Request interceptor: Attach JWT Bearer token if present (Experiment 6 & Milestone 7)
+// Request interceptor: Attach JWT Bearer token if present
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('jobfins_token');

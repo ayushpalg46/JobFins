@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * ApplicationRepository interface providing CRUD methods for job applications.
- * Extends JpaRepository<Application, Long> (Experiment 5).
+ * Extends JpaRepository<Application, Long>.
  */
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {

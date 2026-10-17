@@ -1,6 +1,6 @@
-# JobFins - Full Stack Recruitment & Job Portal Mini-Project
+# JobFins - Full Stack Recruitment & Job Portal
 
-A comprehensive, two-sided Job Portal web application built with **Java (Spring Boot 3)**, **MySQL**, and **React.js**, fully satisfying all **8 Mini-Project Milestones** and **FSJP Lab Experiments 4, 5, and 6**.
+A comprehensive, two-sided Job Portal web application built with **Java (Spring Boot 3)**, **MySQL**, and **React.js**.
 
 ---
 

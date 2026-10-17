@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 /**
  * DTO for User Registration (Recruiter or Seeker).
- * Handles incoming JSON payload in AuthController (Experiment 4).
+ * Handles incoming JSON payload in AuthController.
  */
 public class RegisterRequest {
 

@@ -12,7 +12,6 @@ import java.util.Date;
 
 /**
  * JwtUtils handles JWT creation, parsing, and signature validation.
- * (Experiment 6: JwtUtils / JwtTokenProvider).
  */
 @Component
 public class JwtUtils {

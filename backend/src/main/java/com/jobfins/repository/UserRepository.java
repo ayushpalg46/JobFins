@@ -9,12 +9,12 @@ import java.util.Optional;
 
 /**
  * UserRepository interface providing ready-to-use CRUD and query methods.
- * Extends JpaRepository<User, Long> (Experiment 5).
+ * Extends JpaRepository<User, Long>.
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // Find user by email for authentication (Experiment 6)
+    // Find user by email for authentication
     Optional<User> findByEmail(String email);
 
     // Check if email already registered

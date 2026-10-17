@@ -2,7 +2,6 @@ package com.jobfins.dto;
 
 /**
  * DTO returned after successful authentication containing JWT token and user info.
- * (Experiment 6: Token creation and response).
  */
 public class AuthResponse {
 
