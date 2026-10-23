@@ -17,7 +17,6 @@ export default function JobCard({ job, onSelectJob, onApplyJob }) {
 
   // Helper to extract tech stack frameworks from job data
   const getTechStack = () => {
-    const textToScan = `${job.title || ''} ${job.description || ''} ${job.requirements || ''}`.toLowerCase();
     const knownTech = [
       { name: 'Spring Boot', icon: 'bi-gear-wide-connected' },
       { name: 'Java', icon: 'bi-cup-hot' },
@@ -33,6 +32,25 @@ export default function JobCard({ job, onSelectJob, onApplyJob }) {
       { name: 'Next.js', icon: 'bi-layers' },
     ];
 
+    // Priority 1: If job has explicit "Primary Tech Stack:" (including custom tags added by recruiter)
+    if (job.requirements && job.requirements.includes('Primary Tech Stack:')) {
+      const line = job.requirements.split('Primary Tech Stack:')[1]?.split('\n')[0];
+      if (line) {
+        const rawTags = line.split(',').map(t => t.trim()).filter(Boolean);
+        if (rawTags.length > 0) {
+          return rawTags.slice(0, 5).map(tag => {
+            const match = knownTech.find(kt => kt.name.toLowerCase() === tag.toLowerCase());
+            return {
+              name: tag,
+              icon: match ? match.icon : 'bi-code-slash'
+            };
+          });
+        }
+      }
+    }
+
+    // Priority 2: Fallback scanning for legacy jobs
+    const textToScan = `${job.title || ''} ${job.description || ''} ${job.requirements || ''}`.toLowerCase();
     const matched = knownTech.filter(t => textToScan.includes(t.name.toLowerCase()));
     if (matched.length > 0) return matched.slice(0, 4);
     return [{ name: 'Full Stack', icon: 'bi-code-slash' }, { name: 'Git / REST', icon: 'bi-git' }];

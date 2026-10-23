@@ -66,6 +66,8 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
   const [salary, setSalary] = useState('₹12,00,000 - ₹18,00,000 / yr');
   const [customSalary, setCustomSalary] = useState('');
   const [selectedTech, setSelectedTech] = useState(['Spring Boot', 'Java 17/21']);
+  const [customTags, setCustomTags] = useState([]);
+  const [newTagInput, setNewTagInput] = useState('');
   const [proofRequirement, setProofRequirement] = useState('GitHub Repository + Live Demo Required');
   const [enableFastResponse, setEnableFastResponse] = useState(false);
   const [description, setDescription] = useState('');
@@ -90,6 +92,42 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
     } else {
       setSelectedTech([...selectedTech, tech]);
     }
+  };
+
+  const handleAddCustomTag = () => {
+    const trimmed = newTagInput.trim();
+    if (!trimmed) return;
+
+    // Check if tag already exists in predefined popular frameworks
+    const popularMatch = POPULAR_FRAMEWORKS.find(
+      (f) => f.toLowerCase() === trimmed.toLowerCase()
+    );
+
+    if (popularMatch) {
+      if (!selectedTech.includes(popularMatch)) {
+        setSelectedTech((prev) => [...prev, popularMatch]);
+      }
+    } else {
+      // Custom tag
+      const existingCustom = customTags.find(
+        (t) => t.toLowerCase() === trimmed.toLowerCase()
+      );
+      const tagToUse = existingCustom || trimmed;
+
+      if (!existingCustom) {
+        setCustomTags((prev) => [...prev, tagToUse]);
+      }
+      if (!selectedTech.includes(tagToUse)) {
+        setSelectedTech((prev) => [...prev, tagToUse]);
+      }
+    }
+
+    setNewTagInput('');
+  };
+
+  const handleRemoveCustomTag = (tagToRemove) => {
+    setCustomTags((prev) => prev.filter((t) => t !== tagToRemove));
+    setSelectedTech((prev) => prev.filter((t) => t !== tagToRemove));
   };
 
   const handleSubmit = async (e) => {
@@ -235,29 +273,98 @@ export default function PostJobModal({ isOpen, onClose, onJobCreated, user, onOp
 
                     {/* Tech Stack Chips Selector */}
                     <div className="col-md-12">
-                      <label className="form-label small fw-bold text-dark mb-1">
-                        <i className="bi bi-code-slash text-primary me-1"></i> Target Tech Stack & Frameworks <span className="text-danger">*</span>
-                      </label>
-                      <div className="d-flex flex-wrap gap-1 p-2 bg-light rounded border">
-                        {POPULAR_FRAMEWORKS.map((fw) => {
-                          const isSelected = selectedTech.includes(fw);
-                          return (
-                            <button
-                              type="button"
-                              key={fw}
-                              className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary'} py-0 px-2`}
-                              style={{ fontSize: '0.78rem' }}
-                              onClick={() => toggleTech(fw)}
-                            >
-                              <i className={`bi ${isSelected ? 'bi-check-lg' : 'bi-plus'} me-1`}></i>
-                              {fw}
-                            </button>
-                          );
-                        })}
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <label className="form-label small fw-bold text-dark mb-0">
+                          <i className="bi bi-code-slash text-primary me-1"></i> Target Tech Stack & Frameworks <span className="text-danger">*</span>
+                        </label>
+                        <span className="text-muted" style={{ fontSize: '0.72rem' }}>
+                          Select chips or type your own custom tags below
+                        </span>
                       </div>
-                      <small className="text-muted" style={{ fontSize: '0.7rem' }}>
-                        Selected: {selectedTech.join(', ') || 'None selected'}
-                      </small>
+                      
+                      <div className="p-2 bg-light rounded border">
+                        {/* Popular Framework Chips */}
+                        <div className="d-flex flex-wrap gap-1 mb-2">
+                          {POPULAR_FRAMEWORKS.map((fw) => {
+                            const isSelected = selectedTech.includes(fw);
+                            return (
+                              <button
+                                type="button"
+                                key={fw}
+                                className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary'} py-0 px-2`}
+                                style={{ fontSize: '0.78rem' }}
+                                onClick={() => toggleTech(fw)}
+                              >
+                                <i className={`bi ${isSelected ? 'bi-check-lg' : 'bi-plus'} me-1`}></i>
+                                {fw}
+                              </button>
+                            );
+                          })}
+
+                          {/* Recruiter Custom Tags */}
+                          {customTags.map((tag) => {
+                            const isSelected = selectedTech.includes(tag);
+                            return (
+                              <div key={tag} className="btn-group btn-group-sm" role="group">
+                                <button
+                                  type="button"
+                                  className={`btn btn-sm ${isSelected ? 'btn-success' : 'btn-outline-success'} py-0 px-2`}
+                                  style={{ fontSize: '0.78rem' }}
+                                  onClick={() => toggleTech(tag)}
+                                  title="Custom recruiter tag (click to toggle)"
+                                >
+                                  <i className={`bi ${isSelected ? 'bi-check-lg' : 'bi-plus'} me-1`}></i>
+                                  {tag}
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`btn btn-sm ${isSelected ? 'btn-success' : 'btn-outline-success'} py-0 px-1 border-start-0`}
+                                  style={{ fontSize: '0.78rem' }}
+                                  onClick={() => handleRemoveCustomTag(tag)}
+                                  title="Remove this custom tag"
+                                >
+                                  <i className="bi bi-x"></i>
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Inline Custom Tag Input */}
+                        <div className="input-group input-group-sm" style={{ maxWidth: '420px' }}>
+                          <span className="input-group-text bg-white text-muted border-end-0">
+                            <i className="bi bi-tag text-primary"></i>
+                          </span>
+                          <input
+                            type="text"
+                            className="form-control form-control-sm border-start-0"
+                            placeholder="Add custom tag (e.g. AWS, Redis, GraphQL)..."
+                            value={newTagInput}
+                            onChange={(e) => setNewTagInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddCustomTag();
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm fw-semibold"
+                            onClick={handleAddCustomTag}
+                            disabled={!newTagInput.trim()}
+                          >
+                            <i className="bi bi-plus-lg me-1"></i> Add Tag
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="d-flex justify-content-between align-items-center mt-1">
+                        <small className="text-muted" style={{ fontSize: '0.72rem' }}>
+                          <strong className="text-dark">Selected ({selectedTech.length}):</strong>{' '}
+                          {selectedTech.length > 0 ? selectedTech.join(', ') : <span className="text-danger">None selected (at least 1 required)</span>}
+                        </small>
+                      </div>
                     </div>
 
                     {/* Location Dropdown */}
